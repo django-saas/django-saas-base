@@ -1,7 +1,7 @@
 import re
 import typing as t
 from collections import OrderedDict
-from rest_framework.fields import Field, ChoiceField as _ChoiceField
+from rest_framework.fields import ChoiceField as _ChoiceField
 from rest_framework.serializers import ModelSerializer as _ModelSerializer
 
 
@@ -50,21 +50,6 @@ class ChoiceField(_ChoiceField):
             return self.int_str_choices[value]
 
         return self.choice_strings_to_values.get(str(value), value)
-
-
-class SecretBytesField(Field):
-    def __init__(self, **kwargs):
-        kwargs['write_only'] = True
-        kwargs['read_only'] = False
-        super().__init__(**kwargs)
-
-    def to_representation(self, value):
-        return b""
-
-    def to_internal_value(self, data):
-        if isinstance(data, bytes):
-            return data
-        return data.encode("ascii")
 
 
 class ModelSerializer(_ModelSerializer):

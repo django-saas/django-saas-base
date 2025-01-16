@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
     'saas_base',
+    'saas_base.drf',
 ]
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
