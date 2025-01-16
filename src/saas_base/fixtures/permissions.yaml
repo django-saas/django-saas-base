@@ -1,0 +1,14 @@
+- model: core.Permission
+  fields:
+    name: tenant.read
+    description: Read permission for tenants
+
+- model: core.Permission
+  fields:
+    name: tenant.write
+    description: Write permission for tenants
+
+- model: core.Permission
+  fields:
+    name: tenant.admin
+    description: Admin permission for tenants

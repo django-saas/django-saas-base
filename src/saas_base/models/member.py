@@ -1,0 +1,115 @@
+import uuid
+import unicodedata
+from typing import List, Set
+from django.db import models
+from django.conf import settings
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+from django.utils.functional import cached_property
+from saas.db.manager import CachedManager
+from .group import Group
+from .permission import Permission
+
+
+class MemberManager(CachedManager):
+    natural_key = ["tenant_id", "user_id"]
+
+    def get_by_natural_key(self, tenant_id, user_id) -> "Member":
+        return self.get_from_cache_by_natural_key(tenant_id, user_id)
+
+    def create_owner(self, user, tenant) -> "Member":
+        return self.create(
+            user=user,
+            name=user.get_full_name(),
+            tenant=tenant,
+            is_owner=True,
+            status=Member.InviteStatus.ACTIVE,
+        )
+
+
+class Member(models.Model):
+    username_validator = UnicodeUsernameValidator()
+
+    class InviteStatus(models.IntegerChoices):
+        REQUEST = 0, 'request'
+        WAITING = 1, 'waiting'
+        ACTIVE = 2, 'active'
+
+    id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
+    tenant = models.ForeignKey(settings.SAAS_TENANT_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
+    name = models.CharField(_("name"), max_length=150, blank=True)
+
+    # this email is only used for invitation
+    invite_email = models.EmailField(null=True, blank=True)
+    inviter = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='+',
+    )
+
+    status = models.SmallIntegerField(default=InviteStatus.REQUEST, choices=InviteStatus.choices)
+    is_owner = models.BooleanField(default=False, db_index=True)
+
+    created_at = models.DateTimeField(_("created at"), default=timezone.now, db_index=True)
+
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name=_("groups"),
+        blank=True,
+        help_text=_(
+            "The groups this user belongs to. A user will get all permissions "
+            "granted to each of their groups."
+        ),
+    )
+    permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=_("user permissions"),
+        blank=True,
+        help_text=_("Specific permissions for this user."),
+    )
+    objects = MemberManager()
+
+    class Meta:
+        verbose_name = _("member")
+        verbose_name_plural = _("members")
+        unique_together = [
+            ['tenant', 'user'],
+        ]
+        ordering = ['-created_at']
+        db_table = 'saas_member'
+
+    def __str__(self):
+        return self.name or self.invite_email
+
+    @property
+    def is_active(self) -> bool:
+        return self.status == self.InviteStatus.ACTIVE
+
+    @classmethod
+    def normalize_username(cls, username: str):
+        return unicodedata.normalize("NFKC", username)
+
+    @cached_property
+    def group_permissions(self) -> List[str]:
+        return self.__get_group_permissions()
+
+    @cached_property
+    def user_permissions(self) -> List[str]:
+        return self.__get_user_permissions()
+
+    def get_all_permissions(self) -> Set[str]:
+        return set(self.user_permissions + self.group_permissions)
+
+    def __get_group_permissions(self):
+        values = self.groups.values_list('permissions__name')
+        names = [v[0] for v in values]
+        return names
+
+    def __get_user_permissions(self):
+        values = self.permissions.all().values_list('name')
+        names = [v[0] for v in values]
+        return names

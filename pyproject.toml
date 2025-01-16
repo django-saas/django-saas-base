@@ -1,0 +1,52 @@
+[project]
+name = "django-saas-base"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Hsiaoming Yang", email = "me@lepture.com" }
+]
+dependencies = [
+    "Django",
+    "djangorestframework",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/saas_base"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.pytest.ini_options]
+addopts = "--no-migrations"
+pythonpath = ["src"]
+testpaths = ["tests"]
+filterwarnings = ["error"]
+DJANGO_SETTINGS_MODULE = "tests.settings"
+
+[tool.coverage.paths]
+source = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["saas_base"]
+omit = ["*/migrations/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "@(abc\\.)?abstractmethod",
+]
