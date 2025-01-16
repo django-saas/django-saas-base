@@ -23,8 +23,15 @@ dev-dependencies = [
     "drf_spectacular",
     "pytest",
     "pytest-django",
+    "pytest-cov",
     "requests_mock",
+    "ruff",
 ]
+
+[tool.rye.scripts]
+test = "pytest"
+test-cov = "pytest --cov --cov-report=html"
+lint = "ruff check"
 
 [tool.hatch.metadata]
 allow-direct-references = true

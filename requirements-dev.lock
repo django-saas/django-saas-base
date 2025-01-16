@@ -19,6 +19,8 @@ certifi==2024.12.14
     # via requests
 charset-normalizer==3.4.1
     # via requests
+coverage==7.6.10
+    # via pytest-cov
 django==5.1.5
     # via django-saas-base
     # via djangorestframework
@@ -42,7 +44,9 @@ packaging==24.2
 pluggy==1.5.0
     # via pytest
 pytest==8.3.4
+    # via pytest-cov
     # via pytest-django
+pytest-cov==6.0.0
 pytest-django==4.9.0
 pyyaml==6.0.2
     # via drf-spectacular
@@ -56,6 +60,7 @@ requests-mock==1.12.1
 rpds-py==0.22.3
     # via jsonschema
     # via referencing
+ruff==0.9.1
 sqlparse==0.5.3
     # via django
 uritemplate==4.1.1

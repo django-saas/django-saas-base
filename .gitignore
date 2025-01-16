@@ -9,5 +9,9 @@ wheels/
 # venv
 .venv
 
+# test
+.coverage
+htmlcov
+
 # editor
 .idea
