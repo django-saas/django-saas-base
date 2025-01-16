@@ -60,7 +60,6 @@ requests-mock==1.12.1
 rpds-py==0.22.3
     # via jsonschema
     # via referencing
-ruff==0.9.1
 sqlparse==0.5.3
     # via django
 uritemplate==4.1.1
