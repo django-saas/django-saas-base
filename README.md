@@ -1,3 +1,1 @@
-# saas-base
-
-Describe your project here.
+# Django SaaS (Base)
