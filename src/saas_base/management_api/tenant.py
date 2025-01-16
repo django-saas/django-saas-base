@@ -1,9 +1,9 @@
 from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin, ListModelMixin
 from rest_framework.request import Request
-from saas.drf.views import Endpoint, TenantEndpoint
-from saas.core.models import get_tenant_model, Member
-from saas.core.serializers.tenant import TenantSerializer
-from saas.core.serializers.member import MemberDetailSerializer
+from ..drf.views import Endpoint, TenantEndpoint
+from ..models import get_tenant_model, Member
+from ..serializers.tenant import TenantSerializer
+from ..serializers.member import MemberDetailSerializer
 
 
 class SelectedTenantEndpoint(RetrieveModelMixin, TenantEndpoint):

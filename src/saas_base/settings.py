@@ -15,11 +15,10 @@ DEFAULTS = {
     'DB_CACHE_ALIAS': 'default',
     'PERMISSION_NAME_FORMATTER': '{resource}.{action}',
 
-    # core app
     'DEFAULT_REGION': None,
     'MAIL_PROVIDERS': {
         'default': {
-            'backend': 'saas.core.mail.DjangoMailProvider',
+            'backend': 'saas_base.mail.DjangoMailProvider',
             'options': {},
         },
     },
@@ -27,20 +26,6 @@ DEFAULTS = {
     'RESET_PASSWORD_SECURITY_RULES': [],
     'DEFAULT_MAIL_FROM': None,
     'PASSWORDLESS': False,
-
-    # sso app
-    'SSO_PROVIDERS': [],
-
-    # domain app
-    'DOMAIN_PROVIDERS': {},
-
-    # billing app
-    'TRIAL_DAYS': 7,
-    'ALLOW_MULTIPLE_SUBSCRIPTIONS': False,
-    'STRIPE_API_KEY': '',
-    'STRIPE_WEBHOOK_SECRET': '',
-    'STRIPE_DEFAULT_CURRENCY': 'usd',
-    'STRIPE_DEFAULT_COUPON': None,
 }
 
 
@@ -49,7 +34,6 @@ class Settings:
         'MAIL_PROVIDERS',
         'SIGNUP_SECURITY_RULES',
         'RESET_PASSWORD_SECURITY_RULES',
-        'DOMAIN_PROVIDERS',
     ]
 
     def __init__(self, settings_key="SAAS", user_settings=None, defaults=None):

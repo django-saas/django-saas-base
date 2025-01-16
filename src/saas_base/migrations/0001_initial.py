@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                 ('managed', models.BooleanField(default=False, verbose_name='managed')),
                 ('created_at', models.DateTimeField(default=timezone.now, db_index=True, verbose_name='created at')),
                 ('tenant', models.ForeignKey(editable=False, on_delete=models.CASCADE, to=settings.SAAS_TENANT_MODEL)),
-                ('permissions', models.ManyToManyField(blank=True, to='core.permission', verbose_name='permissions')),
+                ('permissions', models.ManyToManyField(blank=True, to='saas_base.permission', verbose_name='permissions')),
             ],
             options={
                 'verbose_name': 'group',
@@ -95,11 +95,11 @@ class Migration(migrations.Migration):
                 ('status', models.SmallIntegerField(choices=[(0, 'request'), (1, 'waiting'), (2, 'active')], default=0)),
                 ('is_owner', models.BooleanField(db_index=True, default=False)),
                 ('created_at', models.DateTimeField(default=timezone.now, db_index=True, verbose_name='created at')),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', to='core.group', verbose_name='groups')),
+                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', to='saas_base.group', verbose_name='groups')),
                 ('inviter', models.ForeignKey(blank=True, null=True, on_delete=models.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
                 ('tenant', models.ForeignKey(on_delete=models.CASCADE, to=settings.SAAS_TENANT_MODEL)),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=models.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', to='core.permission', verbose_name='user permissions')),
+                ('permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', to='saas_base.permission', verbose_name='user permissions')),
             ],
             options={
                 'verbose_name': 'member',

@@ -30,7 +30,7 @@ class TestSignUpAPI(FixturesTestCase):
     def test_signup_blocked_email(self):
         rules = [
             {
-                'backend': 'saas.core.security.rules.BlockedEmailDomains',
+                'backend': 'saas_base.security.rules.BlockedEmailDomains',
                 'options': {
                     'domains': ['bar.com']
                 }
@@ -42,14 +42,14 @@ class TestSignUpAPI(FixturesTestCase):
             self.assertEqual(resp.status_code, 400)
 
     def test_signup_too_many_dots(self):
-        rules = [{'backend': 'saas.core.security.rules.TooManyDots'}]
+        rules = [{'backend': 'saas_base.security.rules.TooManyDots'}]
         with override_settings(SAAS={"SIGNUP_SECURITY_RULES": rules}):
             data = {"username": "bar", "email": "a.b.c.d.e.f@bar.com", "password": "hello world"}
             resp = self.client.post("/s/signup/code", data=data)
             self.assertEqual(resp.status_code, 400)
 
     def test_signup_turnstile(self):
-        rules = [{'backend': 'saas.core.security.rules.Turnstile'}]
+        rules = [{'backend': 'saas_base.security.rules.Turnstile'}]
         with override_settings(SAAS={"SIGNUP_SECURITY_RULES": rules}):
             data = {"username": "bar", "email": "hi@bar.com", "password": "hello world"}
             resp = self.client.post("/s/signup/code", data=data)

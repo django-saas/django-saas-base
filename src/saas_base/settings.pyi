@@ -1,7 +1,6 @@
 import typing as t
-from saas.core.security.rules import Rule as SecurityRule
-from saas.core.mail import BaseMailProvider as MailProvider
-from saas.domain.providers import BaseProvider as DomainProvider
+from .security.rules import Rule as SecurityRule
+from .mail import BaseMailProvider as MailProvider
 
 
 class TypedSite(t.TypedDict):
@@ -27,20 +26,6 @@ class Settings:
     PASSWORDLESS: bool
     SIGNUP_SECURITY_RULES: t.List[SecurityRule]
     RESET_PASSWORD_SECURITY_RULES: t.List[SecurityRule]
-
-    # sso app
-    SSO_PROVIDERS: t.List[TypedProvider]
-
-    # domain app
-    DOMAIN_PROVIDERS: t.Dict[str, DomainProvider]
-
-    # billing app
-    TRIAL_DAYS: int
-    ALLOW_MULTIPLE_SUBSCRIPTIONS: bool
-    STRIPE_API_KEY: str
-    STRIPE_WEBHOOK_SECRET: str
-    STRIPE_DEFAULT_CURRENCY: str
-    STRIPE_DEFAULT_COUPON: t.Optional[str]
 
     # internal properties
     settings_key: str

@@ -3,16 +3,16 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.mixins import ListModelMixin
-from saas.drf.views import TenantEndpoint
-from saas.drf.filters import TenantIdFilter, IncludeFilter
-from saas.core.serializers.member import (
+from ..drf.views import TenantEndpoint
+from ..drf.filters import TenantIdFilter, IncludeFilter
+from ..serializers.member import (
     MemberSerializer,
     MemberInviteSerializer,
     MemberDetailSerializer,
     GroupPermissionSerializer,
     PermissionSerializer,
 )
-from saas.core.models import Member, Group, Permission
+from ..models import Member, Group, Permission
 
 
 class MemberListEndpoint(ListModelMixin, TenantEndpoint):

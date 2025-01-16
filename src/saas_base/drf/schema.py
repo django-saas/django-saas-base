@@ -3,11 +3,11 @@ from drf_spectacular.extensions import OpenApiSerializerFieldExtension
 
 
 class SessionScheme(_SessionScheme):
-    target_class = 'saas.drf.authentication.SessionAuthentication'
+    target_class = 'saas_base.drf.authentication.SessionAuthentication'
 
 
 class ChoiceFieldFix(OpenApiSerializerFieldExtension):
-    target_class = 'saas.drf.serializers.ChoiceField'
+    target_class = 'saas_base.drf.serializers.ChoiceField'
 
     def map_serializer_field(self, auto_schema, direction):
         choices = list(self.target.choices.values())

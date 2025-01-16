@@ -1,7 +1,7 @@
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.mixins import ListModelMixin
-from saas.drf.views import Endpoint
+from ..drf.views import Endpoint
 from ..models import UserEmail, Member
 from ..serializers.user import (
     UserSerializer,

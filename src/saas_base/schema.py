@@ -9,7 +9,7 @@ class AuthResponseSerializer(serializers.Serializer):
 
 
 class PasswordLogInEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.session_api.auth.PasswordLogInEndpoint'
+    target_class = 'saas_base.session_api.auth.PasswordLogInEndpoint'
 
     def view_replacement(self):
         class FixedPasswordLogInEndpoint(self.target_class):
@@ -20,7 +20,7 @@ class PasswordLogInEndpoint(OpenApiViewExtension):
 
 
 class LogoutEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.session_api.auth.LogoutEndpoint'
+    target_class = 'saas_base.session_api.auth.LogoutEndpoint'
 
     def view_replacement(self):
         class FixedLogoutEndpoint(self.target_class):
@@ -31,7 +31,7 @@ class LogoutEndpoint(OpenApiViewExtension):
 
 
 class SignupConfirmEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.session_api.auth.SignupConfirmEndpoint'
+    target_class = 'saas_base.session_api.auth.SignupConfirmEndpoint'
 
     def view_replacement(self):
         class FixedSignupConfirmEndpoint(self.target_class):
@@ -42,7 +42,7 @@ class SignupConfirmEndpoint(OpenApiViewExtension):
 
 
 class SignupCodeEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.session_api.auth.SignupCodeEndpoint'
+    target_class = 'saas_base.session_api.auth.SignupCodeEndpoint'
 
     def view_replacement(self):
         class FixedSignupCodeEndpoint(self.target_class):
@@ -53,7 +53,7 @@ class SignupCodeEndpoint(OpenApiViewExtension):
 
 
 class PasswordResetEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.session_api.password.PasswordResetEndpoint'
+    target_class = 'saas_base.session_api.password.PasswordResetEndpoint'
 
     def view_replacement(self):
         class FixedPasswordResetEndpoint(self.target_class):
@@ -64,7 +64,7 @@ class PasswordResetEndpoint(OpenApiViewExtension):
 
 
 class PasswordForgotEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.session_api.password.PasswordForgotEndpoint'
+    target_class = 'saas_base.session_api.password.PasswordForgotEndpoint'
 
     def view_replacement(self):
         class FixedPasswordForgotEndpoint(self.target_class):
@@ -90,7 +90,7 @@ member_id_parameter = OpenApiParameter(
 
 
 class MemberGroupsEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.management_api.members.MemberGroupsEndpoint'
+    target_class = 'saas_base.management_api.members.MemberGroupsEndpoint'
 
     def view_replacement(self):
         class Fixed(self.target_class):
@@ -122,7 +122,7 @@ class MemberGroupsEndpoint(OpenApiViewExtension):
 
 
 class MemberGroupItemEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.management_api.members.MemberGroupItemEndpoint'
+    target_class = 'saas_base.management_api.members.MemberGroupItemEndpoint'
 
     def view_replacement(self):
         class Fixed(self.target_class):
@@ -137,7 +137,7 @@ class MemberGroupItemEndpoint(OpenApiViewExtension):
 
 
 class MemberPermissionsEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.management_api.members.MemberPermissionsEndpoint'
+    target_class = 'saas_base.management_api.members.MemberPermissionsEndpoint'
 
     def view_replacement(self):
         class Fixed(self.target_class):
@@ -169,7 +169,7 @@ class MemberPermissionsEndpoint(OpenApiViewExtension):
 
 
 class MemberPermissionItemEndpoint(OpenApiViewExtension):
-    target_class = 'saas.core.management_api.members.MemberPermissionItemEndpoint'
+    target_class = 'saas_base.management_api.members.MemberPermissionItemEndpoint'
 
     def view_replacement(self):
         class Fixed(self.target_class):

@@ -1,7 +1,7 @@
 import typing as t
-from saas.settings import saas_settings
 from .base import BaseMailProvider
 from .django import DjangoMailProvider
+from ..settings import saas_settings
 
 
 def get_mail_provider(name: str = 'default', fallback: t.Optional[str] = None):
