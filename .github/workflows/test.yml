@@ -4,19 +4,9 @@ on:
   push:
     branches-ignore:
       - 'wip-*'
-    paths-ignore:
-      - '.github/**'
-      - 'docs/**'
-      - '*.md'
-      - '*.rst'
   pull_request:
     branches-ignore:
       - 'wip-*'
-    paths-ignore:
-      - '.github/**'
-      - 'docs/**'
-      - '*.md'
-      - '*.rst'
 
 
 jobs:
