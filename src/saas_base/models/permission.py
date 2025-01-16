@@ -3,9 +3,8 @@ from typing import List
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
-from saas.db.manager import CachedManager
-from saas.settings import saas_settings
+from ..db import CachedManager
+from ..settings import saas_settings
 
 
 class PermissionManager(CachedManager):

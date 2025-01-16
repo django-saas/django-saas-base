@@ -1,14 +1,14 @@
 import typing as t
 from django.test import TestCase
 from rest_framework.test import APIClient
-from saas.core.models import (
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
+from .models import (
     get_tenant_model,
     Tenant,
     Member,
     Permission,
 )
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
 
 
 class SaasTestCase(TestCase):

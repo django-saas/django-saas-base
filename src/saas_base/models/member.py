@@ -7,9 +7,9 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.utils.functional import cached_property
-from saas.db.manager import CachedManager
 from .group import Group
 from .permission import Permission
+from ..db import CachedManager
 
 
 class MemberManager(CachedManager):

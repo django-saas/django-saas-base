@@ -46,11 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
-    'saas.core',
-    'saas.domain',
-    'saas.sso',
-    'saas.billing',
-    'saas.billing_stripe',
+    'saas_base',
 ]
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
@@ -61,15 +57,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
 }
-SAAS = {
-    'DOMAIN_PROVIDERS': {
-        'test': {
-            'backend': 'saas.domain.providers.NullProvider',
-            'options': {},
-        },
-    },
-}
 USE_TZ = True
 TIME_ZONE = 'UTC'
-CRYPTO_FIELDS_KEYS = [b"0123456789abcdef"]
 ROOT_URLCONF = 'tests.urls'

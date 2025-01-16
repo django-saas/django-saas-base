@@ -3,7 +3,6 @@ import typing as t
 from collections import OrderedDict
 from rest_framework.fields import Field, ChoiceField as _ChoiceField
 from rest_framework.serializers import ModelSerializer as _ModelSerializer
-from saas.db.fields import CryptoField
 
 
 class ChoiceField(_ChoiceField):
@@ -98,9 +97,6 @@ class ModelSerializer(_ModelSerializer):
         if flatten_fields:
             return _make_flatten_fields(fields, flatten_fields)
         return fields
-
-
-ModelSerializer.serializer_field_mapping[CryptoField] = SecretBytesField
 
 
 def _make_flatten_fields(form: OrderedDict, flatten: t.List[str]):

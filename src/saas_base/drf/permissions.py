@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
-from saas.settings import saas_settings
+from ..settings import saas_settings
 
 __all__ = [
     'HasResourcePermission',

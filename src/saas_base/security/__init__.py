@@ -1,8 +1,8 @@
 import typing as t
 import logging
 from rest_framework.request import Request
-from saas.drf.errors import BadRequest
 from .rules import Rule
+from ..drf.errors import BadRequest
 
 logger = logging.getLogger(__name__)
 

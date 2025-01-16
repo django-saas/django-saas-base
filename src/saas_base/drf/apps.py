@@ -2,7 +2,7 @@ from django.apps import AppConfig
 
 
 class RestFrameworkConfig(AppConfig):
-    name = 'saas.drf'
+    name = 'saas_base.drf'
 
     def ready(self):
         from django.apps import apps

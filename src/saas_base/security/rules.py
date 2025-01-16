@@ -1,7 +1,7 @@
 import requests
 from abc import ABCMeta, abstractmethod
 from rest_framework.request import Request
-from saas.drf.request import get_client_ip
+from ..drf.request import get_client_ip
 
 
 class Rule(metaclass=ABCMeta):

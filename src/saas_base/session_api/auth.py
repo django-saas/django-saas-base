@@ -4,8 +4,8 @@ from django.contrib.auth import login, logout
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
-from saas.drf.views import Endpoint
-from saas.settings import saas_settings
+from ..drf.views import Endpoint
+from ..settings import saas_settings
 from ..security import check_security_rules
 from ..services.notification import send_notification_mail, render_email_message
 from ..serializers.auth import (

@@ -9,7 +9,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import AbstractUser
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from saas.core.models import UserEmail
+from ..models import UserEmail
 
 SIGNUP_CODE = 'saas:signup_code'
 

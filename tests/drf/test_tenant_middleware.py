@@ -1,10 +1,10 @@
 from django.http import HttpResponse
 from django.test import RequestFactory
-from tests.client import FixturesTestCase
-from saas.drf.middleware import TenantMiddleware
+from saas_base.drf.middleware import TenantMiddleware
+from saas_base.test import SaasTestCase
 
 
-class TestTenantMiddleware(FixturesTestCase):
+class TestTenantMiddleware(SaasTestCase):
     middleware_cls = TenantMiddleware
 
     @staticmethod

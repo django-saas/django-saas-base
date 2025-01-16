@@ -1,7 +1,7 @@
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from saas.drf.serializers import ModelSerializer
+from ..drf.serializers import ModelSerializer
 from ..models import Member, UserEmail
 from ..signals import (
     member_invited,

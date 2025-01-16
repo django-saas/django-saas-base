@@ -2,8 +2,8 @@ from django.template import loader
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 from rest_framework.filters import BaseFilterBackend
-from saas.settings import saas_settings
 from .errors import BadRequest
+from ..settings import saas_settings
 
 
 class TenantIdFilter(BaseFilterBackend):

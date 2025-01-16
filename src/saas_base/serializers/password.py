@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model, password_validation
 from django.contrib.auth.models import AbstractUser
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from saas.core.models import UserEmail
+from ..models import UserEmail
 
 CACHE_PREFIX = 'saas:password_code'
 

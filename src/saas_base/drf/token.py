@@ -1,7 +1,7 @@
 import typing as t
 from abc import ABCMeta
 from django.contrib.auth.models import User as AuthUser
-from saas.core.models import get_tenant_model, Tenant, Member
+from ..models import get_tenant_model, Tenant, Member
 
 
 class AbstractToken(metaclass=ABCMeta):

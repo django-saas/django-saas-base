@@ -5,19 +5,15 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from saas.db.manager import CachedManager
-from saas.settings import saas_settings
 from .member import Member
+from ..db import CachedManager
+from ..settings import saas_settings
 
 
 class TenantManager(CachedManager):
     natural_key = ["slug"]
 
-    def create(
-            self,
-            slug: str,
-            owner: Optional[AbstractUser] = None,
-            **kwargs):
+    def create(self, slug: str, owner: Optional[AbstractUser] = None, **kwargs):
         kwargs.setdefault("region", saas_settings.DEFAULT_REGION)
         tenant = super().create(slug=slug, owner=owner, **kwargs)
         # initial with owner membership
