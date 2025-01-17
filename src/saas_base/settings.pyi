@@ -26,6 +26,7 @@ class Settings:
     MAIL_IMMEDIATE_SEND: bool
     PASSWORDLESS: bool
     SIGNUP_SECURITY_RULES: t.List[SecurityRule]
+    SIGNUP_REQUEST_CREATE_USER: bool
     RESET_PASSWORD_SECURITY_RULES: t.List[SecurityRule]
 
     # internal properties

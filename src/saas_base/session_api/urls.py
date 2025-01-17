@@ -6,7 +6,7 @@ from .password import (
 from .auth import (
     LogoutEndpoint,
     PasswordLogInEndpoint,
-    SignupCodeEndpoint,
+    SignupRequestEndpoint,
     SignupConfirmEndpoint,
 )
 
@@ -14,7 +14,7 @@ from .auth import (
 urlpatterns = [
     path('logout', LogoutEndpoint.as_view()),
     path('login', PasswordLogInEndpoint.as_view()),
-    path('signup/code', SignupCodeEndpoint.as_view()),
+    path('signup/request', SignupRequestEndpoint.as_view()),
     path('signup/confirm', SignupConfirmEndpoint.as_view()),
     path('password/forgot', PasswordForgotEndpoint.as_view()),
     path('password/reset', PasswordResetEndpoint.as_view()),

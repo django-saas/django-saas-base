@@ -10,21 +10,27 @@ from ..settings import saas_settings
 from ..security import check_security_rules
 from ..serializers.auth import (
     EmailCode,
-    SignupCodeSerializer,
-    SignupPasswordSerializer,
+    SignupRequestCodeSerializer,
+    SignupCreateUserSerializer,
+    SignupConfirmCodeSerializer,
+    SignupConfirmPasswordSerializer,
 )
 from ..serializers.password import PasswordLoginSerializer
 from ..signals import after_signup_user, after_login_user
 from .._notification import send_mail
 
 
-class SignupCodeEndpoint(Endpoint):
+class SignupRequestEndpoint(Endpoint):
     email_template_id = "signup_code"
     email_subject = _("Signup Request")
     authentication_classes = []
     permission_classes = []
     throttle_classes = [AnonRateThrottle]
-    serializer_class = SignupCodeSerializer
+
+    def get_serializer_class(self):
+        if saas_settings.SIGNUP_REQUEST_CREATE_USER:
+            return SignupCreateUserSerializer
+        return SignupRequestCodeSerializer
 
     def post(self, request: Request):
         """Send a sign-up code to user's email address."""
@@ -39,7 +45,7 @@ class SignupCodeEndpoint(Endpoint):
             self.__class__,
             self.email_subject,
             self.email_template_id,
-            recipients=[obj.email],
+            recipients=[obj.recipient()],
             code=obj.code,
         )
         return Response(status=204)
@@ -59,7 +65,10 @@ class AuthEndpoint(Endpoint):
 
 
 class SignupConfirmEndpoint(AuthEndpoint):
-    serializer_class = SignupPasswordSerializer
+    def get_serializer_class(self):
+        if saas_settings.SIGNUP_REQUEST_CREATE_USER:
+            return SignupConfirmCodeSerializer
+        return SignupConfirmPasswordSerializer
 
     def post(self, request: Request):
         """Register a new user and login."""
