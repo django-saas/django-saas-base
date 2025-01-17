@@ -7,6 +7,12 @@ DATABASES = {
         "NAME": "db.sqlite3",
     }
 }
+MIDDLEWARE = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'saas_base.drf.middleware.HeaderTenantIdMiddleware',
+    'saas_base.drf.middleware.TenantMiddleware',
+]
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -20,12 +26,6 @@ TEMPLATES = [
             ]
         }
     }
-]
-MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'saas_base.drf.middleware.HeaderTenantIdMiddleware',
-    'saas_base.drf.middleware.TenantMiddleware',
 ]
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 CACHES = {
@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
+    'django.contrib.staticfiles',
+    'rest_framework',
     'drf_spectacular',
     'saas_base',
     'saas_base.drf',
@@ -70,6 +72,7 @@ SPECTACULAR_SETTINGS = {
     'SCHEMA_PATH_PREFIX': '/api',
     'SERVE_INCLUDE_SCHEMA': False,
 }
+STATIC_URL = 'static/'
 USE_TZ = True
 TIME_ZONE = 'UTC'
 ROOT_URLCONF = 'demo.urls'

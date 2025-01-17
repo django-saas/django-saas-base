@@ -78,7 +78,11 @@ source = ["src"]
 [tool.coverage.run]
 branch = true
 source = ["saas_base"]
-omit = ["*/migrations/*"]
+omit = [
+    "*/migrations/*",
+    "*/debug_emails/*",
+    "*/schema.py",
+]
 
 [tool.coverage.report]
 exclude_lines = [

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
+    'rest_framework',
     'saas_base',
     'saas_base.drf',
 ]
