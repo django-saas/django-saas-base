@@ -25,16 +25,15 @@ class BaseMailProvider(metaclass=ABCMeta):
 
     def render_message(
             self,
-            request,
             template_id: str,
             context: t.Dict[str, t.Any],
             using: t.Optional[str] = None) -> t.Tuple[str, str]:
         text: str = loader.render_to_string(
             f"saas_emails/{template_id}.text",
-            context, request, using=using
+            context, using=using
         )
         html: str = loader.render_to_string(
-            f"saas_emails/{template_id}.text",
-            context, request, using=using
+            f"saas_emails/{template_id}.html",
+            context, using=using
         )
         return text, html

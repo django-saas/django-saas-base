@@ -7,7 +7,6 @@ from rest_framework.throttling import AnonRateThrottle
 from ..drf.views import Endpoint
 from ..settings import saas_settings
 from ..security import check_security_rules
-from ..services.notification import send_notification_mail, render_email_message
 from ..serializers.auth import (
     EmailCode,
     SignupCodeSerializer,
@@ -15,6 +14,7 @@ from ..serializers.auth import (
 )
 from ..serializers.password import PasswordLoginSerializer
 from ..signals import after_signup_user, after_login_user
+from ._notification import send_mail
 
 
 class SignupCodeEndpoint(Endpoint):
@@ -25,21 +25,6 @@ class SignupCodeEndpoint(Endpoint):
     throttle_classes = [AnonRateThrottle]
     serializer_class = SignupCodeSerializer
 
-    def send_mail(self, request: Request, user: EmailCode):
-        # check spammer bots
-        context = {"code": user.code, "site": saas_settings.SITE}
-        text_message, html_message = render_email_message(
-            request._request,
-            template_id=self.email_template_id,
-            context=context,
-        )
-        send_notification_mail(
-            self.email_subject,
-            [user.email],
-            text_message,
-            html_message,
-        )
-
     def post(self, request: Request):
         """Send a sign-up code to user's email address."""
         serializer = self.get_serializer(data=request.data)
@@ -49,7 +34,13 @@ class SignupCodeEndpoint(Endpoint):
         # check bad request rules
         check_security_rules(saas_settings.SIGNUP_SECURITY_RULES, request)
 
-        self.send_mail(request, obj)
+        send_mail(
+            self.__class__,
+            self.email_subject,
+            self.email_template_id,
+            recipients=[obj.email],
+            code=obj.code,
+        )
         return Response('', status=204)
 
 

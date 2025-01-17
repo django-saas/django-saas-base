@@ -5,23 +5,23 @@ from django.utils.module_loading import import_string
 
 DEFAULTS = {
     'SITE': {
-        'name': 'SaaS',
-        'url': '',
+        'name': 'Django SaaS',
+        'url': 'https://django-saas.dev',
         'icon': '',
-        'copyright': '© 2023',
+        'copyright': '© 2025',
     },
-    'TENANT_ID_HEADER': 'X-Tenant-Id',
 
     'DB_CACHE_ALIAS': 'default',
     'PERMISSION_NAME_FORMATTER': '{resource}.{action}',
-
     'DEFAULT_REGION': None,
+    'TENANT_ID_HEADER': 'X-Tenant-Id',
     'MAIL_PROVIDERS': {
         'default': {
             'backend': 'saas_base.mail.DjangoMailProvider',
             'options': {},
         },
     },
+    'MAIL_IMMEDIATE_SEND': True,
     'SIGNUP_SECURITY_RULES': [],
     'RESET_PASSWORD_SECURITY_RULES': [],
     'DEFAULT_MAIL_FROM': None,

@@ -23,6 +23,7 @@ class Settings:
     DEFAULT_REGION: t.Optional[str]
 
     MAIL_PROVIDERS: t.Dict[str, MailProvider]
+    MAIL_IMMEDIATE_SEND: bool
     PASSWORDLESS: bool
     SIGNUP_SECURITY_RULES: t.List[SecurityRule]
     RESET_PASSWORD_SECURITY_RULES: t.List[SecurityRule]
