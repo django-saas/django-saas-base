@@ -7,7 +7,7 @@ from ..db import CachedManager
 from ..settings import saas_settings
 
 
-class PermissionManager(CachedManager):
+class PermissionManager(CachedManager["Permission"]):
     natural_key = ["name"]
 
     def get_by_name(self, name: str):
@@ -26,13 +26,13 @@ class PermissionManager(CachedManager):
 class Permission(models.Model):
     actions = ['read', 'write', 'admin']
 
-    name = models.CharField(_("name"), max_length=100, primary_key=True, editable=False)
-    description = models.CharField(_("description"), max_length=480, blank=True)
+    name = models.CharField(max_length=100, primary_key=True, editable=False)
+    description = models.CharField(max_length=480, blank=True)
     # is this permission designed for internal use only?
-    internal = models.BooleanField(_("internal"), default=False, db_index=True)
-    created_at = models.DateTimeField(_("created at"), default=timezone.now)
+    internal = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
-    objects = PermissionManager["Permission"]()
+    objects = PermissionManager()
 
     class Meta:
         verbose_name = _("permission")

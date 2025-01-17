@@ -16,10 +16,10 @@ class EmailManager(CachedManager):
 class UserEmail(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='emails')
-    email = models.EmailField(_("email"), unique=True)
-    verified = models.BooleanField(_("verified"), default=False)
-    primary = models.BooleanField(_("primary"), default=False, db_index=True)
-    created_at = models.DateTimeField(_("created at"), default=timezone.now, db_index=True)
+    email = models.EmailField(unique=True)
+    verified = models.BooleanField(default=False)
+    primary = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     objects = EmailManager()
 
