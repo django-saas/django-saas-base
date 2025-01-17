@@ -14,7 +14,6 @@ from .models import (
 class SaasTestCase(TestCase):
     fixtures = [
         'test_data.yaml',
-        'permissions.yaml',
     ]
 
     client: APIClient
