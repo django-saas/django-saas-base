@@ -25,8 +25,7 @@ DEFAULTS = {
     'SIGNUP_SECURITY_RULES': [],
     'SIGNUP_REQUEST_CREATE_USER': False,
     'RESET_PASSWORD_SECURITY_RULES': [],
-    'DEFAULT_MAIL_FROM': None,
-    'PASSWORDLESS': False,
+    'MEMBER_INVITE_LINK': '/invite/%s/',
 }
 
 

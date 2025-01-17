@@ -3,6 +3,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.mixins import ListModelMixin
+from ..settings import saas_settings
 from ..drf.views import TenantEndpoint
 from ..drf.filters import TenantIdFilter, IncludeFilter
 from ..serializers.member import (
@@ -19,7 +20,7 @@ from .._notification import send_mail
 
 class MemberListEndpoint(ListModelMixin, TenantEndpoint):
     email_template_id = "invite_member"
-    email_subject = _("Invite Member")
+    email_subject = _("You've Been Invited to Join %s")
 
     serializer_class = MemberSerializer
     filter_backends = [TenantIdFilter, IncludeFilter]
@@ -49,13 +50,16 @@ class MemberListEndpoint(ListModelMixin, TenantEndpoint):
 
     def after_invite_member(self, request: Request, member: Member):
         member_invited.send(self.__class__, member=member, request=request)
+        tenant = request.tenant
         send_mail(
             self.__class__,
-            self.email_subject,
+            self.email_subject % str(tenant),
             self.email_template_id,
             recipients=[member.invite_email],
+            inviter=request.user,
             member=member,
-            tenant=request.tenant,
+            tenant=tenant,
+            invite_link=saas_settings.MEMBER_INVITE_LINK % str(member.id),
         )
 
 

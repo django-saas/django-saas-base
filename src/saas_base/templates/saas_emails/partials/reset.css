@@ -61,6 +61,11 @@ ol {
   margin-bottom: 15px;
 }
 
+ul,
+ol {
+  padding-left: 10px;
+}
+
 p li,
 ul li,
 ol li {

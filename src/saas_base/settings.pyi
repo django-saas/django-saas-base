@@ -24,10 +24,10 @@ class Settings:
 
     MAIL_PROVIDERS: t.Dict[str, MailProvider]
     MAIL_IMMEDIATE_SEND: bool
-    PASSWORDLESS: bool
     SIGNUP_SECURITY_RULES: t.List[SecurityRule]
     SIGNUP_REQUEST_CREATE_USER: bool
     RESET_PASSWORD_SECURITY_RULES: t.List[SecurityRule]
+    MEMBER_INVITE_LINK: str
 
     # internal properties
     settings_key: str
