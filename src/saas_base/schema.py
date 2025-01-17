@@ -41,15 +41,15 @@ class SignupConfirmEndpoint(OpenApiViewExtension):
         return FixedSignupConfirmEndpoint
 
 
-class SignupCodeEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.session_api.auth.SignupCodeEndpoint'
+class SignupRequestEndpoint(OpenApiViewExtension):
+    target_class = 'saas_base.session_api.auth.SignupRequestEndpoint'
 
     def view_replacement(self):
-        class FixedSignupCodeEndpoint(self.target_class):
-            @extend_schema(summary='Request Sign-up Code', responses={204: ''})
+        class FixedSignupRequestEndpoint(self.target_class):
+            @extend_schema(summary='Request to Sign-up', responses={204: ''})
             def post(self, *args, **kwargs):
                 pass
-        return FixedSignupCodeEndpoint
+        return FixedSignupRequestEndpoint
 
 
 class PasswordResetEndpoint(OpenApiViewExtension):
