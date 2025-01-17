@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, PermissionDenied
@@ -13,9 +13,14 @@ from ..serializers.member import (
     PermissionSerializer,
 )
 from ..models import Member, Group, Permission
+from ..signals import member_invited
+from .._notification import send_mail
 
 
 class MemberListEndpoint(ListModelMixin, TenantEndpoint):
+    email_template_id = "invite_member"
+    email_subject = _("Invite Member")
+
     serializer_class = MemberSerializer
     filter_backends = [TenantIdFilter, IncludeFilter]
     queryset = Member.objects.all()
@@ -38,8 +43,20 @@ class MemberListEndpoint(ListModelMixin, TenantEndpoint):
         serializer = MemberInviteSerializer(data=request.data, context=context)
         serializer.is_valid(raise_exception=True)
         member = serializer.save(tenant_id=tenant_id, inviter=request.user)
+        self.after_invite_member(request, member)
         data = MemberSerializer(member).data
         return Response(data)
+
+    def after_invite_member(self, request: Request, member: Member):
+        member_invited.send(self.__class__, member=member, request=request)
+        send_mail(
+            self.__class__,
+            self.email_subject,
+            self.email_template_id,
+            recipients=[member.invite_email],
+            member=member,
+            tenant=request.tenant,
+        )
 
 
 class MemberItemEndpoint(TenantEndpoint):

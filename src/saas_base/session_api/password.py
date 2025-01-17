@@ -12,7 +12,7 @@ from ..serializers.password import (
     PasswordForgetSerializer,
     PasswordResetSerializer,
 )
-from ._notification import send_mail
+from .._notification import send_mail
 
 
 class PasswordForgotEndpoint(Endpoint):

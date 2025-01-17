@@ -3,9 +3,6 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from ..drf.serializers import ModelSerializer
 from ..models import Member, UserEmail
-from ..signals import (
-    member_invited,
-)
 from .tenant import (
     PermissionSerializer,
     GroupPermissionSerializer,
@@ -16,6 +13,7 @@ from .user import UserSerializer
 
 class MemberSerializer(ModelSerializer):
     user = UserSerializer(required=False, read_only=True)
+    inviter = UserSerializer(required=False, read_only=True)
     groups = GroupPermissionSerializer(required=False, many=True, read_only=True)
     permissions = PermissionSerializer(required=False, many=True, read_only=True)
 
@@ -46,9 +44,9 @@ class MemberInviteSerializer(ModelSerializer):
             validated_data["user_id"] = user_email.user_id
         except UserEmail.DoesNotExist:
             pass
-        member = super().create(validated_data)
-        member_invited.send(self.__class__, member=member, data=validated_data, **self.context)
-        return member
+        request = self.context['request']
+        validated_data["inviter"] = request.user
+        return super().create(validated_data)
 
 
 class MemberDetailSerializer(ModelSerializer):

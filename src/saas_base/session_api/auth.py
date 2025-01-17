@@ -14,7 +14,7 @@ from ..serializers.auth import (
 )
 from ..serializers.password import PasswordLoginSerializer
 from ..signals import after_signup_user, after_login_user
-from ._notification import send_mail
+from .._notification import send_mail
 
 
 class SignupCodeEndpoint(Endpoint):
@@ -66,7 +66,7 @@ class SignupConfirmEndpoint(AuthEndpoint):
         after_signup_user.send(
             self.__class__,
             user=user,
-            request=request._request,
+            request=request,
             strategy="password",
         )
         return Response({"next": settings.LOGIN_REDIRECT_URL})
@@ -81,7 +81,7 @@ class PasswordLogInEndpoint(AuthEndpoint):
         after_login_user.send(
             self.__class__,
             user=user,
-            request=request._request,
+            request=request,
             strategy="password",
         )
         return Response({"next": settings.LOGIN_REDIRECT_URL})
