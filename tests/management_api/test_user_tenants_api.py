@@ -16,6 +16,7 @@ class TestTenantsAPI(SaasTestCase):
                 user=user,
                 name=user.get_full_name(),
                 tenant=tenant,
+                status=Member.InviteStatus.WAITING,
             )
 
         url = '/m/user/tenants?status=all'

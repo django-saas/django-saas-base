@@ -1,21 +1,24 @@
 import re
 from django.core import mail
 from django.test import override_settings
-from saas_base.models import UserEmail
+from saas_base.models import UserEmail, Member
 from tests.client import FixturesTestCase
 
 
 class TestSignUpAPI(FixturesTestCase):
     user_id = FixturesTestCase.ADMIN_USER_ID
 
+    def get_auth_code(self):
+        msg = mail.outbox[0]
+        codes = re.findall(r'Code: (\w{6})', msg.body)
+        return codes[0]
+
     def test_signup_success(self):
         data1 = {"username": "demo", "email": "hi@foo.com", "password": "hello world"}
         resp = self.client.post("/s/signup/code", data=data1)
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(len(mail.outbox), 1)
-        msg = mail.outbox[0]
-        codes = re.findall(r'Code: (\w{6})', msg.body)
-        data2 = {**data1, "code": codes[0]}
+        data2 = {**data1, "code": self.get_auth_code()}
         resp = self.client.post("/s/signup/confirm", data=data2)
         self.assertEqual(resp.status_code, 200)
 
@@ -64,6 +67,20 @@ class TestSignUpAPI(FixturesTestCase):
             with self.mock_requests('turnstile_failed.json'):
                 resp = self.client.post("/s/signup/code", data=data)
                 self.assertEqual(resp.status_code, 400)
+
+    def test_signup_with_membership_invite(self):
+        # prepare membership
+        email = "hi@foo.com"
+        Member.objects.create(tenant_id=self.tenant_id, invite_email=email)
+
+        data1 = {"username": "demo", "email": email, "password": "hello world"}
+        self.client.post("/s/signup/code", data=data1)
+        data2 = {**data1, "code": self.get_auth_code()}
+        resp = self.client.post("/s/signup/confirm", data=data2)
+        self.assertEqual(resp.status_code, 200)
+        obj = UserEmail.objects.get(email=email)
+        member = Member.objects.get(user_id=obj.user_id, tenant_id=self.tenant_id)
+        self.assertEqual(member.status, Member.InviteStatus.WAITING)
 
 
 class TestLoginAPI(FixturesTestCase):

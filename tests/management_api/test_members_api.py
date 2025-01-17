@@ -73,9 +73,20 @@ class TestMembersAPI(FixturesTestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json(), {'invite_email': ['This field is required.']})
 
+        # invite non-exist user
         data = {"invite_email": "signup@example.com"}
         resp = self.client.post('/m/members', data=data)
         self.assertEqual(resp.status_code, 200)
+        member = resp.json()
+        self.assertEqual(member['status'], 'request')
+
+        # invite existing user
+        user = self.get_user(self.STAFF_USER_ID)
+        data = {"invite_email": user.email}
+        resp = self.client.post('/m/members', data=data)
+        self.assertEqual(resp.status_code, 200)
+        member = resp.json()
+        self.assertEqual(member['status'], 'waiting')
 
     def test_view_member_item(self):
         self.add_user_perms("tenant.read")

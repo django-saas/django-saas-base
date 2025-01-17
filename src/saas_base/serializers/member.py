@@ -42,6 +42,7 @@ class MemberInviteSerializer(ModelSerializer):
         try:
             user_email = UserEmail.objects.get_by_email(email)
             validated_data["user_id"] = user_email.user_id
+            validated_data["status"] = Member.InviteStatus.WAITING
         except UserEmail.DoesNotExist:
             pass
         request = self.context['request']

@@ -4,6 +4,7 @@ from django.contrib.auth import login, logout
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
+from ..models import Member
 from ..drf.views import Endpoint
 from ..settings import saas_settings
 from ..security import check_security_rules
@@ -63,6 +64,11 @@ class SignupConfirmEndpoint(AuthEndpoint):
     def post(self, request: Request):
         """Register a new user and login."""
         user = self.login_user(request)
+        # update related membership
+        Member.objects.filter(invite_email=user.email).update(
+            user=user,
+            status=Member.InviteStatus.WAITING
+        )
         after_signup_user.send(
             self.__class__,
             user=user,

@@ -50,7 +50,7 @@ class UserTenantsEndpoint(ListModelMixin, Endpoint):
         if status == 'all':
             return queryset.all()
         if status == 'waiting':
-            queryset = queryset.filter(status__lt=Member.InviteStatus.ACTIVE)
+            queryset = queryset.filter(status=Member.InviteStatus.WAITING)
         else:
             queryset = queryset.filter(status=Member.InviteStatus.ACTIVE)
         return queryset.all()
