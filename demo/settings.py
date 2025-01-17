@@ -1,10 +1,10 @@
-TESTING = True
+DEBUG = True
 SECRET_KEY = 'django-insecure'
 ALLOWED_HOSTS = ['*']
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": "db.sqlite3",
     }
 }
 TEMPLATES = [
@@ -47,18 +47,29 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
+    'drf_spectacular',
     'saas_base',
     'saas_base.drf',
 ]
 REST_FRAMEWORK = {
-    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_AUTHENTICATION_CLASSES': ['saas_base.drf.authentication.SessionAuthentication'],
     'DEFAULT_PERMISSION_CLASSES': ['saas_base.drf.permissions.HasResourcePermission'],
-    'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'saas_base.drf.spectacular.AutoSchema',
+}
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Django SaaS',
+    'DESCRIPTION': 'Django SaaS help you building SaaS project',
+    'VERSION': '1.0.0',
+    'SCHEMA_PATH_PREFIX': '/api',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
 USE_TZ = True
 TIME_ZONE = 'UTC'
-ROOT_URLCONF = 'tests.urls'
+ROOT_URLCONF = 'demo.urls'

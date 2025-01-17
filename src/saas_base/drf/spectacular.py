@@ -8,14 +8,19 @@ class AutoSchema(_AutoSchema):
 
     def get_description(self) -> str:
         description = super().get_description()
+
         permissions = []
+        scopes = []
         for perm in self.view.permission_classes:
             if hasattr(perm, "get_resource_permissions"):
                 permissions = perm.get_resource_permissions(self.view, self.method)
+            if hasattr(perm, "get_resource_scopes"):
+                scopes = perm.get_resource_scopes(self.view, self.method)
 
-        if not permissions:
-            return description
-
-        permissions_string = ' '.join([f'`{p}`' for p in permissions])
-        description = f'**Permissions**: {permissions_string}\n\n{description}'
+        if permissions:
+            permissions_string = ' '.join([f'`{p}`' for p in permissions])
+            description = f'**Permissions**: {permissions_string}\n\n{description}'
+        if scopes:
+            scopes_string = ' '.join([f'`{p}`' for p in scopes])
+            description = f'**Scopes**: {scopes_string}\n\n{description}'
         return description

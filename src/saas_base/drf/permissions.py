@@ -49,18 +49,17 @@ class HasResourcePermission(BasePermission):
 
 class HasResourceScope(BasePermission):
     @staticmethod
-    def get_resource_scopes(request, view):
+    def get_resource_scopes(view, method):
         if hasattr(view, 'get_resource_scopes'):
-            return view.get_resource_scopes(request)
-
-    def has_permission(self, request: Request, view):
-        if hasattr(view, 'get_resource_scopes'):
-            resource_scopes = view.get_resource_scopes(request)
+            resource_scopes = view.get_resource_scopes(method)
         elif hasattr(view, 'resource_scopes'):
             resource_scopes = view.resource_scopes
         else:
             resource_scopes = None
+        return resource_scopes
 
+    def has_permission(self, request: Request, view):
+        resource_scopes = self.get_resource_scopes(view, request.method)
         if not resource_scopes:
             return True
 

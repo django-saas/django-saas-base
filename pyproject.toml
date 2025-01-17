@@ -59,6 +59,7 @@ packages = ["src/saas_base"]
 exclude = [
     ".python-version",
     ".github/*",
+    "demo/*",
 ]
 
 [tool.ruff]

@@ -41,7 +41,7 @@ class SignupCodeEndpoint(Endpoint):
             recipients=[obj.email],
             code=obj.code,
         )
-        return Response('', status=204)
+        return Response(status=204)
 
 
 class AuthEndpoint(Endpoint):

@@ -42,7 +42,7 @@ class PasswordForgotEndpoint(Endpoint):
             code=code,
             user=obj.user,
         )
-        return Response('', status=204)
+        return Response(status=204)
 
 
 class PasswordResetEndpoint(Endpoint):

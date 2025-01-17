@@ -69,4 +69,4 @@ class UserPasswordEndpoint(Endpoint):
         serializer: UserPasswordSerializer = self.get_serializer(request.user, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response('', status=204)
+        return Response(status=204)
