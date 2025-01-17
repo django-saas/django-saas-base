@@ -1,4 +1,5 @@
 import typing as t
+import css_inline
 from django.template import loader
 from abc import ABCMeta, abstractmethod
 
@@ -36,4 +37,4 @@ class BaseMailProvider(metaclass=ABCMeta):
             f"saas_emails/{template_id}.html",
             context, using=using
         )
-        return text, html
+        return text, css_inline.inline(html)

@@ -16,6 +16,8 @@ certifi==2024.12.14
     # via requests
 charset-normalizer==3.4.1
     # via requests
+css-inline==0.14.6
+    # via django-saas-base
 django==5.1.5
     # via django-saas-base
     # via djangorestframework

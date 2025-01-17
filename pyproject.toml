@@ -9,6 +9,7 @@ dependencies = [
     "Django",
     "djangorestframework",
     "requests",
+    "css-inline",
 ]
 readme = "README.md"
 requires-python = ">= 3.10"

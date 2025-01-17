@@ -21,6 +21,8 @@ charset-normalizer==3.4.1
     # via requests
 coverage==7.6.10
     # via pytest-cov
+css-inline==0.14.6
+    # via django-saas-base
 django==5.1.5
     # via django-saas-base
     # via djangorestframework
