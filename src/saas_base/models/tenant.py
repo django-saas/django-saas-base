@@ -18,7 +18,16 @@ class TenantManager(CachedManager):
         tenant = super().create(slug=slug, owner=owner, **kwargs)
         # initial with owner membership
         if owner:
-            Member.objects.create_owner(owner, tenant)
+            name = owner.get_full_name() or owner.get_username()
+            Member.objects.update_or_create(
+                user=owner,
+                tenant=tenant,
+                defaults={
+                    "name": name,
+                    "is_owner": True,
+                    "status": Member.InviteStatus.ACTIVE,
+                }
+            )
         return tenant
 
     def get_by_slug(self, slug: str):

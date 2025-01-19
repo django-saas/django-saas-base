@@ -18,15 +18,6 @@ class MemberManager(CachedManager):
     def get_by_natural_key(self, tenant_id, user_id) -> "Member":
         return self.get_from_cache_by_natural_key(tenant_id, user_id)
 
-    def create_owner(self, user, tenant) -> "Member":
-        return self.create(
-            user=user,
-            name=user.get_full_name(),
-            tenant=tenant,
-            is_owner=True,
-            status=Member.InviteStatus.ACTIVE,
-        )
-
 
 class Member(models.Model):
     username_validator = UnicodeUsernameValidator()
@@ -103,11 +94,7 @@ class Member(models.Model):
         return set(self.user_permissions + self.group_permissions)
 
     def __get_group_permissions(self):
-        values = self.groups.values_list('permissions__name')
-        names = [v[0] for v in values]
-        return names
+        return list(self.groups.values_list('permissions__name', flat=True))
 
     def __get_user_permissions(self):
-        values = self.permissions.all().values_list('name')
-        names = [v[0] for v in values]
-        return names
+        return list(self.permissions.all().values_list('name', flat=True))
