@@ -9,23 +9,19 @@ class AbstractToken(metaclass=ABCMeta):
     tenant_id: t.Any
     user: AuthUser
 
-    @staticmethod
-    def get_tenant(tenant_id) -> Tenant:
-        return get_tenant_model().objects.get_from_cache_by_pk(tenant_id)
+    def get_tenant(self) -> Tenant:
+        return get_tenant_model().objects.get_from_cache_by_pk(self.tenant_id)
 
-    def get_all_permissions(self, tenant_id) -> t.Optional[t.Set[str]]:
+    def get_all_permissions(self) -> t.Optional[t.Set[str]]:
         try:
-            member = Member.objects.get_by_natural_key(tenant_id, self.user.pk)
+            member = Member.objects.get_by_natural_key(self.tenant_id, self.user.pk)
             if member.is_active:
                 return member.get_all_permissions()
         except Member.DoesNotExist:
             return None
 
-    def check_permissions(self, resource_permissions: t.List[str], tenant_id=None) -> bool:
-        if tenant_id is None:
-            tenant_id = self.tenant_id
-
-        if not tenant_id or not self.user:
+    def check_permissions(self, resource_permissions: t.List[str]) -> bool:
+        if not self.tenant_id or not self.user:
             return False
 
         if not self.user.is_active:
@@ -35,11 +31,11 @@ class AbstractToken(metaclass=ABCMeta):
             return True
 
         # tenant owner has full permission
-        tenant = self.get_tenant(tenant_id)
+        tenant = self.get_tenant()
         if tenant.owner_id == self.user.pk:
             return True
 
-        perms = self.get_all_permissions(tenant_id)
+        perms = self.get_all_permissions()
         if not perms:
             return False
 

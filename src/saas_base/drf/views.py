@@ -3,6 +3,7 @@ from django.db.models import QuerySet
 from django.core.cache import cache
 from django.conf import settings
 from rest_framework.generics import GenericAPIView, get_object_or_404
+from rest_framework.settings import api_settings
 from .errors import BadRequest
 from .permissions import HasResourceScope, HasResourcePermission
 from .filters import TenantIdFilter
@@ -10,7 +11,7 @@ from .request import get_client_ip
 
 
 class Endpoint(GenericAPIView):
-    permission_classes = [HasResourceScope]
+    permission_classes = set([HasResourceScope, HasResourcePermission] + api_settings.DEFAULT_PERMISSION_CLASSES)
     resource_name: t.Optional[str] = None
     resource_action: t.Optional[str] = None
 
@@ -33,7 +34,6 @@ class Endpoint(GenericAPIView):
 
 
 class TenantEndpoint(Endpoint):
-    permission_classes = [HasResourceScope, HasResourcePermission]
     filter_backends = [TenantIdFilter]
     resource_name = 'tenant'
 

@@ -19,6 +19,7 @@ class PasswordForgotEndpoint(Endpoint):
     email_template_id = "reset_password"
     email_subject = _("Password Reset Request")
 
+    authentication_classes = []
     permission_classes = []
     throttle_classes = [AnonRateThrottle]
     serializer_class = PasswordForgetSerializer
@@ -46,6 +47,7 @@ class PasswordForgotEndpoint(Endpoint):
 
 
 class PasswordResetEndpoint(Endpoint):
+    authentication_classes = []
     permission_classes = []
     throttle_classes = [AnonRateThrottle]
     serializer_class = PasswordResetSerializer

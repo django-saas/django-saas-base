@@ -53,8 +53,13 @@ INSTALLED_APPS = [
 ]
 REST_FRAMEWORK = {
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
-    'DEFAULT_AUTHENTICATION_CLASSES': ['saas_base.drf.authentication.SessionAuthentication'],
-    'DEFAULT_PERMISSION_CLASSES': ['saas_base.drf.permissions.HasResourcePermission'],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'saas_base.drf.authentication.SessionAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'saas_base.drf.permissions.HasResourcePermission',
+        'saas_base.drf.permissions.HasResourceScope',
+    ],
     'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

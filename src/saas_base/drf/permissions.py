@@ -37,11 +37,10 @@ class HasResourcePermission(BasePermission):
         return [permission]
 
     def has_permission(self, request: Request, view):
-        if not request.user or not request.user.is_active:
-            return False
         resource_permissions = self.get_resource_permissions(view, request.method)
         if not resource_permissions:
             return True
+
         if request.auth and hasattr(request.auth, 'check_permissions'):
             return request.auth.check_permissions(resource_permissions)
         return False
