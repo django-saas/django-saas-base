@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import password_validation, get_user_model
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from ..models import UserEmail
@@ -64,7 +64,7 @@ class SignupCreateUserSerializer(serializers.Serializer):
             return email
 
     def validate_username(self, username: str):
-        cls: t.Type[AbstractUser] = get_user_model()
+        cls: t.Type[User] = get_user_model()
         try:
             cls.objects.get(username=username)
             raise ValidationError(ERRORS["username"])
@@ -72,14 +72,18 @@ class SignupCreateUserSerializer(serializers.Serializer):
             return username
 
     def validate_password(self, raw_password: str):
-        password_validation.validate_password(raw_password)
+        user = User(
+            username=self.initial_data["username"],
+            email=self.initial_data["email"],
+        )
+        password_validation.validate_password(raw_password, user)
         return raw_password
 
     def create(self, validated_data) -> EmailCode:
         username = validated_data["username"]
         email = validated_data["email"]
         password = validated_data["password"]
-        cls: t.Type[AbstractUser] = get_user_model()
+        cls: t.Type[User] = get_user_model()
         with transaction.atomic():
             user = cls.objects.create_user(
                 username=username,
@@ -113,7 +117,7 @@ class SignupConfirmCodeSerializer(serializers.Serializer):
         except UserEmail.DoesNotExist:
             raise ValidationError(ERRORS["code"])
 
-    def create(self, validated_data) -> AbstractUser:
+    def create(self, validated_data) -> User:
         user_email = validated_data["code"]
         with transaction.atomic():
             user_email.verified = True
@@ -131,7 +135,7 @@ class SignupConfirmPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(required=True)
 
     def validate_username(self, username: str):
-        cls: t.Type[AbstractUser] = get_user_model()
+        cls: t.Type[User] = get_user_model()
         try:
             cls.objects.get(username=username)
             raise ValidationError(ERRORS["username"])
@@ -151,11 +155,11 @@ class SignupConfirmPasswordSerializer(serializers.Serializer):
             raise ValidationError(ERRORS["code"])
         return code
 
-    def create(self, validated_data) -> AbstractUser:
+    def create(self, validated_data) -> User:
         username = validated_data["username"]
         email = validated_data["email"]
         password = validated_data["password"]
-        cls: t.Type[AbstractUser] = get_user_model()
+        cls: t.Type[User] = get_user_model()
         with transaction.atomic():
             user = cls.objects.create_user(
                 username=username,
