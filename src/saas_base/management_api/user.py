@@ -1,7 +1,7 @@
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.mixins import ListModelMixin
-from ..drf.views import Endpoint
+from ..drf.views import AuthenticatedEndpoint
 from ..models import UserEmail, Member
 from ..serializers.user import (
     UserSerializer,
@@ -11,7 +11,7 @@ from ..serializers.user import (
 from ..serializers.member import UserTenantsSerializer
 
 
-class UserEndpoint(Endpoint):
+class UserEndpoint(AuthenticatedEndpoint):
     resource_scopes = ["user", "user:profile"]
     serializer_class = UserSerializer
 
@@ -21,7 +21,7 @@ class UserEndpoint(Endpoint):
         return Response(serializer.data)
 
 
-class UserEmailListEndpoint(ListModelMixin, Endpoint):
+class UserEmailListEndpoint(ListModelMixin, AuthenticatedEndpoint):
     resource_scopes = ["user:email"]
     pagination_class = None
     serializer_class = UserEmailSerializer
@@ -38,7 +38,7 @@ class UserEmailListEndpoint(ListModelMixin, Endpoint):
         pass
 
 
-class UserTenantsEndpoint(ListModelMixin, Endpoint):
+class UserTenantsEndpoint(ListModelMixin, AuthenticatedEndpoint):
     serializer_class = UserTenantsSerializer
 
     def get_queryset(self):
@@ -60,7 +60,7 @@ class UserTenantsEndpoint(ListModelMixin, Endpoint):
         return self.list(request, *args, **kwargs)
 
 
-class UserPasswordEndpoint(Endpoint):
+class UserPasswordEndpoint(AuthenticatedEndpoint):
     resource_scopes = ["user:password"]
     serializer_class = UserPasswordSerializer
 

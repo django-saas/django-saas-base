@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.conf import settings
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.settings import api_settings
+from rest_framework.permissions import IsAuthenticated
 from .errors import BadRequest
 from .permissions import HasResourceScope, HasResourcePermission
 from .filters import TenantIdFilter
@@ -33,8 +34,12 @@ class Endpoint(GenericAPIView):
         cache.set(key, 1, timeout=timeout)
 
 
+class AuthenticatedEndpoint(Endpoint):
+    permission_classes = [IsAuthenticated, HasResourceScope] + api_settings.DEFAULT_PERMISSION_CLASSES
+
+
 class TenantEndpoint(Endpoint):
-    permission_classes = [HasResourceScope, HasResourcePermission] + api_settings.DEFAULT_PERMISSION_CLASSES
+    permission_classes = [IsAuthenticated, HasResourceScope, HasResourcePermission] + api_settings.DEFAULT_PERMISSION_CLASSES
     filter_backends = [TenantIdFilter]
     resource_name = 'tenant'
 

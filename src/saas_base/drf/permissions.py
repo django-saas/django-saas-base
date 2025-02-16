@@ -64,10 +64,6 @@ class HasResourcePermission(BasePermission):
         if not tenant_id:
             return False
 
-        # User MUST be authenticated
-        if not request.user or not request.user.is_authenticated:
-            return False
-
         tenant = self.get_tenant(tenant_id)
         if not tenant:
             return False

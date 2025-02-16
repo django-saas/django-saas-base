@@ -2,7 +2,7 @@ from django.urls import path
 from .tenant import (
     SelectedTenantEndpoint,
     CurrentMemberEndpoint,
-    TenantsEndpoint,
+    TenantListEndpoint,
 )
 from .members import (
     MemberListEndpoint,
@@ -25,7 +25,7 @@ urlpatterns = [
     path('user/emails', UserEmailListEndpoint.as_view()),
     path('user/tenants', UserTenantsEndpoint.as_view()),
 
-    path('tenants', TenantsEndpoint.as_view()),
+    path('tenants', TenantListEndpoint.as_view()),
     path('tenant', SelectedTenantEndpoint.as_view()),
     path('tenant/member', CurrentMemberEndpoint.as_view()),
 

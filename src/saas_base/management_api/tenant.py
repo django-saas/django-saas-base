@@ -1,6 +1,8 @@
 from rest_framework.mixins import RetrieveModelMixin, CreateModelMixin, ListModelMixin
 from rest_framework.request import Request
-from ..drf.views import Endpoint, TenantEndpoint
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.settings import api_settings
+from ..drf.views import AuthenticatedEndpoint, TenantEndpoint
 from ..models import get_tenant_model, Member
 from ..serializers.tenant import TenantSerializer
 from ..serializers.member import MemberDetailSerializer
@@ -37,8 +39,9 @@ class CurrentMemberEndpoint(RetrieveModelMixin, TenantEndpoint):
         return self.retrieve(request, *args, **kwargs)
 
 
-class TenantsEndpoint(CreateModelMixin, ListModelMixin, Endpoint):
+class TenantListEndpoint(CreateModelMixin, ListModelMixin, AuthenticatedEndpoint):
     serializer_class = TenantSerializer
+    permission_classes = [IsAuthenticated] + api_settings.DEFAULT_PERMISSION_CLASSES
 
     def get_queryset(self):
         return get_tenant_model().objects.filter(owner=self.request.user).all()
@@ -48,3 +51,6 @@ class TenantsEndpoint(CreateModelMixin, ListModelMixin, Endpoint):
 
     def post(self, request: Request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
