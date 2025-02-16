@@ -86,7 +86,8 @@ omit = [
 
 [tool.coverage.report]
 exclude_lines = [
-  "pragma: no cover",
-  "raise NotImplementedError",
-  "@(abc\\.)?abstractmethod",
+    "pragma: no cover",
+    "pass",
+    "raise NotImplementedError",
+    "@(abc\\.)?abstractmethod",
 ]

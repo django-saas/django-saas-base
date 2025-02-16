@@ -46,7 +46,7 @@ class SignupRequestEndpoint(OpenApiViewExtension):
 
     def view_replacement(self):
         class FixedSignupRequestEndpoint(self.target_class):
-            @extend_schema(summary='Request to Sign-up', responses={204: ''})
+            @extend_schema(summary='Request to Sign-up', responses={204: None})
             def post(self, *args, **kwargs):
                 pass
         return FixedSignupRequestEndpoint
@@ -68,7 +68,7 @@ class PasswordForgotEndpoint(OpenApiViewExtension):
 
     def view_replacement(self):
         class FixedPasswordForgotEndpoint(self.target_class):
-            @extend_schema(summary='Password Forgot', responses={204: ''})
+            @extend_schema(summary='Password Forgot', responses={204: None})
             def post(self, *args, **kwargs):
                 pass
         return FixedPasswordForgotEndpoint
@@ -107,7 +107,7 @@ class MemberGroupsEndpoint(OpenApiViewExtension):
                 summary='Reset Member Groups',
                 parameters=[member_id_parameter],
                 request=OpenApiTypes.UUID,
-                responses={204: ''},
+                responses={204: None},
                 examples=[
                     OpenApiExample(
                         'Example 1',
@@ -154,7 +154,7 @@ class MemberPermissionsEndpoint(OpenApiViewExtension):
                 summary='Reset Member Permissions',
                 parameters=[member_id_parameter],
                 request=OpenApiTypes.UUID,
-                responses={204: ''},
+                responses={204: None},
                 examples=[
                     OpenApiExample(
                         'Example 1',

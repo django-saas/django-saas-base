@@ -48,15 +48,17 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
     'rest_framework',
+    'drf_spectacular',
     'saas_base',
     'saas_base.drf',
 ]
 REST_FRAMEWORK = {
+    'PAGE_SIZE': 10,
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'saas_base.drf.spectacular.AutoSchema',
 }
 USE_TZ = True
 TIME_ZONE = 'UTC'
