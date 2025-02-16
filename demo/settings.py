@@ -54,13 +54,6 @@ INSTALLED_APPS = [
     'saas_base.drf',
 ]
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'saas_base.drf.authentication.SessionAuthentication'
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'saas_base.drf.permissions.HasResourcePermission',
-        'saas_base.drf.permissions.HasResourceScope',
-    ],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',

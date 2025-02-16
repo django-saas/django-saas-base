@@ -15,21 +15,6 @@ class TestMembersAPI(FixturesTestCase):
             users.append(user)
         return users
 
-    def test_list_users_via_superuser(self):
-        self.create_demo_members()
-        for i in range(10):
-            Member.objects.create(
-                name=f'member-{i}',
-                tenant_id=self.tenant_id + 1,
-            )
-
-        self.force_login(self.ADMIN_USER_ID)
-        resp = self.client.get('/m/members')
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        count = Member.objects.filter(tenant=self.tenant).count()
-        self.assertEqual(data['count'], count)
-
     def test_list_users_via_owner(self):
         self.force_login(self.OWNER_USER_ID)
         resp = self.client.get('/m/members')

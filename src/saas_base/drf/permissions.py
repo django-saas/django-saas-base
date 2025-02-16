@@ -1,5 +1,6 @@
 from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
+from ..models import get_tenant_model, Member
 from ..settings import saas_settings
 
 __all__ = [
@@ -7,6 +8,7 @@ __all__ = [
     'HasResourceScope',
 ]
 
+TenantModel = get_tenant_model()
 
 http_method_actions = {
     'GET': 'read',
@@ -36,13 +38,51 @@ class HasResourcePermission(BasePermission):
         )
         return [permission]
 
+    @staticmethod
+    def get_tenant(tenant_id):
+        try:
+            return TenantModel.objects.get_from_cache_by_pk(tenant_id)
+        except TenantModel.DoesNotExist:
+            return None
+
+    @staticmethod
+    def get_all_permissions(tenant_id, user_id):
+        try:
+            member = Member.objects.get_by_natural_key(tenant_id, user_id)
+            if member.is_active:
+                return member.get_all_permissions()
+        except Member.DoesNotExist:
+            return None
+
     def has_permission(self, request: Request, view):
         resource_permissions = self.get_resource_permissions(view, request.method)
         if not resource_permissions:
             return True
 
-        if request.auth and hasattr(request.auth, 'check_permissions'):
-            return request.auth.check_permissions(resource_permissions)
+        # HasResourcePermission should apply to TenantEndpoint
+        tenant_id = getattr(request, "tenant_id", None)
+        if not tenant_id:
+            return False
+
+        # User MUST be authenticated
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        tenant = self.get_tenant(tenant_id)
+        if not tenant:
+            return False
+
+        # Tenant owner has all permissions
+        if tenant.owner_id == request.user.pk:
+            return True
+
+        perms = self.get_all_permissions(tenant_id, request.user.pk)
+        if not perms:
+            return False
+
+        for name in resource_permissions:
+            if name in perms:
+                return True
         return False
 
 
@@ -62,6 +102,15 @@ class HasResourceScope(BasePermission):
         if not resource_scopes:
             return True
 
-        if request.auth and hasattr(request.auth, 'check_scopes'):
-            return request.auth.check_scopes(resource_scopes)
+        if request.auth is None:
+            return True
+
+        scope = getattr(request.auth, 'scope', '')
+        if scope == "__all__":
+            return True
+
+        token_scopes = set(scope.split())
+        for rs in resource_scopes:
+            if set(rs.split()).issubset(token_scopes):
+                return True
         return False

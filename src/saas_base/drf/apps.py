@@ -10,6 +10,6 @@ class RestFrameworkConfig(AppConfig):
 
         try:
             apps.get_app_config('drf_spectacular')
-            autodiscover_modules('schema')
+            autodiscover_modules('spectacular_schema')
         except LookupError:
             pass

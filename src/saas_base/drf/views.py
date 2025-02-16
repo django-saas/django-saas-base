@@ -11,7 +11,7 @@ from .request import get_client_ip
 
 
 class Endpoint(GenericAPIView):
-    permission_classes = set([HasResourceScope, HasResourcePermission] + api_settings.DEFAULT_PERMISSION_CLASSES)
+    permission_classes = [HasResourceScope] + api_settings.DEFAULT_PERMISSION_CLASSES
     resource_name: t.Optional[str] = None
     resource_action: t.Optional[str] = None
 
@@ -34,6 +34,7 @@ class Endpoint(GenericAPIView):
 
 
 class TenantEndpoint(Endpoint):
+    permission_classes = [HasResourceScope, HasResourcePermission] + api_settings.DEFAULT_PERMISSION_CLASSES
     filter_backends = [TenantIdFilter]
     resource_name = 'tenant'
 
