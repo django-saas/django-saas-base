@@ -21,6 +21,18 @@ class UserEndpoint(AuthenticatedEndpoint):
         return Response(serializer.data)
 
 
+class UserPasswordEndpoint(AuthenticatedEndpoint):
+    resource_scopes = ["user:password"]
+    serializer_class = UserPasswordSerializer
+
+    def post(self, request: Request, *args, **kwargs):
+        """Update current user's password"""
+        serializer: UserPasswordSerializer = self.get_serializer(request.user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=204)
+
+
 class UserEmailListEndpoint(ListModelMixin, AuthenticatedEndpoint):
     resource_scopes = ["user:email"]
     pagination_class = None
@@ -58,15 +70,3 @@ class UserTenantsEndpoint(ListModelMixin, AuthenticatedEndpoint):
     def get(self, request: Request, *args, **kwargs):
         """List all the current user's tenants."""
         return self.list(request, *args, **kwargs)
-
-
-class UserPasswordEndpoint(AuthenticatedEndpoint):
-    resource_scopes = ["user:password"]
-    serializer_class = UserPasswordSerializer
-
-    def post(self, request: Request, *args, **kwargs):
-        """Update current user's password"""
-        serializer: UserPasswordSerializer = self.get_serializer(request.user, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=204)

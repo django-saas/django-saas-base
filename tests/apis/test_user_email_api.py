@@ -8,7 +8,7 @@ class TestEmailAPI(FixturesTestCase):
     def test_list_emails(self):
         self.force_login()
 
-        url = '/m/user/emails'
+        url = '/m/user/emails/'
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), [])

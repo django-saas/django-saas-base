@@ -6,7 +6,7 @@ class TestUserPasswordAPI(SaasTestCase):
 
     def send_request(self, data):
         self.force_login()
-        url = '/m/user/password'
+        url = '/m/user/password/'
         return self.client.post(url, data=data, format='json')
 
     def test_update_password(self):

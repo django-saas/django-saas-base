@@ -90,7 +90,7 @@ member_id_parameter = OpenApiParameter(
 
 
 class MemberGroupsEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.management_api.members.MemberGroupsEndpoint'
+    target_class = 'saas_base.endpoints.members.MemberGroupsEndpoint'
 
     def view_replacement(self):
         class Fixed(self.target_class):
@@ -122,7 +122,7 @@ class MemberGroupsEndpoint(OpenApiViewExtension):
 
 
 class MemberGroupItemEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.management_api.members.MemberGroupItemEndpoint'
+    target_class = 'saas_base.endpoints.members.MemberGroupItemEndpoint'
 
     def view_replacement(self):
         class Fixed(self.target_class):
@@ -137,7 +137,7 @@ class MemberGroupItemEndpoint(OpenApiViewExtension):
 
 
 class MemberPermissionsEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.management_api.members.MemberPermissionsEndpoint'
+    target_class = 'saas_base.endpoints.members.MemberPermissionsEndpoint'
 
     def view_replacement(self):
         class Fixed(self.target_class):
@@ -169,7 +169,7 @@ class MemberPermissionsEndpoint(OpenApiViewExtension):
 
 
 class MemberPermissionItemEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.management_api.members.MemberPermissionItemEndpoint'
+    target_class = 'saas_base.endpoints.members.MemberPermissionItemEndpoint'
 
     def view_replacement(self):
         class Fixed(self.target_class):
