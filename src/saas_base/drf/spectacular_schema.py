@@ -1,9 +1,4 @@
-from drf_spectacular.authentication import SessionScheme as _SessionScheme
 from drf_spectacular.extensions import OpenApiSerializerFieldExtension
-
-
-class SessionScheme(_SessionScheme):
-    target_class = 'saas_base.drf.authentication.SessionAuthentication'
 
 
 class ChoiceFieldFix(OpenApiSerializerFieldExtension):
