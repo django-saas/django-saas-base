@@ -6,6 +6,7 @@ from ..settings import saas_settings
 __all__ = [
     'HasResourcePermission',
     'HasResourceScope',
+    'IsTenantOwner',
 ]
 
 TenantModel = get_tenant_model()
@@ -18,6 +19,18 @@ http_method_actions = {
     'PATCH': 'write',
     'DELETE': 'admin',
 }
+
+
+class IsTenantOwner(BasePermission):
+    def has_permission(self, request: Request, view):
+        tenant_id = getattr(request, "tenant_id", None)
+        if not tenant_id:
+            return False
+        try:
+            tenant = TenantModel.objects.get_from_cache_by_pk(tenant_id)
+            return request.user.pk == tenant.owner_id
+        except TenantModel.DoesNotExist:
+            return False
 
 
 class HasResourcePermission(BasePermission):
