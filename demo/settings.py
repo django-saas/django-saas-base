@@ -8,6 +8,7 @@ DATABASES = {
     }
 }
 MIDDLEWARE = [
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'saas_base.drf.middleware.HeaderTenantIdMiddleware',
