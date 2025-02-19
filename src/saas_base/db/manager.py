@@ -1,7 +1,9 @@
 import typing as t
 import hashlib
 import logging
-from django.db.models import Model, Manager
+import uuid
+
+from django.db.models import Model, Manager, UUIDField
 from django.db.models.signals import (
     class_prepared,
     post_save,
@@ -162,13 +164,18 @@ class CachedManager(Manager, t.Generic[M]):
         self.db_cache.delete_many(to_delete, version=self.cache_version)
 
 
-def make_key(instance: Model, kwargs: t.Mapping[str, t.Union[Model, int, str]]) -> str:
+def make_key(cls: Model, kwargs: t.Mapping[str, t.Union[Model, int, str]]) -> str:
     fields = []
     for k, v in sorted(kwargs.items()):
         if k == "pk":
-            k = str(instance._meta.pk.name)
+            # convert pk to its real name
+            k = str(cls._meta.pk.name)
+            if isinstance(v, str) and isinstance(cls._meta.pk, UUIDField):
+                v = v.replace("-", "")
         if isinstance(v, Model):
             v = v.pk
+        if isinstance(v, uuid.UUID):
+            v = v.hex
         fields.append(f"{k}={v}")
     return hashlib.md5("&".join(fields).encode("utf-8")).hexdigest()
 
