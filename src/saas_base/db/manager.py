@@ -40,7 +40,7 @@ class CachedManager(Manager, t.Generic[M]):
                 found[key_map[key]] = results[key]
 
         if missed:
-            queryset = self.filter(pk__in=missed).prefetch_related(*self.query_select_related).all()
+            queryset = self.filter(pk__in=missed).select_related(*self.query_select_related).all()
             for instance in queryset:
                 self.__post_save(instance)
                 found[instance.pk] = instance
