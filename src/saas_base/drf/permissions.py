@@ -1,12 +1,13 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.request import Request
 from ..models import get_tenant_model, Member
 from ..settings import saas_settings
 
 __all__ = [
+    'IsTenantOwner',
+    'IsTenantOwnerOrReadOnly',
     'HasResourcePermission',
     'HasResourceScope',
-    'IsTenantOwner',
 ]
 
 TenantModel = get_tenant_model()
@@ -22,6 +23,9 @@ http_method_actions = {
 
 
 class IsTenantOwner(BasePermission):
+    """The authenticated user is the tenant owner.
+    """
+
     def has_permission(self, request: Request, view):
         tenant_id = getattr(request, "tenant_id", None)
         if not tenant_id:
@@ -33,7 +37,21 @@ class IsTenantOwner(BasePermission):
             return False
 
 
+class IsTenantOwnerOrReadOnly(IsTenantOwner):
+    """The authenticated user is the tenant owner, or is a read-only request.
+    """
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        return super().has_permission(request, view)
+
+
 class HasResourcePermission(BasePermission):
+    """The authenticated user is a member of the tenant, and the user
+    has the given resource permission.
+    """
+
     @staticmethod
     def get_resource_permissions(view, method):
         resource = getattr(view, 'resource_name', None)
@@ -96,6 +114,9 @@ class HasResourcePermission(BasePermission):
 
 
 class HasResourceScope(BasePermission):
+    """The request token contains the given resource scopes.
+    """
+
     @staticmethod
     def get_resource_scopes(view, method):
         if hasattr(view, 'get_resource_scopes'):
