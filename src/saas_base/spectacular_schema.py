@@ -9,7 +9,7 @@ class AuthResponseSerializer(serializers.Serializer):
 
 
 class PasswordLogInEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.session_api.auth.PasswordLogInEndpoint'
+    target_class = 'saas_base.endpoints.auth.PasswordLogInEndpoint'
 
     def view_replacement(self):
         class FixedPasswordLogInEndpoint(self.target_class):
@@ -20,7 +20,7 @@ class PasswordLogInEndpoint(OpenApiViewExtension):
 
 
 class LogoutEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.session_api.auth.LogoutEndpoint'
+    target_class = 'saas_base.endpoints.auth.LogoutEndpoint'
 
     def view_replacement(self):
         class FixedLogoutEndpoint(self.target_class):
@@ -31,7 +31,7 @@ class LogoutEndpoint(OpenApiViewExtension):
 
 
 class SignupConfirmEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.session_api.auth.SignupConfirmEndpoint'
+    target_class = 'saas_base.endpoints.auth.SignupConfirmEndpoint'
 
     def view_replacement(self):
         class FixedSignupConfirmEndpoint(self.target_class):
@@ -42,7 +42,7 @@ class SignupConfirmEndpoint(OpenApiViewExtension):
 
 
 class SignupRequestEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.session_api.auth.SignupRequestEndpoint'
+    target_class = 'saas_base.endpoints.auth.SignupRequestEndpoint'
 
     def view_replacement(self):
         class FixedSignupRequestEndpoint(self.target_class):
@@ -53,7 +53,7 @@ class SignupRequestEndpoint(OpenApiViewExtension):
 
 
 class PasswordResetEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.session_api.password.PasswordResetEndpoint'
+    target_class = 'saas_base.endpoints.password.PasswordResetEndpoint'
 
     def view_replacement(self):
         class FixedPasswordResetEndpoint(self.target_class):
@@ -64,7 +64,7 @@ class PasswordResetEndpoint(OpenApiViewExtension):
 
 
 class PasswordForgotEndpoint(OpenApiViewExtension):
-    target_class = 'saas_base.session_api.password.PasswordForgotEndpoint'
+    target_class = 'saas_base.endpoints.password.PasswordForgotEndpoint'
 
     def view_replacement(self):
         class FixedPasswordForgotEndpoint(self.target_class):
