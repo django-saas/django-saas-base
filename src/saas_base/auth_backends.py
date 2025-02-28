@@ -1,9 +1,6 @@
-import uuid
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
-from django.db.utils import IntegrityError
 from saas_base.models import UserEmail
-from saas_base.signals import after_signup_user
 
 __all__ = ["PasswordLoginBackend"]
 
