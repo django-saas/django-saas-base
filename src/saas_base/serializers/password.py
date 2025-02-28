@@ -1,9 +1,8 @@
 import random
 import string
-import typing as t
 from django.utils.translation import gettext as _
 from django.core.cache import cache
-from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth import password_validation, authenticate
 from django.contrib.auth.models import AbstractUser
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -21,31 +20,12 @@ class PasswordLoginSerializer(serializers.Serializer):
         errors = {"password": [_("Invalid username or password.")]}
         return ValidationError(errors)
 
-    @staticmethod
-    def get_user(username: str):
-        cls: t.Type[AbstractUser] = get_user_model()
-        try:
-            return cls.objects.get(username=username)
-        except cls.DoesNotExist:
-            if '@' not in username:
-                return None
-            try:
-                obj = UserEmail.objects.select_related("user").get(email=username)
-                if obj.verified and obj.primary:
-                    return obj.user
-            except UserEmail.DoesNotExist:
-                return None
-        return None
-
     def create(self, validated_data):
-        user = self.get_user(validated_data["username"])
+        request = self.context["request"]
+        user = authenticate(request=request, **validated_data)
         if not user:
             raise self.invalid_errors()
-
-        password = validated_data["password"]
-        if user.check_password(password):
-            return user
-        raise self.invalid_errors()
+        return user
 
     def update(self, instance, validated_data):
         raise RuntimeError("This method is not allowed.")

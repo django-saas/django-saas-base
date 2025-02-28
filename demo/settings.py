@@ -7,6 +7,9 @@ DATABASES = {
         "NAME": "db.sqlite3",
     }
 }
+AUTHENTICATION_BACKENDS = [
+    'saas_base.auth_backends.PasswordLoginBackend',
+]
 MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

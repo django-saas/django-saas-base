@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
@@ -64,7 +64,11 @@ class AuthEndpoint(Endpoint):
         return user
 
 
-class SignupConfirmEndpoint(AuthEndpoint):
+class SignupConfirmEndpoint(Endpoint):
+    authentication_classes = []
+    permission_classes = []
+    throttle_classes = [AnonRateThrottle]
+
     def get_serializer_class(self):
         if saas_settings.SIGNUP_REQUEST_CREATE_USER:
             return SignupConfirmCodeSerializer
@@ -72,7 +76,10 @@ class SignupConfirmEndpoint(AuthEndpoint):
 
     def post(self, request: Request):
         """Register a new user and login."""
-        user = self.login_user(request)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
         # update related membership
         Member.objects.filter(invite_email=user.email).update(
             user=user,
@@ -102,7 +109,10 @@ class PasswordLogInEndpoint(AuthEndpoint):
         return Response({"next": settings.LOGIN_REDIRECT_URL})
 
 
-class LogoutEndpoint(AuthEndpoint):
+class LogoutEndpoint(Endpoint):
+    authentication_classes = []
+    permission_classes = []
+
     def post(self, request: Request):
         """Clear the user session and log the user out."""
         logout(request._request)

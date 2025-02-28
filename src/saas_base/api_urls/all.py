@@ -6,4 +6,5 @@ urlpatterns = [
     path('user/', include('saas_base.api_urls.user')),
     path('tenant/', include('saas_base.api_urls.tenant')),
     path('members/', include('saas_base.api_urls.members')),
+    path('session/', include('saas_base.api_urls.session')),
 ]
