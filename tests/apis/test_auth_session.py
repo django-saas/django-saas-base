@@ -141,3 +141,8 @@ class TestLoginAPI(FixturesTestCase):
 
         resp = self.client.post("/m/session/login/", data=data)
         self.assertEqual(resp.status_code, 200)
+
+        resp = self.client.get("/m/user/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data['username'], user.username)

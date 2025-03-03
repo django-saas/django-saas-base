@@ -51,19 +51,6 @@ class SignupRequestEndpoint(Endpoint):
         return Response(status=204)
 
 
-class AuthEndpoint(Endpoint):
-    authentication_classes = []
-    permission_classes = []
-    throttle_classes = [AnonRateThrottle]
-
-    def login_user(self, request: Request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-        login(request._request, user, 'django.contrib.auth.backends.ModelBackend')
-        return user
-
-
 class SignupConfirmEndpoint(Endpoint):
     authentication_classes = []
     permission_classes = []
@@ -94,12 +81,19 @@ class SignupConfirmEndpoint(Endpoint):
         return Response({"next": settings.LOGIN_REDIRECT_URL})
 
 
-class PasswordLogInEndpoint(AuthEndpoint):
+class PasswordLogInEndpoint(Endpoint):
+    authentication_classes = []
+    permission_classes = []
+    throttle_classes = [AnonRateThrottle]
     serializer_class = PasswordLoginSerializer
 
     def post(self, request: Request):
         """Login a user with the given username and password."""
-        user = self.login_user(request)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        login(request._request, user)
+
         after_login_user.send(
             self.__class__,
             user=user,
