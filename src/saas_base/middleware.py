@@ -7,6 +7,8 @@ __all__ = [
     "TenantMiddleware",
     "ConfiguredTenantIdMiddleware",
     "HeaderTenantIdMiddleware",
+    "PathTenantIdMiddleware",
+    "SessionTenantIdMiddleware",
 ]
 TenantModel = get_tenant_model()
 
@@ -53,6 +55,9 @@ class HeaderTenantIdMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        if getattr(request, "tenant_id", None):
+            return self.get_response(request)
+
         tenant_id = request.headers.get(self.HTTP_HEADER)
         request.tenant_id = TenantModel._meta.pk.to_python(tenant_id)
         return self.get_response(request)
@@ -65,9 +70,25 @@ class PathTenantIdMiddleware:
         self.get_response = get_response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        tenant_id = view_kwargs.get(self.FIELD_KEY, None)
-        if tenant_id:
-            request.tenant_id = TenantModel._meta.pk.to_python(tenant_id)
+        if getattr(request, "tenant_id", None):
+            return
+        tenant_id = view_kwargs.get(self.FIELD_KEY)
+        request.tenant_id = TenantModel._meta.pk.to_python(tenant_id)
 
     def __call__(self, request):
+        return self.get_response(request)
+
+
+class SessionTenantIdMiddleware:
+    FIELD_KEY = "tenant_id"
+
+    def __init__(self, get_response=None):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if getattr(request, "tenant_id", None):
+            return self.get_response(request)
+
+        tenant_id = request.session.get(self.FIELD_KEY)
+        request.tenant_id = TenantModel._meta.pk.to_python(tenant_id)
         return self.get_response(request)

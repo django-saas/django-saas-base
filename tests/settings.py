@@ -29,6 +29,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'saas_base.middleware.HeaderTenantIdMiddleware',
+    'saas_base.middleware.PathTenantIdMiddleware',
+    'saas_base.middleware.SessionTenantIdMiddleware',
     'saas_base.middleware.TenantMiddleware',
 ]
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
