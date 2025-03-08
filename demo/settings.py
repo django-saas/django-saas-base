@@ -14,8 +14,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'saas_base.drf.middleware.HeaderTenantIdMiddleware',
-    'saas_base.drf.middleware.TenantMiddleware',
+    'saas_base.middleware.HeaderTenantIdMiddleware',
+    'saas_base.middleware.TenantMiddleware',
 ]
 TEMPLATES = [
     {

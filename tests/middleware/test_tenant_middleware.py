@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.test import RequestFactory
-from saas_base.drf.middleware import TenantMiddleware
+from saas_base.middleware import TenantMiddleware
 from saas_base.test import SaasTestCase
 
 

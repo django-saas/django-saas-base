@@ -1,7 +1,7 @@
 from django.utils.functional import SimpleLazyObject
 from django.conf import settings
-from ..settings import saas_settings
-from ..models import get_tenant_model
+from .settings import saas_settings
+from .models import get_tenant_model
 
 __all__ = [
     "TenantMiddleware",
