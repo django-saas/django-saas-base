@@ -52,10 +52,10 @@ class UserEmailListEndpoint(ListModelMixin, AuthenticatedEndpoint):
 
 class UserTenantsEndpoint(ListModelMixin, AuthenticatedEndpoint):
     serializer_class = UserTenantsSerializer
+    queryset = Member.objects.select_related('tenant').all()
 
-    def get_queryset(self):
+    def filter_queryset(self, queryset):
         status = self.request.query_params.get('status')
-        queryset = Member.objects.select_related('tenant')
         queryset = queryset.prefetch_related('groups', 'permissions', 'groups__permissions')
         queryset = queryset.filter(user=self.request.user)
 
