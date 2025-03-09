@@ -22,7 +22,7 @@ TEMPLATES = [
     }
 ]
 AUTHENTICATION_BACKENDS = [
-    'saas_base.auth_backends.PasswordLoginBackend',
+    'saas_base.auth.backends.ModelBackend',
 ]
 MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',

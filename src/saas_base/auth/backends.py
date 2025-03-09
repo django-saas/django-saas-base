@@ -1,13 +1,13 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth.backends import ModelBackend as BaseModelBackend
 from saas_base.models import UserEmail
 
-__all__ = ["PasswordLoginBackend"]
+__all__ = ["ModelBackend"]
 
 UserModel = get_user_model()
 
 
-class PasswordLoginBackend(ModelBackend):
+class ModelBackend(BaseModelBackend):
     @staticmethod
     def _get_user_by_username(username: str):
         try:
