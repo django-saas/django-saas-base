@@ -17,10 +17,10 @@ from ..serializers.auth import (
 )
 from ..serializers.password import PasswordLoginSerializer
 from ..signals import after_signup_user, after_login_user
-from .._notification import send_mail
+from ..mail import SendEmailMixin
 
 
-class SignupRequestEndpoint(Endpoint):
+class SignupRequestEndpoint(SendEmailMixin, Endpoint):
     email_template_id = "signup_code"
     email_subject = _("Signup Request")
     authentication_classes = []
@@ -37,17 +37,10 @@ class SignupRequestEndpoint(Endpoint):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         obj: EmailCode = serializer.save()
-
         # check bad request rules
         check_security_rules(saas_settings.SIGNUP_SECURITY_RULES, request)
 
-        send_mail(
-            self.__class__,
-            self.email_subject,
-            self.email_template_id,
-            recipients=[obj.recipient()],
-            code=obj.code,
-        )
+        self.send_email([obj.recipient()], code=obj.code)
         return Response(status=204)
 
 

@@ -7,15 +7,15 @@ from rest_framework.throttling import AnonRateThrottle
 from ..drf.views import Endpoint
 from ..settings import saas_settings
 from ..models import UserEmail
+from ..mail import SendEmailMixin
 from ..security import check_security_rules
 from ..serializers.password import (
     PasswordForgetSerializer,
     PasswordResetSerializer,
 )
-from .._notification import send_mail
 
 
-class PasswordForgotEndpoint(Endpoint):
+class PasswordForgotEndpoint(SendEmailMixin, Endpoint):
     email_template_id = "reset_password"
     email_subject = _("Password Reset Request")
 
@@ -35,14 +35,8 @@ class PasswordForgotEndpoint(Endpoint):
 
         code = serializer.save_password_code(obj)
         name = obj.user.get_full_name() or obj.user.get_username()
-        send_mail(
-            self.__class__,
-            self.email_subject,
-            self.email_template_id,
-            recipients=[formataddr((name, obj.email))],
-            code=code,
-            user=obj.user,
-        )
+        recipients = [formataddr((name, obj.email))]
+        self.send_email(recipients, code=code, user=obj.user)
         return Response(status=204)
 
 

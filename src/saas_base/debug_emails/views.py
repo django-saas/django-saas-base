@@ -1,7 +1,7 @@
 from django.http import HttpResponse, Http404
 from django.contrib.auth.models import User
 from ..models import Tenant, Member
-from ..mail import get_mail_provider
+from ..mail import render_mail_messages
 from ..settings import saas_settings
 
 
@@ -35,8 +35,7 @@ def view_invite_member(request, suffix: str):
 
 
 def _render_response(template, context, suffix: str):
-    provider = get_mail_provider()
-    text_message, html_message = provider.render_message(template, context)
+    text_message, html_message = render_mail_messages(template, context)
     if suffix == 'txt':
         return HttpResponse(text_message, content_type='text/plain')
     elif suffix == 'html':

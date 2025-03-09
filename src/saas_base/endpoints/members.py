@@ -6,6 +6,7 @@ from rest_framework.mixins import ListModelMixin
 from ..settings import saas_settings
 from ..drf.views import TenantEndpoint
 from ..drf.filters import TenantIdFilter, IncludeFilter
+from ..mail import SendEmailMixin
 from ..serializers.member import (
     MemberSerializer,
     MemberInviteSerializer,
@@ -15,10 +16,9 @@ from ..serializers.member import (
 )
 from ..models import Member, Group, Permission
 from ..signals import member_invited
-from .._notification import send_mail
 
 
-class MemberListEndpoint(ListModelMixin, TenantEndpoint):
+class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
     email_template_id = "invite_member"
     email_subject = _("You've Been Invited to Join %s")
 
@@ -33,6 +33,9 @@ class MemberListEndpoint(ListModelMixin, TenantEndpoint):
     include_select_related_fields = ['user']
     include_prefetch_related_fields = ['groups', 'permissions']
 
+    def get_email_subject(self):
+        return self.email_subject % str(self.request.tenant)
+
     def get(self, request: Request, *args, **kwargs):
         """List all members in the tenant."""
         return self.list(request, *args, **kwargs)
@@ -44,23 +47,17 @@ class MemberListEndpoint(ListModelMixin, TenantEndpoint):
         serializer = MemberInviteSerializer(data=request.data, context=context)
         serializer.is_valid(raise_exception=True)
         member = serializer.save(tenant_id=tenant_id, inviter=request.user)
-        self.after_invite_member(request, member)
-        data = MemberSerializer(member).data
-        return Response(data)
 
-    def after_invite_member(self, request: Request, member: Member):
         member_invited.send(self.__class__, member=member, request=request)
-        tenant = request.tenant
-        send_mail(
-            self.__class__,
-            self.email_subject % str(tenant),
-            self.email_template_id,
-            recipients=[member.invite_email],
+        self.send_email(
+            [member.invite_email],
             inviter=request.user,
             member=member,
-            tenant=tenant,
+            tenant=request.tenant,
             invite_link=saas_settings.MEMBER_INVITE_LINK % str(member.id),
         )
+        data = MemberSerializer(member).data
+        return Response(data)
 
 
 class MemberItemEndpoint(TenantEndpoint):
