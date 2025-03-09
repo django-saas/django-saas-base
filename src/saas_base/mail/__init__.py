@@ -1,6 +1,7 @@
 import typing as t
 from .base import BaseMailProvider, render_mail_messages
 from .django import DjangoMailProvider
+from ..signals import mail_queued
 from ..settings import saas_settings
 
 
@@ -19,13 +20,22 @@ class SendEmailMixin:
 
     def send_email(self, recipients, **context):
         context.setdefault('site', saas_settings.SITE)
-        provider = get_mail_provider(self.email_provider)
-        provider.send_context_mail(
-            subject=self.get_email_subject(),
-            template_id=self.email_template_id,
-            recipients=recipients,
-            context=context,
-        )
+        if saas_settings.MAIL_IMMEDIATE_SEND:
+            provider = get_mail_provider(self.email_provider)
+            provider.send_context_mail(
+                subject=self.get_email_subject(),
+                template_id=self.email_template_id,
+                recipients=recipients,
+                context=context,
+            )
+        else:
+            mail_queued.send(
+                sender=self.__class__,
+                subject=self.get_email_subject(),
+                template_id=self.email_template_id,
+                recipients=recipients,
+                context=context,
+            )
 
 
 __all__ = [

@@ -5,6 +5,7 @@ before_update_tenant = Signal()
 after_signup_user = Signal()
 after_login_user = Signal()
 member_invited = Signal()
+mail_queued = Signal()
 
 
 __all__ = [
@@ -13,4 +14,5 @@ __all__ = [
     'after_signup_user',
     'after_login_user',
     'member_invited',
+    'mail_queued',
 ]
