@@ -18,6 +18,7 @@ class TypedProvider(t.TypedDict):
 class Settings:
     SITE: TypedSite
     TENANT_ID_HEADER: str
+    CLIENT_IP_HEADERS: t.Optional[t.List[str]]
 
     PERMISSION_NAME_FORMATTER: str
     DEFAULT_REGION: t.Optional[str]

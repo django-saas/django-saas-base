@@ -10,7 +10,7 @@ DEFAULTS = {
         'icon': '',
         'copyright': '© 2025',
     },
-
+    'CLIENT_IP_HEADERS': None,
     'DB_CACHE_ALIAS': 'default',
     'PERMISSION_NAME_FORMATTER': '{resource}.{action}',
     'DEFAULT_REGION': None,

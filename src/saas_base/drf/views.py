@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from .errors import BadRequest
 from .permissions import HasResourceScope, HasResourcePermission
 from .filters import TenantIdFilter
-from .request import get_client_ip
 
 
 class Endpoint(GenericAPIView):
@@ -23,9 +22,6 @@ class Endpoint(GenericAPIView):
     def prevent_duplicate_request(self, suffix: t.Union[str, int], timeout: int = 120, force: bool = False):
         if getattr(settings, "TESTING", False) and not force:
             return
-
-        if suffix == '__ip__':
-            suffix = get_client_ip(self.request)
 
         path = self.request.path
         key = f'request:{path}:{suffix}'
