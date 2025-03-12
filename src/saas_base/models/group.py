@@ -15,8 +15,8 @@ class Group(models.Model):
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     class Meta:
-        verbose_name = _("group")
-        verbose_name_plural = _("groups")
+        verbose_name = _('group')
+        verbose_name_plural = _('groups')
         unique_together = [['tenant', 'name']]
         db_table = 'saas_group'
         ordering = ['created_at']
@@ -25,4 +25,4 @@ class Group(models.Model):
         return self.name
 
     def natural_key(self):
-        return self.name,
+        return (self.name,)

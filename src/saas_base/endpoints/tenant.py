@@ -11,7 +11,7 @@ from ..serializers.member import MemberDetailSerializer
 class SelectedTenantEndpoint(RetrieveModelMixin, TenantEndpoint):
     serializer_class = TenantSerializer
     resource_name = 'tenant'
-    tenant_id_field = "pk"
+    tenant_id_field = 'pk'
 
     def get_queryset(self):
         return get_tenant_model().objects.all()

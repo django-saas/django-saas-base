@@ -5,19 +5,17 @@ __all__ = ['get_client_ip']
 
 
 CLIENT_IP_HEADERS = (
-    "Forwarded-For",  # Standard header defined by RFC 7239.
-    "X-Forwarded-For",  # Common header for proxies, load balancers, like AWS ELB. Default to the left-most IP.
-
-    "CF-Connecting-IP",  # Used by CloudFlare.
-    "True-Client-IP",  # Header for CloudFlare Enterprise.
-
-    "X-Real-IP",  # Header used by some providers like Amazon EC2, Heroku.
-    "Client-IP",  # Header used by some providers like Amazon EC2, Heroku.
-    "X-Client-IP",  # Used by Microsoft Azure.
-    "Forwarded",  # Standard header defined by RFC 7239.
-    "X-Forwarded",  # Used by Squid and similar software.
-    "X-Cluster-Client-IP",  # Used by Rackspace Cloud Load Balancers.
-    "Fastly-Client-IP",  # Used by Fastly, Firebase.
+    'Forwarded-For',  # Standard header defined by RFC 7239.
+    'X-Forwarded-For',  # Common header for proxies, load balancers, like AWS ELB. Default to the left-most IP.
+    'CF-Connecting-IP',  # Used by CloudFlare.
+    'True-Client-IP',  # Header for CloudFlare Enterprise.
+    'X-Real-IP',  # Header used by some providers like Amazon EC2, Heroku.
+    'Client-IP',  # Header used by some providers like Amazon EC2, Heroku.
+    'X-Client-IP',  # Used by Microsoft Azure.
+    'Forwarded',  # Standard header defined by RFC 7239.
+    'X-Forwarded',  # Used by Squid and similar software.
+    'X-Cluster-Client-IP',  # Used by Rackspace Cloud Load Balancers.
+    'Fastly-Client-IP',  # Used by Fastly, Firebase.
 )
 
 

@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -77,7 +76,10 @@ class Migration(migrations.Migration):
                 ('verified', models.BooleanField(default=False)),
                 ('primary', models.BooleanField(db_index=True, default=False)),
                 ('created_at', models.DateTimeField(default=timezone.now, db_index=True)),
-                ('user', models.ForeignKey(on_delete=models.CASCADE, related_name='emails', to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(on_delete=models.CASCADE, related_name='emails', to=settings.AUTH_USER_MODEL),
+                ),
             ],
             options={
                 'verbose_name': 'email',
@@ -92,14 +94,37 @@ class Migration(migrations.Migration):
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('name', models.CharField(blank=True, max_length=150)),
                 ('invite_email', models.EmailField(blank=True, max_length=254, null=True)),
-                ('status', models.SmallIntegerField(choices=[(0, 'request'), (1, 'waiting'), (2, 'active')], default=0)),
+                (
+                    'status',
+                    models.SmallIntegerField(choices=[(0, 'request'), (1, 'waiting'), (2, 'active')], default=0),
+                ),
                 ('is_owner', models.BooleanField(db_index=True, default=False)),
                 ('created_at', models.DateTimeField(default=timezone.now, db_index=True)),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', to='saas_base.group')),
-                ('inviter', models.ForeignKey(blank=True, null=True, on_delete=models.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
+                (
+                    'groups',
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+                        to='saas_base.group',
+                    ),
+                ),
+                (
+                    'inviter',
+                    models.ForeignKey(
+                        blank=True, null=True, on_delete=models.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL
+                    ),
+                ),
                 ('tenant', models.ForeignKey(on_delete=models.CASCADE, to=settings.SAAS_TENANT_MODEL)),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=models.SET_NULL, to=settings.AUTH_USER_MODEL)),
-                ('permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', to='saas_base.permission')),
+                (
+                    'user',
+                    models.ForeignKey(blank=True, null=True, on_delete=models.SET_NULL, to=settings.AUTH_USER_MODEL),
+                ),
+                (
+                    'permissions',
+                    models.ManyToManyField(
+                        blank=True, help_text='Specific permissions for this user.', to='saas_base.permission'
+                    ),
+                ),
             ],
             options={
                 'verbose_name': 'member',

@@ -16,8 +16,8 @@ from ..serializers.password import (
 
 
 class PasswordForgotEndpoint(SendEmailMixin, Endpoint):
-    email_template_id = "reset_password"
-    email_subject = _("Password Reset Request")
+    email_template_id = 'reset_password'
+    email_subject = _('Password Reset Request')
 
     authentication_classes = []
     permission_classes = []
@@ -51,4 +51,4 @@ class PasswordResetEndpoint(Endpoint):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({"next": settings.LOGIN_URL})
+        return Response({'next': settings.LOGIN_URL})

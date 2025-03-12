@@ -17,18 +17,18 @@ class PasswordLoginSerializer(serializers.Serializer):
 
     @staticmethod
     def invalid_errors():
-        errors = {"password": [_("Invalid username or password.")]}
+        errors = {'password': [_('Invalid username or password.')]}
         return ValidationError(errors)
 
     def create(self, validated_data):
-        request = self.context["request"]
+        request = self.context['request']
         user = authenticate(request=request, **validated_data)
         if not user:
             raise self.invalid_errors()
         return user
 
     def update(self, instance, validated_data):
-        raise RuntimeError("This method is not allowed.")
+        raise RuntimeError('This method is not allowed.')
 
 
 class PasswordForgetSerializer(serializers.Serializer):
@@ -37,16 +37,16 @@ class PasswordForgetSerializer(serializers.Serializer):
     @staticmethod
     def save_password_code(obj: UserEmail) -> str:
         code = ''.join(random.sample(string.ascii_uppercase, 6))
-        key = f"{CACHE_PREFIX}:{obj.email}:{code}"
+        key = f'{CACHE_PREFIX}:{obj.email}:{code}'
         cache.set(key, obj.user_id, timeout=300)
         return code
 
     def create(self, validated_data) -> UserEmail:
-        email = validated_data["email"]
+        email = validated_data['email']
         try:
             obj = UserEmail.objects.get(email=email)
         except UserEmail.DoesNotExist:
-            raise ValidationError({"email": [_("Invalid email address.")]})
+            raise ValidationError({'email': [_('Invalid email address.')]})
         return obj
 
 
@@ -61,11 +61,11 @@ class PasswordResetSerializer(PasswordForgetSerializer):
     def create(self, validated_data):
         obj = super().create(validated_data)
 
-        code = validated_data["code"]
-        key = f"{CACHE_PREFIX}:{obj.email}:{code}"
+        code = validated_data['code']
+        key = f'{CACHE_PREFIX}:{obj.email}:{code}'
         user_id = cache.get(key)
         if not user_id or obj.user_id != user_id:
-            raise ValidationError({"code": [_("Code does not match or expired.")]})
+            raise ValidationError({'code': [_('Code does not match or expired.')]})
 
         raw_password = validated_data['password']
         user: AbstractUser = obj.user

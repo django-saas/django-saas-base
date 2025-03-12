@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend as BaseModelBackend
 from saas_base.models import UserEmail
 
-__all__ = ["ModelBackend"]
+__all__ = ['ModelBackend']
 
 UserModel = get_user_model()
 
@@ -16,7 +16,7 @@ class ModelBackend(BaseModelBackend):
             if '@' not in username:
                 return None
             try:
-                obj = UserEmail.objects.select_related("user").get(email=username)
+                obj = UserEmail.objects.select_related('user').get(email=username)
                 if obj.verified and obj.primary:
                     return obj.user
             except UserEmail.DoesNotExist:

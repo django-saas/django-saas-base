@@ -15,9 +15,9 @@ from ..models import UserEmail
 SIGNUP_CODE = 'saas:signup_code'
 
 ERRORS = {
-    "email": _("This email address is already associated with an existing account."),
-    "username": _("This username is already associated with an existing account."),
-    "code": _("Code does not match or expired."),
+    'email': _('This email address is already associated with an existing account.'),
+    'username': _('This username is already associated with an existing account.'),
+    'code': _('Code does not match or expired.'),
 }
 
 
@@ -39,14 +39,14 @@ class SignupRequestCodeSerializer(serializers.Serializer):
     def validate_email(self, email: str):
         try:
             UserEmail.objects.get(email=email)
-            raise ValidationError(ERRORS["email"])
+            raise ValidationError(ERRORS['email'])
         except UserEmail.DoesNotExist:
             return email
 
     def create(self, validated_data) -> EmailCode:
-        email = validated_data["email"]
+        email = validated_data['email']
         code = ''.join(random.sample(string.ascii_uppercase, 6))
-        cache_key = f"{SIGNUP_CODE}:{email}:{code}"
+        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
         cache.set(cache_key, 1, timeout=300)
         return EmailCode(email, code)
 
@@ -59,7 +59,7 @@ class SignupCreateUserSerializer(serializers.Serializer):
     def validate_email(self, email: str):
         try:
             UserEmail.objects.get(email=email)
-            raise ValidationError(ERRORS["email"])
+            raise ValidationError(ERRORS['email'])
         except UserEmail.DoesNotExist:
             return email
 
@@ -67,22 +67,22 @@ class SignupCreateUserSerializer(serializers.Serializer):
         cls: t.Type[User] = get_user_model()
         try:
             cls.objects.get(username=username)
-            raise ValidationError(ERRORS["username"])
+            raise ValidationError(ERRORS['username'])
         except cls.DoesNotExist:
             return username
 
     def validate_password(self, raw_password: str):
         user = User(
-            username=self.initial_data["username"],
-            email=self.initial_data["email"],
+            username=self.initial_data['username'],
+            email=self.initial_data['email'],
         )
         password_validation.validate_password(raw_password, user)
         return raw_password
 
     def create(self, validated_data) -> EmailCode:
-        username = validated_data["username"]
-        email = validated_data["email"]
-        password = validated_data["password"]
+        username = validated_data['username']
+        email = validated_data['email']
+        password = validated_data['password']
         cls: t.Type[User] = get_user_model()
         with transaction.atomic():
             user = cls.objects.create_user(
@@ -94,7 +94,7 @@ class SignupCreateUserSerializer(serializers.Serializer):
             UserEmail.objects.create(user=user, email=email, primary=True, verified=False)
 
         code = ''.join(random.sample(string.ascii_uppercase, 6))
-        cache_key = f"{SIGNUP_CODE}:{email}:{code}"
+        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
         cache.set(cache_key, 1, timeout=300)
         return EmailCode(email, code, user)
 
@@ -104,21 +104,21 @@ class SignupConfirmCodeSerializer(serializers.Serializer):
     code = serializers.CharField(required=True, max_length=6)
 
     def validate_code(self, code: str):
-        email = self.initial_data["email"]
+        email = self.initial_data['email']
         code = code.upper()
-        cache_key = f"{SIGNUP_CODE}:{email}:{code}"
+        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
         has_code: str = cache.get(cache_key)
         if not has_code:
-            raise ValidationError(ERRORS["code"])
+            raise ValidationError(ERRORS['code'])
 
         cache.delete(cache_key)
         try:
             return UserEmail.objects.select_related('user').get(email=email)
         except UserEmail.DoesNotExist:
-            raise ValidationError(ERRORS["code"])
+            raise ValidationError(ERRORS['code'])
 
     def create(self, validated_data) -> User:
-        user_email = validated_data["code"]
+        user_email = validated_data['code']
         with transaction.atomic():
             user_email.verified = True
             user = user_email.user
@@ -138,7 +138,7 @@ class SignupConfirmPasswordSerializer(serializers.Serializer):
         cls: t.Type[User] = get_user_model()
         try:
             cls.objects.get(username=username)
-            raise ValidationError(ERRORS["username"])
+            raise ValidationError(ERRORS['username'])
         except cls.DoesNotExist:
             return username
 
@@ -147,18 +147,18 @@ class SignupConfirmPasswordSerializer(serializers.Serializer):
         return raw_password
 
     def validate_code(self, code: str):
-        email = self.initial_data["email"]
+        email = self.initial_data['email']
         code = code.upper()
-        cache_key = f"{SIGNUP_CODE}:{email}:{code}"
+        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
         has_code: str = cache.get(cache_key)
         if not has_code:
-            raise ValidationError(ERRORS["code"])
+            raise ValidationError(ERRORS['code'])
         return code
 
     def create(self, validated_data) -> User:
-        username = validated_data["username"]
-        email = validated_data["email"]
-        password = validated_data["password"]
+        username = validated_data['username']
+        email = validated_data['email']
+        password = validated_data['password']
         cls: t.Type[User] = get_user_model()
         with transaction.atomic():
             user = cls.objects.create_user(
@@ -169,7 +169,7 @@ class SignupConfirmPasswordSerializer(serializers.Serializer):
             )
             UserEmail.objects.create(user=user, email=email, primary=True, verified=True)
 
-        code = validated_data["code"]
-        cache_key = f"{SIGNUP_CODE}:{email}:{code}"
+        code = validated_data['code']
+        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
         cache.delete(cache_key)
         return user

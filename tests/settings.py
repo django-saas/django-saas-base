@@ -2,9 +2,9 @@ TESTING = True
 SECRET_KEY = 'django-insecure'
 ALLOWED_HOSTS = ['*']
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
     }
 }
 TEMPLATES = [
@@ -18,7 +18,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
             ]
-        }
+        },
     }
 ]
 AUTHENTICATION_BACKENDS = [
@@ -43,9 +43,9 @@ CACHES = {
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        "OPTIONS": {
-            "min_length": 8,
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
         },
     },
 ]

@@ -4,11 +4,11 @@ from .settings import saas_settings
 from .models import get_tenant_model
 
 __all__ = [
-    "TenantMiddleware",
-    "ConfiguredTenantIdMiddleware",
-    "HeaderTenantIdMiddleware",
-    "PathTenantIdMiddleware",
-    "SessionTenantIdMiddleware",
+    'TenantMiddleware',
+    'ConfiguredTenantIdMiddleware',
+    'HeaderTenantIdMiddleware',
+    'PathTenantIdMiddleware',
+    'SessionTenantIdMiddleware',
 ]
 TenantModel = get_tenant_model()
 
@@ -38,7 +38,7 @@ class TenantMiddleware:
 
 
 class ConfiguredTenantIdMiddleware:
-    SETTING_KEY = "SAAS_TENANT_ID"
+    SETTING_KEY = 'SAAS_TENANT_ID'
 
     def __init__(self, get_response=None):
         self.get_response = get_response
@@ -55,7 +55,7 @@ class HeaderTenantIdMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if getattr(request, "tenant_id", None):
+        if getattr(request, 'tenant_id', None):
             return self.get_response(request)
 
         tenant_id = request.headers.get(self.HTTP_HEADER)
@@ -64,13 +64,13 @@ class HeaderTenantIdMiddleware:
 
 
 class PathTenantIdMiddleware:
-    FIELD_KEY = "tenant_id"
+    FIELD_KEY = 'tenant_id'
 
     def __init__(self, get_response=None):
         self.get_response = get_response
 
     def process_view(self, request, view_func, view_args, view_kwargs):
-        if getattr(request, "tenant_id", None):
+        if getattr(request, 'tenant_id', None):
             return
         tenant_id = view_kwargs.get(self.FIELD_KEY)
         request.tenant_id = TenantModel._meta.pk.to_python(tenant_id)
@@ -80,13 +80,13 @@ class PathTenantIdMiddleware:
 
 
 class SessionTenantIdMiddleware:
-    FIELD_KEY = "tenant_id"
+    FIELD_KEY = 'tenant_id'
 
     def __init__(self, get_response=None):
         self.get_response = get_response
 
     def __call__(self, request):
-        if getattr(request, "tenant_id", None):
+        if getattr(request, 'tenant_id', None):
             return self.get_response(request)
 
         tenant_id = request.session.get(self.FIELD_KEY)

@@ -8,12 +8,12 @@ from ..settings import saas_settings
 
 
 class TenantIdFilter(BaseFilterBackend):
-    tenant_id_field = "tenant_id"
+    tenant_id_field = 'tenant_id'
 
     def filter_queryset(self, request, queryset, view):
         query_field = getattr(view, 'tenant_id_field', self.tenant_id_field)
 
-        tenant_id = getattr(request, "tenant_id", None)
+        tenant_id = getattr(request, 'tenant_id', None)
         if not tenant_id:
             raise BadRequest('Missing Tenant ID')
 
@@ -26,30 +26,34 @@ class TenantIdFilter(BaseFilterBackend):
 
         parameters = []
         if in_header:
-            parameters.append({
-                'name': saas_settings.TENANT_ID_HEADER,
-                'required': True,
-                'in': 'header',
-                'schema': {
-                    'type': 'string',
-                },
-            })
+            parameters.append(
+                {
+                    'name': saas_settings.TENANT_ID_HEADER,
+                    'required': True,
+                    'in': 'header',
+                    'schema': {
+                        'type': 'string',
+                    },
+                }
+            )
 
         if in_path:
-            parameters.append({
-                'name': "tenant_id",
-                'required': True,
-                'in': 'path',
-                'schema': {
-                    'type': 'string',
-                },
-            })
+            parameters.append(
+                {
+                    'name': 'tenant_id',
+                    'required': True,
+                    'in': 'path',
+                    'schema': {
+                        'type': 'string',
+                    },
+                }
+            )
 
         if len(parameters) == 2:
             parameters[0]['required'] = False
-            parameters[0]['description'] = "Tenant ID (required if not provided in path)."
+            parameters[0]['description'] = 'Tenant ID (required if not provided in path).'
             parameters[1]['required'] = False
-            parameters[1]['description'] = "Tenant ID (required if not provided in header)."
+            parameters[1]['description'] = 'Tenant ID (required if not provided in header).'
 
         return parameters
 
@@ -94,9 +98,7 @@ class IncludeFilter(BaseFilterBackend):
         return queryset
 
     def to_html(self, request, queryset, view):
-        context = {
-            'term': request.query_params.get('include', '')
-        }
+        context = {'term': request.query_params.get('include', '')}
         template = loader.get_template(self.template)
         return template.render(context)
 

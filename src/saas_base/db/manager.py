@@ -13,7 +13,7 @@ from .cache import cache
 
 logger = logging.getLogger(__name__)
 
-M = t.TypeVar("M", bound=Model)
+M = t.TypeVar('M', bound=Model)
 
 
 class CachedManager(Manager, t.Generic[M]):
@@ -112,14 +112,14 @@ class CachedManager(Manager, t.Generic[M]):
 
     def __get_lookup_cache_key(self, **kwargs) -> str:
         key = make_key(self.model, kwargs)
-        return f"db:{self.model._meta.db_table}:{key}"
+        return f'db:{self.model._meta.db_table}:{key}'
 
     def __get_natural_cache_key(self, instance: M) -> str:
         natural_fields = {key: value_for_field(instance, key) for key in self.natural_key}
         return self.__get_lookup_cache_key(**natural_fields)
 
     def __post_save(self, instance, **kwargs):
-        if not kwargs.get("created"):
+        if not kwargs.get('created'):
             _natural_cache_key = self.db_cache.get(
                 self.__get_lookup_cache_key(__track=instance.pk),
                 version=self.cache_version,
@@ -159,7 +159,7 @@ class CachedManager(Manager, t.Generic[M]):
         to_delete = [
             self.__get_lookup_cache_key(pk=instance.pk),
             self.__get_natural_cache_key(instance),
-            self.__get_lookup_cache_key(__track=instance.pk)
+            self.__get_lookup_cache_key(__track=instance.pk),
         ]
         self.db_cache.delete_many(to_delete, version=self.cache_version)
 
@@ -167,17 +167,17 @@ class CachedManager(Manager, t.Generic[M]):
 def make_key(cls: Model, kwargs: t.Mapping[str, t.Union[Model, int, str]]) -> str:
     fields = []
     for k, v in sorted(kwargs.items()):
-        if k == "pk":
+        if k == 'pk':
             # convert pk to its real name
             k = str(cls._meta.pk.name)
             if isinstance(v, str) and isinstance(cls._meta.pk, UUIDField):
-                v = v.replace("-", "")
+                v = v.replace('-', '')
         if isinstance(v, Model):
             v = v.pk
         if isinstance(v, uuid.UUID):
             v = v.hex
-        fields.append(f"{k}={v}")
-    return hashlib.md5("&".join(fields).encode("utf-8")).hexdigest()
+        fields.append(f'{k}={v}')
+    return hashlib.md5('&'.join(fields).encode('utf-8')).hexdigest()
 
 
 def value_for_field(instance: M, key: str) -> t.Any:

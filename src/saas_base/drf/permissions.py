@@ -23,11 +23,10 @@ http_method_actions = {
 
 
 class IsTenantOwner(BasePermission):
-    """The authenticated user is the tenant owner.
-    """
+    """The authenticated user is the tenant owner."""
 
     def has_permission(self, request: Request, view):
-        tenant_id = getattr(request, "tenant_id", None)
+        tenant_id = getattr(request, 'tenant_id', None)
         if not tenant_id:
             return False
         try:
@@ -38,8 +37,7 @@ class IsTenantOwner(BasePermission):
 
 
 class IsTenantOwnerOrReadOnly(IsTenantOwner):
-    """The authenticated user is the tenant owner, or is a read-only request.
-    """
+    """The authenticated user is the tenant owner, or is a read-only request."""
 
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
@@ -91,7 +89,7 @@ class HasResourcePermission(BasePermission):
             return True
 
         # HasResourcePermission should apply to TenantEndpoint
-        tenant_id = getattr(request, "tenant_id", None)
+        tenant_id = getattr(request, 'tenant_id', None)
         if not tenant_id:
             return False
 
@@ -114,8 +112,7 @@ class HasResourcePermission(BasePermission):
 
 
 class HasResourceScope(BasePermission):
-    """The request token contains the given resource scopes.
-    """
+    """The request token contains the given resource scopes."""
 
     @staticmethod
     def get_resource_scopes(view, method):
@@ -136,7 +133,7 @@ class HasResourceScope(BasePermission):
             return True
 
         scope = getattr(request.auth, 'scope', '')
-        if scope == "__all__":
+        if scope == '__all__':
             return True
 
         token_scopes = set(scope.split())

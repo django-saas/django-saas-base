@@ -8,9 +8,9 @@ if not hasattr(settings, 'SAAS_TENANT_MODEL'):
 
 
 class CoreConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"
-    name = "saas_base"
-    verbose_name = "SaaS"
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'saas_base'
+    verbose_name = 'SaaS'
 
     def ready(self):
         post_migrate.connect(create_permissions)

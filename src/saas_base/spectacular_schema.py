@@ -16,6 +16,7 @@ class PasswordLogInEndpoint(OpenApiViewExtension):
             @extend_schema(summary='Log In', responses={200: AuthResponseSerializer})
             def post(self, *args, **kwargs):
                 pass
+
         return FixedPasswordLogInEndpoint
 
 
@@ -27,6 +28,7 @@ class LogoutEndpoint(OpenApiViewExtension):
             @extend_schema(summary='Log Out', request=None, responses={200: AuthResponseSerializer})
             def post(self, *args, **kwargs):
                 pass
+
         return FixedLogoutEndpoint
 
 
@@ -38,6 +40,7 @@ class SignupConfirmEndpoint(OpenApiViewExtension):
             @extend_schema(summary='Sign Up', responses={200: AuthResponseSerializer})
             def post(self, *args, **kwargs):
                 pass
+
         return FixedSignupConfirmEndpoint
 
 
@@ -49,6 +52,7 @@ class SignupRequestEndpoint(OpenApiViewExtension):
             @extend_schema(summary='Request to Sign-up', responses={204: None})
             def post(self, *args, **kwargs):
                 pass
+
         return FixedSignupRequestEndpoint
 
 
@@ -60,6 +64,7 @@ class PasswordResetEndpoint(OpenApiViewExtension):
             @extend_schema(summary='Password Reset', responses={200: AuthResponseSerializer})
             def post(self, *args, **kwargs):
                 pass
+
         return FixedPasswordResetEndpoint
 
 
@@ -71,6 +76,7 @@ class PasswordForgotEndpoint(OpenApiViewExtension):
             @extend_schema(summary='Password Forgot', responses={204: None})
             def post(self, *args, **kwargs):
                 pass
+
         return FixedPasswordForgotEndpoint
 
 
@@ -114,10 +120,11 @@ class MemberGroupsEndpoint(OpenApiViewExtension):
                         value=['497f6eca-6276-4993-bfeb-53cbbbba6f08'],
                         request_only=True,
                     ),
-                ]
+                ],
             )
             def post(self, *args, **kwargs):
                 pass
+
         return Fixed
 
 
@@ -133,6 +140,7 @@ class MemberGroupItemEndpoint(OpenApiViewExtension):
             )
             def delete(self, *args, **kwargs):
                 pass
+
         return Fixed
 
 
@@ -161,10 +169,11 @@ class MemberPermissionsEndpoint(OpenApiViewExtension):
                         value=['tenant.read', 'tenant.admin'],
                         request_only=True,
                     ),
-                ]
+                ],
             )
             def post(self, *args, **kwargs):
                 pass
+
         return Fixed
 
 
@@ -180,4 +189,5 @@ class MemberPermissionItemEndpoint(OpenApiViewExtension):
             )
             def delete(self, *args, **kwargs):
                 pass
+
         return Fixed

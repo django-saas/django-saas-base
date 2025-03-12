@@ -7,6 +7,7 @@ from rest_framework.serializers import ModelSerializer as _ModelSerializer
 
 class ChoiceField(_ChoiceField):
     """Rewrite this fields to support (int, str) choices."""
+
     def __init__(self, choices, **kwargs):
         super().__init__(choices, **kwargs)
 
@@ -91,7 +92,7 @@ def _make_flatten_fields(form: OrderedDict, flatten: t.List[str]):
             fields = serializer.get_fields()
             for name in fields:
                 field = fields[name]
-                field.source = f"{source}.{name}"
+                field.source = f'{source}.{name}'
                 if name in form:
                     form[f'{source}_{name}'] = field
                 else:

@@ -15,18 +15,18 @@ def create_permissions_receiver(permissions: t.List[t.Tuple[str, str]]):
         if not app_config.models_module:
             return
 
-        if app_config.label != "saas_base":
+        if app_config.label != 'saas_base':
             return
 
         try:
-            Permission = apps.get_model(app_config.label, "Permission")
+            Permission = apps.get_model(app_config.label, 'Permission')
         except LookupError:
             return
 
-        existed_perms = set(Permission.objects.values_list("name", flat=True).all())
+        existed_perms = set(Permission.objects.values_list('name', flat=True).all())
 
         to_add_perms = []
-        for (name, description) in permissions:
+        for name, description in permissions:
             if name not in existed_perms:
                 to_add_perms.append(Permission(name=name, description=description))
 

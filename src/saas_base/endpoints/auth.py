@@ -21,8 +21,8 @@ from ..mail import SendEmailMixin
 
 
 class SignupRequestEndpoint(SendEmailMixin, Endpoint):
-    email_template_id = "signup_code"
-    email_subject = _("Signup Request")
+    email_template_id = 'signup_code'
+    email_subject = _('Signup Request')
     authentication_classes = []
     permission_classes = []
     throttle_classes = [AnonRateThrottle]
@@ -61,17 +61,14 @@ class SignupConfirmEndpoint(Endpoint):
         user = serializer.save()
 
         # update related membership
-        Member.objects.filter(invite_email=user.email).update(
-            user=user,
-            status=Member.InviteStatus.WAITING
-        )
+        Member.objects.filter(invite_email=user.email).update(user=user, status=Member.InviteStatus.WAITING)
         after_signup_user.send(
             self.__class__,
             user=user,
             request=request,
-            strategy="password",
+            strategy='password',
         )
-        return Response({"next": settings.LOGIN_REDIRECT_URL})
+        return Response({'next': settings.LOGIN_REDIRECT_URL})
 
 
 class PasswordLogInEndpoint(Endpoint):
@@ -91,9 +88,9 @@ class PasswordLogInEndpoint(Endpoint):
             self.__class__,
             user=user,
             request=request,
-            strategy="password",
+            strategy='password',
         )
-        return Response({"next": settings.LOGIN_REDIRECT_URL})
+        return Response({'next': settings.LOGIN_REDIRECT_URL})
 
 
 class LogoutEndpoint(Endpoint):
@@ -103,4 +100,4 @@ class LogoutEndpoint(Endpoint):
     def post(self, request: Request):
         """Clear the user session and log the user out."""
         logout(request._request)
-        return Response({"next": settings.LOGIN_URL})
+        return Response({'next': settings.LOGIN_URL})

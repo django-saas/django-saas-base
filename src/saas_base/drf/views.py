@@ -20,7 +20,7 @@ class Endpoint(GenericAPIView):
         return get_object_or_404(queryset, **kwargs)
 
     def prevent_duplicate_request(self, suffix: t.Union[str, int], timeout: int = 120, force: bool = False):
-        if getattr(settings, "TESTING", False) and not force:
+        if getattr(settings, 'TESTING', False) and not force:
             return
 
         path = self.request.path
@@ -35,12 +35,16 @@ class AuthenticatedEndpoint(Endpoint):
 
 
 class TenantEndpoint(Endpoint):
-    permission_classes = [IsAuthenticated, HasResourceScope, HasResourcePermission] + api_settings.DEFAULT_PERMISSION_CLASSES
+    permission_classes = [
+        IsAuthenticated,
+        HasResourceScope,
+        HasResourcePermission,
+    ] + api_settings.DEFAULT_PERMISSION_CLASSES
     filter_backends = [TenantIdFilter]
     resource_name = 'tenant'
 
     def get_tenant_id(self):
-        tenant_id = getattr(self.request, "tenant_id", None)
+        tenant_id = getattr(self.request, 'tenant_id', None)
         if not tenant_id:
             raise BadRequest('Missing Tenant ID')
         return tenant_id

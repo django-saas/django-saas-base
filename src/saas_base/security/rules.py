@@ -26,7 +26,7 @@ class BlockedEmailDomains(Rule):
     def bad_request(self, request: Request):
         blocked_list = self.options.get('domains')
         email = self.get_response_field_value(request)
-        return blocked_list and email.endswith(tuple([f"@{s}" for s in blocked_list]))
+        return blocked_list and email.endswith(tuple([f'@{s}' for s in blocked_list]))
 
 
 class TooManyDots(Rule):
@@ -50,7 +50,7 @@ class Turnstile(Rule):
 
         secret = self.options.get('secret')
         ip = get_client_ip(request)
-        data = {"secret": secret, "remoteip": ip, "response": token}
+        data = {'secret': secret, 'remoteip': ip, 'response': token}
         resp = requests.post(self.API_URL, data=data, timeout=5)
         resp.raise_for_status()
         data = resp.json()

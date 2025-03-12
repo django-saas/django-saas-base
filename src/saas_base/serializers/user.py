@@ -24,13 +24,13 @@ class UserPasswordSerializer(serializers.Serializer):
     confirm_password = serializers.CharField(required=True)
 
     def validate_password(self, raw_password: str):
-        if self.initial_data["confirm_password"] != raw_password:
-            raise ValidationError(_("Password does not match."))
+        if self.initial_data['confirm_password'] != raw_password:
+            raise ValidationError(_('Password does not match.'))
         password_validation.validate_password(raw_password)
         return raw_password
 
     def update(self, user: AbstractUser, validated_data):
-        raw_password = validated_data["password"]
+        raw_password = validated_data['password']
         user.set_password(raw_password)
         user.save()
         return user

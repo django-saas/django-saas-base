@@ -9,7 +9,7 @@ from ..db import CachedManager
 class EmailManager(CachedManager):
     natural_key = ['email']
 
-    def get_by_email(self, email: str) -> "UserEmail":
+    def get_by_email(self, email: str) -> 'UserEmail':
         return self.get_from_cache_by_natural_key(email)
 
 
@@ -24,8 +24,8 @@ class UserEmail(models.Model):
     objects = EmailManager()
 
     class Meta:
-        verbose_name = _("email")
-        verbose_name_plural = _("emails")
+        verbose_name = _('email')
+        verbose_name_plural = _('emails')
         ordering = ['created_at']
         db_table = 'saas_auth_email'
 
@@ -33,4 +33,4 @@ class UserEmail(models.Model):
         return self.email
 
     def natural_key(self):
-        return self.email,
+        return (self.email,)

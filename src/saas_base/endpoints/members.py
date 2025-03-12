@@ -19,7 +19,7 @@ from ..signals import member_invited
 
 
 class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
-    email_template_id = "invite_member"
+    email_template_id = 'invite_member'
     email_subject = _("You've Been Invited to Join %s")
 
     serializer_class = MemberSerializer
@@ -105,13 +105,13 @@ class _MemberEndpoint(TenantEndpoint):
         return member
 
     def list(self, request: Request, *args, **kwargs):
-        member = self.get_member(kwargs["member_id"])
+        member = self.get_member(kwargs['member_id'])
         queryset = self.get_queryset().filter(member=member)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def replace(self, request: Request, field_name: str, **kwargs):
-        member = self.get_member(kwargs["member_id"])
+        member = self.get_member(kwargs['member_id'])
         queryset = self.filter_queryset(self.get_queryset())
         items = queryset.filter(pk__in=request.data).all()
         getattr(member, field_name).set(items)
@@ -119,7 +119,7 @@ class _MemberEndpoint(TenantEndpoint):
 
     def destroy(self, request: Request, field_name: str, **kwargs):
         obj = self.get_object_or_404(self.get_queryset(), pk=kwargs['pk'])
-        member = self.get_member(kwargs["member_id"])
+        member = self.get_member(kwargs['member_id'])
         if obj.member_id != member.pk:
             raise NotFound()
         getattr(member, field_name).remove(obj)
@@ -136,7 +136,7 @@ class MemberGroupsEndpoint(_MemberEndpoint):
 
     def post(self, request: Request, *args, **kwargs):
         """Reset groups of the selected member."""
-        return self.replace(request, field_name="groups", **kwargs)
+        return self.replace(request, field_name='groups', **kwargs)
 
 
 class MemberPermissionsEndpoint(_MemberEndpoint):
@@ -149,7 +149,7 @@ class MemberPermissionsEndpoint(_MemberEndpoint):
 
     def post(self, request: Request, *args, **kwargs):
         """Reset permissions of the selected member."""
-        return self.replace(request, field_name="permissions", **kwargs)
+        return self.replace(request, field_name='permissions', **kwargs)
 
 
 class MemberGroupItemEndpoint(_MemberEndpoint):
@@ -158,7 +158,7 @@ class MemberGroupItemEndpoint(_MemberEndpoint):
 
     def delete(self, request: Request, *args, **kwargs):
         """Remove a group of the selected member."""
-        return self.destroy(request, field_name="groups", **kwargs)
+        return self.destroy(request, field_name='groups', **kwargs)
 
 
 class MemberPermissionItemEndpoint(_MemberEndpoint):
@@ -167,4 +167,4 @@ class MemberPermissionItemEndpoint(_MemberEndpoint):
 
     def delete(self, request: Request, *args, **kwargs):
         """Remove a permission of the selected member."""
-        return self.destroy(request, field_name="permissions", **kwargs)
+        return self.destroy(request, field_name='permissions', **kwargs)

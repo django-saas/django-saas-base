@@ -28,7 +28,7 @@ class MemberInviteSerializer(ModelSerializer):
 
     class Meta:
         model = Member
-        fields = ["name", "invite_email", "is_owner"]
+        fields = ['name', 'invite_email', 'is_owner']
 
     def validate_invite_email(self, email: str):
         view = self.context['view']
@@ -38,15 +38,15 @@ class MemberInviteSerializer(ModelSerializer):
         return email
 
     def create(self, validated_data):
-        email = validated_data["invite_email"]
+        email = validated_data['invite_email']
         try:
             user_email = UserEmail.objects.get_by_email(email)
-            validated_data["user_id"] = user_email.user_id
-            validated_data["status"] = Member.InviteStatus.WAITING
+            validated_data['user_id'] = user_email.user_id
+            validated_data['status'] = Member.InviteStatus.WAITING
         except UserEmail.DoesNotExist:
             pass
         request = self.context['request']
-        validated_data["inviter"] = request.user
+        validated_data['inviter'] = request.user
         return super().create(validated_data)
 
 

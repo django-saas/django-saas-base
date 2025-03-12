@@ -7,8 +7,8 @@ from ..db import CachedManager
 from ..settings import saas_settings
 
 
-class PermissionManager(CachedManager["Permission"]):
-    natural_key = ["name"]
+class PermissionManager(CachedManager['Permission']):
+    natural_key = ['name']
 
     def get_by_name(self, name: str):
         return self.get_from_cache_by_pk(name)
@@ -35,13 +35,13 @@ class Permission(models.Model):
     objects = PermissionManager()
 
     class Meta:
-        verbose_name = _("permission")
-        verbose_name_plural = _("permissions")
+        verbose_name = _('permission')
+        verbose_name_plural = _('permissions')
         db_table = 'saas_permission'
-        ordering = ["name"]
+        ordering = ['name']
 
     def __str__(self):
         return self.name
 
     def natural_key(self):
-        return self.name,
+        return (self.name,)

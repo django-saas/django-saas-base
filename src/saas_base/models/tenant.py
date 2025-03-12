@@ -11,10 +11,10 @@ from ..settings import saas_settings
 
 
 class TenantManager(CachedManager):
-    natural_key = ["slug"]
+    natural_key = ['slug']
 
     def create(self, slug: str, owner: Optional[AbstractUser] = None, **kwargs):
-        kwargs.setdefault("region", saas_settings.DEFAULT_REGION)
+        kwargs.setdefault('region', saas_settings.DEFAULT_REGION)
         tenant = super().create(slug=slug, owner=owner, **kwargs)
         # initial with owner membership
         if owner:
@@ -23,10 +23,10 @@ class TenantManager(CachedManager):
                 user=owner,
                 tenant=tenant,
                 defaults={
-                    "name": name,
-                    "is_owner": True,
-                    "status": Member.InviteStatus.ACTIVE,
-                }
+                    'name': name,
+                    'is_owner': True,
+                    'status': Member.InviteStatus.ACTIVE,
+                },
             )
         return tenant
 
@@ -49,19 +49,19 @@ class AbstractTenant(models.Model):
     objects = TenantManager()
 
     class Meta:
-        verbose_name = _("tenant")
-        verbose_name_plural = _("tenants")
+        verbose_name = _('tenant')
+        verbose_name_plural = _('tenants')
         abstract = True
 
     def __str__(self):
         return self.slug
 
     def natural_key(self):
-        return self.slug,
+        return (self.slug,)
 
 
 class Tenant(AbstractTenant):
-    objects = TenantManager["Tenant"]()
+    objects = TenantManager['Tenant']()
 
     class Meta(AbstractTenant.Meta):
         swappable = 'SAAS_TENANT_MODEL'

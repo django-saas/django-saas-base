@@ -4,7 +4,7 @@ from drf_spectacular.openapi import AutoSchema as _AutoSchema
 
 class AutoSchema(_AutoSchema):
     def get_filter_backends(self) -> List[Any]:
-        return getattr(self.view, "filter_backends", [])
+        return getattr(self.view, 'filter_backends', [])
 
     def get_description(self) -> str:
         description = super().get_description()
@@ -12,9 +12,9 @@ class AutoSchema(_AutoSchema):
         permissions = []
         scopes = []
         for perm in self.view.permission_classes:
-            if hasattr(perm, "get_resource_permissions"):
+            if hasattr(perm, 'get_resource_permissions'):
                 permissions = perm.get_resource_permissions(self.view, self.method)
-            if hasattr(perm, "get_resource_scopes"):
+            if hasattr(perm, 'get_resource_scopes'):
                 scopes = perm.get_resource_scopes(self.view, self.method)
 
         if permissions:

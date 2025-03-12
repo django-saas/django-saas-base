@@ -12,7 +12,7 @@ from ..serializers.member import UserTenantsSerializer
 
 
 class UserEndpoint(AuthenticatedEndpoint):
-    resource_scopes = ["user", "user:profile"]
+    resource_scopes = ['user', 'user:profile']
     serializer_class = UserSerializer
 
     def get(self, request: Request):
@@ -22,7 +22,7 @@ class UserEndpoint(AuthenticatedEndpoint):
 
 
 class UserPasswordEndpoint(AuthenticatedEndpoint):
-    resource_scopes = ["user:password"]
+    resource_scopes = ['user:password']
     serializer_class = UserPasswordSerializer
 
     def post(self, request: Request, *args, **kwargs):
@@ -34,7 +34,7 @@ class UserPasswordEndpoint(AuthenticatedEndpoint):
 
 
 class UserEmailListEndpoint(ListModelMixin, AuthenticatedEndpoint):
-    resource_scopes = ["user:email"]
+    resource_scopes = ['user:email']
     pagination_class = None
     serializer_class = UserEmailSerializer
 

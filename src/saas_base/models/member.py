@@ -13,9 +13,9 @@ from ..db import CachedManager
 
 
 class MemberManager(CachedManager):
-    natural_key = ["tenant_id", "user_id"]
+    natural_key = ['tenant_id', 'user_id']
 
-    def get_by_natural_key(self, tenant_id, user_id) -> "Member":
+    def get_by_natural_key(self, tenant_id, user_id) -> 'Member':
         return self.get_from_cache_by_natural_key(tenant_id, user_id)
 
 
@@ -51,20 +51,19 @@ class Member(models.Model):
         Group,
         blank=True,
         help_text=_(
-            "The groups this user belongs to. A user will get all permissions "
-            "granted to each of their groups."
+            'The groups this user belongs to. A user will get all permissions granted to each of their groups.'
         ),
     )
     permissions = models.ManyToManyField(
         Permission,
         blank=True,
-        help_text=_("Specific permissions for this user."),
+        help_text=_('Specific permissions for this user.'),
     )
     objects = MemberManager()
 
     class Meta:
-        verbose_name = _("member")
-        verbose_name_plural = _("members")
+        verbose_name = _('member')
+        verbose_name_plural = _('members')
         unique_together = [
             ['tenant', 'user'],
         ]
@@ -80,7 +79,7 @@ class Member(models.Model):
 
     @classmethod
     def normalize_username(cls, username: str):
-        return unicodedata.normalize("NFKC", username)
+        return unicodedata.normalize('NFKC', username)
 
     @cached_property
     def group_permissions(self) -> List[str]:

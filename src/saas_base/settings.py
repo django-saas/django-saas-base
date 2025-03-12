@@ -36,7 +36,7 @@ class Settings:
         'RESET_PASSWORD_SECURITY_RULES',
     ]
 
-    def __init__(self, settings_key="SAAS", user_settings=None, defaults=None):
+    def __init__(self, settings_key='SAAS', user_settings=None, defaults=None):
         self.settings_key = settings_key
         self._user_settings = user_settings
         if defaults is None:
