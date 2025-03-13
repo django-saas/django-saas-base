@@ -66,4 +66,4 @@ class UserTenantsSerializer(ModelSerializer):
 
     class Meta:
         model = Member
-        exclude = ['user', 'inviter']
+        exclude = ['user', 'inviter', 'invite_email']
