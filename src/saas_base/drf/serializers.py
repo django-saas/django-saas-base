@@ -101,4 +101,4 @@ def _make_flatten_fields(form: OrderedDict, flatten: t.List[str]):
 
 
 def _is_lower_string(s: str):
-    return isinstance(s, str) and bool(re.match(r'^[0-9a-z]+$', s))
+    return isinstance(s, str) and bool(re.match(r'^[0-9a-z-_]+$', s))
