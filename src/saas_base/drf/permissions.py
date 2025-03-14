@@ -68,19 +68,13 @@ class HasResourcePermission(BasePermission):
         return [permission]
 
     @staticmethod
-    def get_tenant(tenant_id):
+    def get_tenant(request: Request):
+        tenant_id = getattr(request, 'tenant_id', None)
+        if not tenant_id:
+            return None
         try:
             return TenantModel.objects.get_from_cache_by_pk(tenant_id)
         except TenantModel.DoesNotExist:
-            return None
-
-    @staticmethod
-    def get_all_permissions(tenant_id, user_id):
-        try:
-            member = Member.objects.get_by_natural_key(tenant_id, user_id)
-            if member.is_active:
-                return member.get_all_permissions()
-        except Member.DoesNotExist:
             return None
 
     def has_permission(self, request: Request, view):
@@ -89,11 +83,7 @@ class HasResourcePermission(BasePermission):
             return True
 
         # HasResourcePermission should apply to TenantEndpoint
-        tenant_id = getattr(request, 'tenant_id', None)
-        if not tenant_id:
-            return False
-
-        tenant = self.get_tenant(tenant_id)
+        tenant = self.get_tenant(request)
         if not tenant:
             return False
 
@@ -101,7 +91,17 @@ class HasResourcePermission(BasePermission):
         if tenant.owner_id == request.user.pk:
             return True
 
-        perms = self.get_all_permissions(tenant_id, request.user.pk)
+        try:
+            member = Member.objects.get_by_natural_key(tenant.pk, request.user.pk)
+            if not member.is_active:
+                return False
+            # owner has all permissions
+            if member.is_owner:
+                return True
+        except Member.DoesNotExist:
+            return False
+
+        perms = member.get_all_permissions()
         if not perms:
             return False
 
