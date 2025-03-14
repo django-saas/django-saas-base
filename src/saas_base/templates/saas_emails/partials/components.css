@@ -1,25 +1,26 @@
-.btn {
+.button {
   box-sizing: border-box;
   width: 100%;
+  padding-top: 15px;
   padding-bottom: 15px;
 }
 
-.btn table {
+.button table {
   width: auto;
 }
 
-.btn table td {
-  background-color: #ffffff;
+.button table td {
+  background-color: #1e1e1e;
   border-radius: 5px;
   text-align: center;
 }
 
-.btn a {
-  background-color: #ffffff;
-  border: solid 1px #0588F0;
+.button a {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  border: solid 1px #1e1e1e;
   border-radius: 5px;
   box-sizing: border-box;
-  color: #0588F0;
   cursor: pointer;
   display: inline-block;
   font-size: 14px;
@@ -28,16 +29,6 @@
   padding: 12px 25px;
   text-decoration: none;
   text-transform: capitalize;
-}
-
-.btn-primary table td {
-  background-color: #0588F0;
-}
-
-.btn-primary a {
-  background-color: #0588F0;
-  border-color: #0588F0;
-  color: #ffffff;
 }
 
 .auth-code {
