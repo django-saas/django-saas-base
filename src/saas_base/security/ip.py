@@ -19,15 +19,16 @@ CLIENT_IP_HEADERS = (
 )
 
 
-def get_client_ip(request):
+def get_client_ip(request, ip_headers=None):
     remote_addr = request.META.get('REMOTE_ADDR')
 
-    if saas_settings.CLIENT_IP_HEADERS:
-        possible_headers = saas_settings.CLIENT_IP_HEADERS
-    else:
-        possible_headers = CLIENT_IP_HEADERS
+    if ip_headers is None:
+        if saas_settings.CLIENT_IP_HEADERS:
+            ip_headers = saas_settings.CLIENT_IP_HEADERS
+        else:
+            ip_headers = CLIENT_IP_HEADERS
 
-    for key in possible_headers:
+    for key in ip_headers:
         ip = request.headers.get(key)
         if ip:
             if ',' in ip:
