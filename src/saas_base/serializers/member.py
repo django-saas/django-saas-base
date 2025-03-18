@@ -3,18 +3,16 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from ..drf.serializers import ModelSerializer
 from ..models import Member, UserEmail
-from .tenant import (
-    PermissionSerializer,
-    GroupPermissionSerializer,
-    TenantSerializer,
-)
+from .tenant import TenantSerializer
+from .permission import PermissionSerializer
+from .group import GroupSerializer
 from .user import UserSerializer
 
 
 class MemberSerializer(ModelSerializer):
     user = UserSerializer(required=False, read_only=True)
     inviter = UserSerializer(required=False, read_only=True)
-    groups = GroupPermissionSerializer(required=False, many=True, read_only=True)
+    groups = GroupSerializer(required=False, many=True, read_only=True)
     permissions = PermissionSerializer(required=False, many=True, read_only=True)
 
     class Meta:
@@ -51,7 +49,7 @@ class MemberInviteSerializer(ModelSerializer):
 
 
 class MemberDetailSerializer(ModelSerializer):
-    groups = GroupPermissionSerializer(many=True, read_only=True)
+    groups = GroupSerializer(many=True, read_only=True)
     permissions = PermissionSerializer(many=True, read_only=True)
 
     class Meta:
@@ -61,7 +59,7 @@ class MemberDetailSerializer(ModelSerializer):
 
 class UserTenantsSerializer(ModelSerializer):
     tenant = TenantSerializer()
-    groups = GroupPermissionSerializer(many=True, read_only=True)
+    groups = GroupSerializer(many=True, read_only=True)
     permissions = PermissionSerializer(many=True, read_only=True)
 
     class Meta:

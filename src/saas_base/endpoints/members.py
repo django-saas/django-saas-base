@@ -11,9 +11,9 @@ from ..serializers.member import (
     MemberSerializer,
     MemberInviteSerializer,
     MemberDetailSerializer,
-    GroupPermissionSerializer,
-    PermissionSerializer,
 )
+from ..serializers.group import GroupSerializer
+from ..serializers.permission import PermissionSerializer
 from ..models import Member, Group, Permission
 from ..signals import member_invited
 
@@ -127,7 +127,7 @@ class _MemberEndpoint(TenantEndpoint):
 
 
 class MemberGroupsEndpoint(_MemberEndpoint):
-    serializer_class = GroupPermissionSerializer
+    serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
     def get(self, request: Request, *args, **kwargs):
@@ -153,7 +153,7 @@ class MemberPermissionsEndpoint(_MemberEndpoint):
 
 
 class MemberGroupItemEndpoint(_MemberEndpoint):
-    serializer_class = GroupPermissionSerializer
+    serializer_class = GroupSerializer
     queryset = Group.objects.all()
 
     def delete(self, request: Request, *args, **kwargs):

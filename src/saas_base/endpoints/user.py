@@ -20,6 +20,13 @@ class UserEndpoint(AuthenticatedEndpoint):
         serializer: UserSerializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
+    def patch(self, request, *args, **kwargs):
+        """Update current user information."""
+        serializer = self.get_serializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
 
 class UserPasswordEndpoint(AuthenticatedEndpoint):
     resource_scopes = ['user:password']
