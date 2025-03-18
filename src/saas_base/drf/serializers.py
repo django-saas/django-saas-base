@@ -1,7 +1,10 @@
 import re
 import typing as t
 from collections import OrderedDict
-from rest_framework.fields import ChoiceField as _ChoiceField
+
+from django.db.models import QuerySet
+from rest_framework.validators import ValidationError
+from rest_framework.fields import Field, ChoiceField as _ChoiceField
 from rest_framework.serializers import ModelSerializer as _ModelSerializer
 
 
@@ -51,6 +54,28 @@ class ChoiceField(_ChoiceField):
             return self.int_str_choices[value]
 
         return self.choice_strings_to_values.get(str(value), value)
+
+
+class RelatedSerializerField(Field):
+    def __init__(self, serializer_cls, **kwargs):
+        self.serializer_cls = serializer_cls
+        self.many = kwargs.pop('many', False)
+        super().__init__(**kwargs)
+
+    def to_representation(self, value: QuerySet):
+        return self.serializer_cls(value.all(), many=self.many).data
+
+    def to_internal_value(self, data):
+        model = self.serializer_cls.Meta.model
+        if self.many and not isinstance(data, list):
+            raise ValidationError(f"Expected a list of {model.__name__} IDs.")
+
+        if self.many:
+            return model.objects.filter(pk__in=data)
+        try:
+            return model.objects.get(pk=data)
+        except model.DoesNotExist:
+            raise ValidationError(f"Invalid {model.__name__} ID.")
 
 
 class ModelSerializer(_ModelSerializer):
