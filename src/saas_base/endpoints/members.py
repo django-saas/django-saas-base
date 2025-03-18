@@ -17,6 +17,15 @@ from ..serializers.permission import PermissionSerializer
 from ..models import Member, Group, Permission
 from ..signals import member_invited
 
+__all__ = [
+    'MemberListEndpoint',
+    'MemberItemEndpoint',
+    'MemberGroupsEndpoint',
+    'MemberPermissionsEndpoint',
+    'MemberGroupItemEndpoint',
+    'MemberPermissionItemEndpoint',
+]
+
 
 class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
     email_template_id = 'invite_member'

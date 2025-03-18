@@ -11,6 +11,8 @@ from django.db.models.signals import (
 )
 from .cache import cache
 
+__all__ = ['CachedManager']
+
 logger = logging.getLogger(__name__)
 
 M = t.TypeVar('M', bound=Model)

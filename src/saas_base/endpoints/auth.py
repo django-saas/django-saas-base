@@ -20,6 +20,14 @@ from ..signals import after_signup_user, after_login_user
 from ..mail import SendEmailMixin
 
 
+__all__ = [
+    'SignupRequestEndpoint',
+    'SignupConfirmEndpoint',
+    'PasswordLogInEndpoint',
+    'LogoutEndpoint',
+]
+
+
 class SignupRequestEndpoint(SendEmailMixin, Endpoint):
     email_template_id = 'signup_code'
     email_subject = _('Signup Request')

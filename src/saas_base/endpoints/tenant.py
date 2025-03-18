@@ -7,6 +7,12 @@ from ..models import get_tenant_model, Member
 from ..serializers.tenant import TenantSerializer
 from ..serializers.member import MemberDetailSerializer
 
+__all__ = [
+    'SelectedTenantEndpoint',
+    'CurrentMemberEndpoint',
+    'TenantListEndpoint',
+]
+
 
 class SelectedTenantEndpoint(RetrieveModelMixin, TenantEndpoint):
     serializer_class = TenantSerializer

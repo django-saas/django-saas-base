@@ -2,6 +2,9 @@ from typing import List, Any
 from drf_spectacular.openapi import AutoSchema as _AutoSchema
 
 
+__all__ = ['AutoSchema']
+
+
 class AutoSchema(_AutoSchema):
     def get_filter_backends(self) -> List[Any]:
         return getattr(self.view, 'filter_backends', [])

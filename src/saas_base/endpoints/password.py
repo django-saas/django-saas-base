@@ -14,6 +14,11 @@ from ..serializers.password import (
     PasswordResetSerializer,
 )
 
+__all__ = [
+    'PasswordForgotEndpoint',
+    'PasswordResetEndpoint',
+]
+
 
 class PasswordForgotEndpoint(SendEmailMixin, Endpoint):
     email_template_id = 'reset_password'

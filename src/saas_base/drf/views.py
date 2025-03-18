@@ -10,6 +10,13 @@ from .permissions import HasResourceScope, HasResourcePermission
 from .filters import TenantIdFilter
 
 
+__all__ = [
+    'Endpoint',
+    'AuthenticatedEndpoint',
+    'TenantEndpoint',
+]
+
+
 class Endpoint(GenericAPIView):
     permission_classes = [HasResourceScope] + api_settings.DEFAULT_PERMISSION_CLASSES
     resource_name: t.Optional[str] = None

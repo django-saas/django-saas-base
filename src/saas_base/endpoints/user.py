@@ -10,6 +10,13 @@ from ..serializers.user import (
 )
 from ..serializers.member import UserTenantsSerializer
 
+__all__ = [
+    'UserEndpoint',
+    'UserPasswordEndpoint',
+    'UserEmailListEndpoint',
+    'UserTenantsEndpoint',
+]
+
 
 class UserEndpoint(AuthenticatedEndpoint):
     resource_scopes = ['user', 'user:profile']
