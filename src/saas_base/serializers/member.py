@@ -58,10 +58,23 @@ class MemberDetailSerializer(ModelSerializer):
 
 
 class UserTenantsSerializer(ModelSerializer):
-    tenant = TenantSerializer()
+    tenant = TenantSerializer(read_only=True)
     groups = GroupSerializer(many=True, read_only=True)
     permissions = PermissionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Member
         exclude = ['user', 'inviter', 'invite_email']
+        read_only_fields = [
+            'inviter',
+            'invite_email',
+            'is_owner',
+            'created_at',
+        ]
+        include_only_fields = ['groups', 'permissions']
+
+    def validate_status(self, status):
+        # user agree to join the tenant
+        if status != Member.InviteStatus.ACTIVE:
+            raise ValidationError(_('Invalid status value.'))
+        return status

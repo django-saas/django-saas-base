@@ -40,7 +40,7 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
         'POST': 'admin',
     }
     include_select_related_fields = ['user']
-    include_prefetch_related_fields = ['groups', 'permissions']
+    include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
 
     def get_email_subject(self):
         return self.email_subject % str(self.request.tenant)

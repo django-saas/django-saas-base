@@ -98,6 +98,8 @@ class IncludeFilter(BaseFilterBackend):
                 queryset = queryset.select_related(field)
             elif field in prefetch_related_fields:
                 queryset = queryset.prefetch_related(field)
+                relations = [key for key in prefetch_related_fields if key.startswith(f'{field}__')]
+                queryset = queryset.prefetch_related(*relations)
 
         request.include_terms = include_terms
         return queryset

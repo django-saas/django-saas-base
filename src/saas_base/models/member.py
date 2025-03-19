@@ -20,8 +20,6 @@ class MemberManager(CachedManager):
 
 
 class Member(models.Model):
-    username_validator = UnicodeUsernameValidator()
-
     class InviteStatus(models.IntegerChoices):
         REQUEST = 0, 'request'
         WAITING = 1, 'waiting'
