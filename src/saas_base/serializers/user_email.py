@@ -14,6 +14,7 @@ class UserEmailSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserEmail
         exclude = ['user']
+        read_only_fields = ['id', 'email', 'verified', 'created_at']
 
 
 class AddEmailRequestSerializer(NewUserEmailMixin, EmailCodeRequestSerializer):

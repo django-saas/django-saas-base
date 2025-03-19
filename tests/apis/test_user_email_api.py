@@ -37,3 +37,32 @@ class TestEmailAPI(FixturesTestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), [item])
+
+    def test_set_primary_email(self):
+        self.force_login()
+
+        obj = UserEmail.objects.create(
+            user=self.user,
+            email=f'demo-1-2@example.com',
+            verified=True,
+        )
+        url = f'/m/user/emails/{obj.pk}/'
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse(resp.json()['primary'])
+
+        resp = self.client.patch(url, data={'primary': True})
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json()['primary'])
+
+    def test_delete_email(self):
+        self.force_login()
+        obj = UserEmail.objects.create(
+            user=self.user,
+            email=f'demo-1-2@example.com',
+            verified=True,
+        )
+        url = f'/m/user/emails/{obj.pk}/'
+        resp = self.client.delete(url)
+        self.assertEqual(resp.status_code, 204)
+        self.assertEqual(UserEmail.objects.filter(user=self.user).count(), 0)
