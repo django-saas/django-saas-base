@@ -16,6 +16,13 @@ class UserEmailSerializer(serializers.ModelSerializer):
         exclude = ['user']
         read_only_fields = ['id', 'email', 'verified', 'created_at']
 
+    def update(self, instance, validated_data):
+        if validated_data.get('primary') and not instance.primary:
+            # keep only one primary user email
+            UserEmail.objects.filter(user_id=instance.user_id).update(primary=False)
+        obj = super().update(instance, validated_data)
+        return obj
+
 
 class AddEmailRequestSerializer(NewUserEmailMixin, EmailCodeRequestSerializer):
     CACHE_PREFIX = NEW_EMAIL_CODE
