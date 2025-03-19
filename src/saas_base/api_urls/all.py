@@ -6,6 +6,7 @@ urlpatterns = [
     path('permissions/', PermissionListEndpoint.as_view()),
     path('tenants/', TenantListEndpoint.as_view()),
     path('user/', include('saas_base.api_urls.user')),
+    path('user/emails/', include('saas_base.api_urls.emails')),
     path('tenant/', include('saas_base.api_urls.tenant')),
     path('groups/', include('saas_base.api_urls.groups')),
     path('members/', include('saas_base.api_urls.members')),

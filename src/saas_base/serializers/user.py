@@ -3,19 +3,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import password_validation
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from ..models import UserEmail
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         exclude = ['password', 'groups', 'user_permissions']
-
-
-class UserEmailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserEmail
-        exclude = ['user']
 
 
 class UserPasswordSerializer(serializers.Serializer):
@@ -26,7 +19,7 @@ class UserPasswordSerializer(serializers.Serializer):
     def validate_old_password(self, value):
         user = self.instance
         if not user.check_password(value):
-            raise ValidationError(_("Password incorrect."))
+            raise ValidationError(_('Password incorrect.'))
         return value
 
     def validate_password(self, raw_password: str):

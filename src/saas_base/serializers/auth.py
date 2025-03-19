@@ -1,73 +1,48 @@
-import random
-import string
 import typing as t
-from email.utils import formataddr
 from django.db import transaction
-from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import password_validation, get_user_model
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from .email_code import (
+    EmailCode,
+    EmailCodeRequestSerializer,
+    EmailCodeConfirmSerializer,
+    NewUserEmailMixin,
+    RetrieveUserEmailMixin,
+)
 from ..models import UserEmail
 
 SIGNUP_CODE = 'saas:signup_code'
 
-ERRORS = {
-    'email': _('This email address is already associated with an existing account.'),
-    'username': _('This username is already associated with an existing account.'),
-    'code': _('Code does not match or expired.'),
+AUTH_ERRORS = {
+    'exist_email': _('This email address is already associated with an existing account.'),
+    'invalid_email': _('This email address is not associated with your account.'),
+    'exist_username': _('This username is already associated with an existing account.'),
 }
 
 
-class EmailCode:
-    def __init__(self, email: str, code: str, user=None):
-        self.email = email
-        self.code = code
-        self.user = user
-
-    def recipient(self):
-        if self.user:
-            return formataddr((self.user.username, self.email))
-        return self.email
-
-
-class SignupRequestCodeSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-
-    def validate_email(self, email: str):
-        try:
-            UserEmail.objects.get(email=email)
-            raise ValidationError(ERRORS['email'])
-        except UserEmail.DoesNotExist:
-            return email
+class SignupRequestCodeSerializer(NewUserEmailMixin, EmailCodeRequestSerializer):
+    CACHE_PREFIX = SIGNUP_CODE
 
     def create(self, validated_data) -> EmailCode:
+        code = self.save_auth_code(1)
         email = validated_data['email']
-        code = ''.join(random.sample(string.ascii_uppercase, 6))
-        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
-        cache.set(cache_key, 1, timeout=300)
         return EmailCode(email, code)
 
 
-class SignupCreateUserSerializer(serializers.Serializer):
+class SignupCreateUserSerializer(NewUserEmailMixin, EmailCodeRequestSerializer):
+    CACHE_PREFIX = SIGNUP_CODE
     username = serializers.CharField(required=True, validators=[UnicodeUsernameValidator()])
-    email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True)
-
-    def validate_email(self, email: str):
-        try:
-            UserEmail.objects.get(email=email)
-            raise ValidationError(ERRORS['email'])
-        except UserEmail.DoesNotExist:
-            return email
 
     def validate_username(self, username: str):
         cls: t.Type[User] = get_user_model()
         try:
             cls.objects.get(username=username)
-            raise ValidationError(ERRORS['username'])
+            raise ValidationError(AUTH_ERRORS['exist_username'])
         except cls.DoesNotExist:
             return username
 
@@ -93,32 +68,15 @@ class SignupCreateUserSerializer(serializers.Serializer):
             )
             UserEmail.objects.create(user=user, email=email, primary=True, verified=False)
 
-        code = ''.join(random.sample(string.ascii_uppercase, 6))
-        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
-        cache.set(cache_key, 1, timeout=300)
+        code = self.save_auth_code(1)
         return EmailCode(email, code, user)
 
 
-class SignupConfirmCodeSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-    code = serializers.CharField(required=True, max_length=6)
-
-    def validate_code(self, code: str):
-        email = self.initial_data['email']
-        code = code.upper()
-        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
-        has_code: str = cache.get(cache_key)
-        if not has_code:
-            raise ValidationError(ERRORS['code'])
-
-        cache.delete(cache_key)
-        try:
-            return UserEmail.objects.select_related('user').get(email=email)
-        except UserEmail.DoesNotExist:
-            raise ValidationError(ERRORS['code'])
+class SignupConfirmCodeSerializer(RetrieveUserEmailMixin, EmailCodeConfirmSerializer):
+    CACHE_PREFIX = SIGNUP_CODE
 
     def create(self, validated_data) -> User:
-        user_email = validated_data['code']
+        user_email = validated_data['email']
         with transaction.atomic():
             user_email.verified = True
             user = user_email.user
@@ -128,7 +86,8 @@ class SignupConfirmCodeSerializer(serializers.Serializer):
         return user
 
 
-class SignupConfirmPasswordSerializer(serializers.Serializer):
+class SignupConfirmPasswordSerializer(EmailCodeConfirmSerializer):
+    CACHE_PREFIX = SIGNUP_CODE
     username = serializers.CharField(required=True, validators=[UnicodeUsernameValidator()])
     email = serializers.EmailField(required=True)
     code = serializers.CharField(required=True, max_length=6)
@@ -138,22 +97,13 @@ class SignupConfirmPasswordSerializer(serializers.Serializer):
         cls: t.Type[User] = get_user_model()
         try:
             cls.objects.get(username=username)
-            raise ValidationError(ERRORS['username'])
+            raise ValidationError(AUTH_ERRORS['exist_username'])
         except cls.DoesNotExist:
             return username
 
     def validate_password(self, raw_password: str):
         password_validation.validate_password(raw_password)
         return raw_password
-
-    def validate_code(self, code: str):
-        email = self.initial_data['email']
-        code = code.upper()
-        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
-        has_code: str = cache.get(cache_key)
-        if not has_code:
-            raise ValidationError(ERRORS['code'])
-        return code
 
     def create(self, validated_data) -> User:
         username = validated_data['username']
@@ -167,9 +117,10 @@ class SignupConfirmPasswordSerializer(serializers.Serializer):
                 password=password,
                 is_active=True,
             )
-            UserEmail.objects.create(user=user, email=email, primary=True, verified=True)
-
-        code = validated_data['code']
-        cache_key = f'{SIGNUP_CODE}:{email}:{code}'
-        cache.delete(cache_key)
+            UserEmail.objects.create(
+                user=user,
+                email=email,
+                primary=True,
+                verified=True,
+            )
         return user

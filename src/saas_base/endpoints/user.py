@@ -2,10 +2,9 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.mixins import ListModelMixin
 from ..drf.views import AuthenticatedEndpoint
-from ..models import UserEmail, Member
+from ..models import Member
 from ..serializers.user import (
     UserSerializer,
-    UserEmailSerializer,
     UserPasswordSerializer,
 )
 from ..serializers.member import UserTenantsSerializer
@@ -13,7 +12,6 @@ from ..serializers.member import UserTenantsSerializer
 __all__ = [
     'UserEndpoint',
     'UserPasswordEndpoint',
-    'UserEmailListEndpoint',
     'UserTenantsEndpoint',
 ]
 
@@ -45,23 +43,6 @@ class UserPasswordEndpoint(AuthenticatedEndpoint):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(status=204)
-
-
-class UserEmailListEndpoint(ListModelMixin, AuthenticatedEndpoint):
-    resource_scopes = ['user:email']
-    pagination_class = None
-    serializer_class = UserEmailSerializer
-
-    def get_queryset(self):
-        return UserEmail.objects.filter(user=self.request.user).all()
-
-    def get(self, request: Request, *args, **kwargs):
-        """List all the current user's emails."""
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request: Request, *args, **kwargs):
-        # add email
-        pass
 
 
 class UserTenantsEndpoint(ListModelMixin, AuthenticatedEndpoint):

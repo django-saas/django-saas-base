@@ -1,4 +1,3 @@
-import re
 from django.core import mail
 from django.test import override_settings
 from saas_base.models import UserEmail, Member
@@ -8,17 +7,12 @@ from tests.client import FixturesTestCase
 class TestSignUpWithoutCreateUser(FixturesTestCase):
     user_id = FixturesTestCase.ADMIN_USER_ID
 
-    def get_auth_code(self):
-        msg = mail.outbox[0]
-        codes = re.findall(r'Code: (\w{6})', msg.body)
-        return codes[0]
-
     def test_signup_success(self):
         data1 = {'username': 'demo', 'email': 'hi@foo.com', 'password': 'hello world'}
         resp = self.client.post('/m/session/signup/request/', data=data1)
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(len(mail.outbox), 1)
-        data2 = {**data1, 'code': self.get_auth_code()}
+        data2 = {**data1, 'code': self.get_mail_auth_code()}
         resp = self.client.post('/m/session/signup/confirm/', data=data2)
         self.assertEqual(resp.status_code, 200)
 
@@ -68,7 +62,7 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
 
         data1 = {'username': 'demo', 'email': email, 'password': 'hello world'}
         self.client.post('/m/session/signup/request/', data=data1)
-        data2 = {**data1, 'code': self.get_auth_code()}
+        data2 = {**data1, 'code': self.get_mail_auth_code()}
         resp = self.client.post('/m/session/signup/confirm/', data=data2)
         self.assertEqual(resp.status_code, 200)
         obj = UserEmail.objects.get(email=email)
@@ -78,11 +72,6 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
 
 @override_settings(SAAS={'SIGNUP_REQUEST_CREATE_USER': True})
 class TestSignUpWithCreateUser(FixturesTestCase):
-    def get_auth_code(self):
-        msg = mail.outbox[0]
-        codes = re.findall(r'Code: (\w{6})', msg.body)
-        return codes[0]
-
     def test_signup_success(self):
         data1 = {'username': 'demo', 'email': 'hi@foo.com', 'password': 'hello world'}
         resp = self.client.post('/m/session/signup/request/', data=data1)
@@ -90,7 +79,7 @@ class TestSignUpWithCreateUser(FixturesTestCase):
         obj = UserEmail.objects.get(email='hi@foo.com')
         self.assertEqual(obj.verified, False)
 
-        data2 = {'code': self.get_auth_code(), 'email': 'hi@foo.com'}
+        data2 = {'code': self.get_mail_auth_code(), 'email': 'hi@foo.com'}
         resp = self.client.post('/m/session/signup/confirm/', data=data2)
         self.assertEqual(resp.status_code, 200)
         obj = UserEmail.objects.get(email='hi@foo.com')
