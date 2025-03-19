@@ -25,12 +25,9 @@ class UserTenantListEndpoint(ListModelMixin, AuthenticatedEndpoint):
     def get_queryset(self):
         status = self.request.query_params.get('status')
         queryset = self.queryset.filter(user=self.request.user)
-
-        if status == 'all':
-            return queryset.all()
         if status == 'waiting':
             queryset = queryset.filter(status=Member.InviteStatus.WAITING)
-        else:
+        elif status == 'active':
             queryset = queryset.filter(status=Member.InviteStatus.ACTIVE)
         return queryset.all()
 

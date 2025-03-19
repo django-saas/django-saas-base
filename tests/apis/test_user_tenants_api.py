@@ -29,7 +29,7 @@ class TestTenantsAPI(SaasTestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()['count'], 2)
 
-        url = '/m/user/tenants/'
+        url = '/m/user/tenants/?status=active'
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()['count'], 0)
