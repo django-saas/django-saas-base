@@ -3,14 +3,25 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.contrib.auth.base_user import BaseUserManager
 from ..db import CachedManager
 
 
 class EmailManager(CachedManager):
     natural_key = ['email']
+    query_select_related = ['user']
+
+    normalize_email = BaseUserManager.normalize_email
 
     def get_by_email(self, email: str) -> 'UserEmail':
+        email = self.normalize_email(email)
         return self.get_from_cache_by_natural_key(email)
+
+    def create(self, **kwargs):
+        email = kwargs.get('email')
+        if email:
+            kwargs['email'] = self.normalize_email(email)
+        return super().create(**kwargs)
 
 
 class UserEmail(models.Model):

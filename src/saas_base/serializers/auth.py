@@ -18,8 +18,6 @@ from ..models import UserEmail
 SIGNUP_CODE = 'saas:signup_code'
 
 AUTH_ERRORS = {
-    'exist_email': _('This email address is already associated with an existing account.'),
-    'invalid_email': _('This email address is not associated with your account.'),
     'exist_username': _('This username is already associated with an existing account.'),
 }
 

@@ -31,14 +31,14 @@ class PasswordForgotEndpoint(SendEmailMixin, Endpoint):
 
     def post(self, request: Request):
         """Send a forgot password reset email code."""
-        serializer = self.get_serializer(data=request.data)
+        serializer: PasswordForgetSerializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         obj: UserEmail = serializer.save()
 
         # check bad request rules
         check_security_rules(saas_settings.RESET_PASSWORD_SECURITY_RULES, request)
 
-        code = serializer.save_password_code(obj)
+        code = serializer.save_auth_code(obj.user_id)
         name = obj.user.get_full_name() or obj.user.get_username()
         recipients = [formataddr((name, obj.email))]
         self.send_email(recipients, code=code, user=obj.user)

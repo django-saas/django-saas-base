@@ -1,14 +1,16 @@
-import random
-import string
 from django.utils.translation import gettext as _
-from django.core.cache import cache
 from django.contrib.auth import password_validation, authenticate
 from django.contrib.auth.models import AbstractUser
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from .email_code import (
+    EmailCodeRequestSerializer,
+    EmailCodeConfirmSerializer,
+    RetrieveUserEmailMixin,
+)
 from ..models import UserEmail
 
-CACHE_PREFIX = 'saas:password_code'
+PASSWORD_CODE = 'saas:password_code'
 
 
 class PasswordLoginSerializer(serializers.Serializer):
@@ -31,27 +33,16 @@ class PasswordLoginSerializer(serializers.Serializer):
         raise RuntimeError('This method is not allowed.')
 
 
-class PasswordForgetSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-
-    @staticmethod
-    def save_password_code(obj: UserEmail) -> str:
-        code = ''.join(random.sample(string.ascii_uppercase, 6))
-        key = f'{CACHE_PREFIX}:{obj.email}:{code}'
-        cache.set(key, obj.user_id, timeout=300)
-        return code
+class PasswordForgetSerializer(RetrieveUserEmailMixin, EmailCodeRequestSerializer):
+    CACHE_PREFIX = PASSWORD_CODE
 
     def create(self, validated_data) -> UserEmail:
-        email = validated_data['email']
-        try:
-            obj = UserEmail.objects.get(email=email)
-        except UserEmail.DoesNotExist:
-            raise ValidationError({'email': [_('Invalid email address.')]})
-        return obj
+        user_email = validated_data['email']
+        return user_email
 
 
-class PasswordResetSerializer(PasswordForgetSerializer):
-    code = serializers.CharField(required=True, max_length=6)
+class PasswordResetSerializer(RetrieveUserEmailMixin, EmailCodeConfirmSerializer):
+    CACHE_PREFIX = PASSWORD_CODE
     password = serializers.CharField(required=True)
 
     def validate_password(self, raw_password):
@@ -59,11 +50,9 @@ class PasswordResetSerializer(PasswordForgetSerializer):
         return raw_password
 
     def create(self, validated_data):
-        obj = super().create(validated_data)
+        obj: UserEmail = validated_data['email']
+        user_id = validated_data['code']
 
-        code = validated_data['code']
-        key = f'{CACHE_PREFIX}:{obj.email}:{code}'
-        user_id = cache.get(key)
         if not user_id or obj.user_id != user_id:
             raise ValidationError({'code': [_('Code does not match or expired.')]})
 
@@ -71,6 +60,4 @@ class PasswordResetSerializer(PasswordForgetSerializer):
         user: AbstractUser = obj.user
         user.set_password(raw_password)
         user.save()
-
-        cache.delete(key)
         return obj

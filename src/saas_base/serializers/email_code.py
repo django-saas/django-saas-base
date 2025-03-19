@@ -61,6 +61,7 @@ class EmailCodeConfirmSerializer(serializers.Serializer):
 
 class NewUserEmailMixin:
     def validate_email(self, email: str):
+        email = UserEmail.objects.normalize_email(email)
         try:
             UserEmail.objects.get(email=email)
             raise ValidationError(ERRORS['exist_email'])
@@ -70,6 +71,7 @@ class NewUserEmailMixin:
 
 class RetrieveUserEmailMixin(serializers.Serializer):
     def validate_email(self, email: str):
+        email = UserEmail.objects.normalize_email(email)
         try:
             user_email = UserEmail.objects.select_related('user').get(email=email)
         except UserEmail.DoesNotExist:
