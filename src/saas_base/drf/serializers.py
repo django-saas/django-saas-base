@@ -90,8 +90,8 @@ class ModelSerializer(_ModelSerializer):
 
     @property
     def _readable_fields(self):
-        include_only_fields = getattr(self.Meta, 'include_only_fields', [])
-        if not include_only_fields:
+        request_include_fields = getattr(self.Meta, 'request_include_fields', [])
+        if not request_include_fields:
             for field in self.fields.values():
                 if not field.write_only:
                     yield field
@@ -103,7 +103,7 @@ class ModelSerializer(_ModelSerializer):
                     include_terms = getattr(request, 'include_terms', [])
 
             for field in self.fields.values():
-                if field.field_name in include_only_fields and field.field_name not in include_terms:
+                if field.field_name in request_include_fields and field.field_name not in include_terms:
                     continue
 
                 if not field.write_only:

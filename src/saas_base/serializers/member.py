@@ -18,7 +18,7 @@ class MemberSerializer(ModelSerializer):
     class Meta:
         model = Member
         exclude = ['tenant']
-        include_only_fields = ['user', 'groups', 'permissions']
+        request_include_fields = ['user', 'groups', 'permissions']
 
 
 class MemberInviteSerializer(ModelSerializer):
@@ -79,7 +79,7 @@ class UserTenantsSerializer(ModelSerializer):
             'is_owner',
             'created_at',
         ]
-        include_only_fields = ['groups', 'permissions']
+        request_include_fields = ['groups', 'permissions']
 
     def validate_status(self, status):
         # user agree to join the tenant
