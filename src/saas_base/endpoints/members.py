@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, PermissionDenied
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.mixins import ListModelMixin, UpdateModelMixin
 from ..settings import saas_settings
 from ..drf.views import TenantEndpoint
@@ -12,18 +12,12 @@ from ..serializers.member import (
     MemberInviteSerializer,
     MemberDetailSerializer,
 )
-from ..serializers.group import GroupSerializer
-from ..serializers.permission import PermissionSerializer
-from ..models import Member, Group, Permission
+from ..models import Member
 from ..signals import member_invited
 
 __all__ = [
     'MemberListEndpoint',
     'MemberItemEndpoint',
-    'MemberGroupsEndpoint',
-    'MemberPermissionsEndpoint',
-    'MemberGroupItemEndpoint',
-    'MemberPermissionItemEndpoint',
 ]
 
 
@@ -101,86 +95,3 @@ class MemberItemEndpoint(UpdateModelMixin, TenantEndpoint):
                 raise PermissionDenied(_('The tenant should contain at lease 1 owner.'))
         member.delete()
         return Response(status=204)
-
-
-class _MemberEndpoint(TenantEndpoint):
-    resource_http_method_actions = {
-        'GET': 'read',
-        'POST': 'admin',
-        'DELETE': 'admin',
-    }
-
-    def get_member(self, member_id) -> Member:
-        try:
-            member = Member.objects.get_from_cache_by_pk(member_id)
-            if member.tenant_id != self.get_tenant_id():
-                raise NotFound()
-        except Member.DoesNotExist:
-            raise NotFound()
-        self.check_object_permissions(self.request, member)
-        return member
-
-    def list(self, request: Request, *args, **kwargs):
-        member = self.get_member(kwargs['member_id'])
-        queryset = self.get_queryset().filter(member=member)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def replace(self, request: Request, field_name: str, **kwargs):
-        member = self.get_member(kwargs['member_id'])
-        queryset = self.filter_queryset(self.get_queryset())
-        items = queryset.filter(pk__in=request.data).all()
-        getattr(member, field_name).set(items)
-        return Response(status=204)
-
-    def destroy(self, request: Request, field_name: str, **kwargs):
-        obj = self.get_object_or_404(self.get_queryset(), pk=kwargs['pk'])
-        member = self.get_member(kwargs['member_id'])
-        if obj.member_id != member.pk:
-            raise NotFound()
-        getattr(member, field_name).remove(obj)
-        return Response(status=204)
-
-
-class MemberGroupsEndpoint(_MemberEndpoint):
-    serializer_class = GroupSerializer
-    queryset = Group.objects.all()
-
-    def get(self, request: Request, *args, **kwargs):
-        """List all groups of the selected member."""
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request: Request, *args, **kwargs):
-        """Reset groups of the selected member."""
-        return self.replace(request, field_name='groups', **kwargs)
-
-
-class MemberPermissionsEndpoint(_MemberEndpoint):
-    serializer_class = PermissionSerializer
-    queryset = Permission.objects.all()
-
-    def get(self, request: Request, *args, **kwargs):
-        """List all permissions of the selected member."""
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request: Request, *args, **kwargs):
-        """Reset permissions of the selected member."""
-        return self.replace(request, field_name='permissions', **kwargs)
-
-
-class MemberGroupItemEndpoint(_MemberEndpoint):
-    serializer_class = GroupSerializer
-    queryset = Group.objects.all()
-
-    def delete(self, request: Request, *args, **kwargs):
-        """Remove a group of the selected member."""
-        return self.destroy(request, field_name='groups', **kwargs)
-
-
-class MemberPermissionItemEndpoint(_MemberEndpoint):
-    serializer_class = PermissionSerializer
-    queryset = Permission.objects.all()
-
-    def delete(self, request: Request, *args, **kwargs):
-        """Remove a permission of the selected member."""
-        return self.destroy(request, field_name='permissions', **kwargs)

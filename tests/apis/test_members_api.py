@@ -100,26 +100,3 @@ class TestMembersAPI(FixturesTestCase):
         member = Member.objects.filter(tenant=self.tenant, user_id=self.user_id).first()
         resp = self.client.delete(f'/m/members/{member.id}/')
         self.assertEqual(resp.status_code, 204)
-
-    def test_list_member_permissions(self):
-        self.add_user_perms('tenant.read')
-        self.force_login()
-        member = Member.objects.filter(tenant=self.tenant, user_id=self.user_id).first()
-        resp = self.client.get(f'/m/members/{member.id}/permissions/')
-        self.assertEqual(resp.status_code, 200)
-
-    def test_list_member_groups(self):
-        self.add_user_perms('tenant.read')
-        self.force_login()
-        member = Member.objects.filter(tenant=self.tenant, user_id=self.user_id).first()
-        resp = self.client.get(f'/m/members/{member.id}/groups/')
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json(), [])
-
-        groups = Group.objects.filter(tenant=self.tenant).all()
-        member.groups.set(groups)
-        resp = self.client.get(f'/m/members/{member.id}/groups/')
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(len(resp.json()), 1)
-        permissions = resp.json()[0]['permissions']
-        self.assertEqual(len(permissions), 3)
