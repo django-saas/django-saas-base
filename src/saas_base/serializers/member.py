@@ -1,7 +1,7 @@
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from ..drf.serializers import ModelSerializer
+from ..drf.serializers import ModelSerializer, RelatedSerializerField
 from ..models import Member, UserEmail
 from .tenant import TenantSerializer
 from .permission import PermissionSerializer
@@ -23,10 +23,12 @@ class MemberSerializer(ModelSerializer):
 
 class MemberInviteSerializer(ModelSerializer):
     invite_email = serializers.EmailField(required=True)
+    groups = RelatedSerializerField(GroupSerializer, many=True, required=False)
+    permissions = RelatedSerializerField(PermissionSerializer, many=True, required=False)
 
     class Meta:
         model = Member
-        fields = ['name', 'invite_email', 'is_owner']
+        fields = ['name', 'invite_email', 'is_owner', 'groups', 'permissions']
 
     def validate_invite_email(self, email: str):
         view = self.context['view']
@@ -49,12 +51,18 @@ class MemberInviteSerializer(ModelSerializer):
 
 
 class MemberDetailSerializer(ModelSerializer):
-    groups = GroupSerializer(many=True, read_only=True)
-    permissions = PermissionSerializer(many=True, read_only=True)
+    groups = RelatedSerializerField(GroupSerializer, many=True)
+    permissions = RelatedSerializerField(PermissionSerializer, many=True)
 
     class Meta:
         model = Member
         exclude = ['tenant', 'user']
+        read_only_fields = [
+            'inviter',
+            'invite_email',
+            'is_owner',
+            'created_at',
+        ]
 
 
 class UserTenantsSerializer(ModelSerializer):

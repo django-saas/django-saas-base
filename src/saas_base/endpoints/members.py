@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound, PermissionDenied
-from rest_framework.mixins import ListModelMixin
+from rest_framework.mixins import ListModelMixin, UpdateModelMixin
 from ..settings import saas_settings
 from ..drf.views import TenantEndpoint
 from ..drf.filters import TenantIdFilter, IncludeFilter
@@ -65,14 +65,19 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
             tenant=request.tenant,
             invite_link=saas_settings.MEMBER_INVITE_LINK % str(member.id),
         )
-        data = MemberSerializer(member).data
+        data = MemberDetailSerializer(member).data
         return Response(data)
 
 
-class MemberItemEndpoint(TenantEndpoint):
+class MemberItemEndpoint(UpdateModelMixin, TenantEndpoint):
     serializer_class = MemberDetailSerializer
     queryset = Member.objects.all()
     resource_name = 'tenant'
+    resource_http_method_actions = {
+        'GET': 'read',
+        'PATCH': 'admin',
+        'DELETE': 'admin',
+    }
 
     def get(self, request: Request, *args, **kwargs):
         """Retrieve the information of a member."""
@@ -83,11 +88,13 @@ class MemberItemEndpoint(TenantEndpoint):
         serializer = self.get_serializer(member)
         return Response(serializer.data)
 
+    def patch(self, request: Request, *args, **kwargs):
+        """Update a member's permissions and groups."""
+        return self.partial_update(request, *args, **kwargs)
+
     def delete(self, request: Request, *args, **kwargs):
         """Remove a member from the tenant."""
-        queryset = self.filter_queryset(self.get_queryset())
-        member = self.get_object_or_404(queryset, pk=kwargs['pk'])
-        self.check_object_permissions(request, member)
+        member = self.get_object()
         if member.is_owner:
             queryset = Member.objects.filter(tenant_id=self.get_tenant_id(), is_owner=True)
             if not queryset.count():

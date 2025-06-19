@@ -1,9 +1,7 @@
 import uuid
-import unicodedata
 from typing import List, Set
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -74,10 +72,6 @@ class Member(models.Model):
     @property
     def is_active(self) -> bool:
         return self.status == self.InviteStatus.ACTIVE
-
-    @classmethod
-    def normalize_username(cls, username: str):
-        return unicodedata.normalize('NFKC', username)
 
     @cached_property
     def group_permissions(self) -> List[str]:
