@@ -8,7 +8,7 @@ from .permission import Permission
 
 class Group(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
-    tenant = models.ForeignKey(settings.SAAS_TENANT_MODEL, on_delete=models.CASCADE, editable=False)
+    tenant = models.ForeignKey(settings.SAAS_TENANT_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, db_index=True)
     permissions = models.ManyToManyField(Permission, blank=True)
     managed = models.BooleanField(default=False)

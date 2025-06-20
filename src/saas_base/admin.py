@@ -20,7 +20,7 @@ class TenantAdmin(admin.ModelAdmin):
 
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'tenant', 'name', 'managed', 'created_at']
 
 
 @admin.register(Member)
