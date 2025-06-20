@@ -43,7 +43,7 @@ class TestEmailAPI(FixturesTestCase):
 
         obj = UserEmail.objects.create(
             user=self.user,
-            email=f'demo-1-2@example.com',
+            email='demo-1-2@example.com',
             verified=True,
         )
         url = f'/m/user/emails/{obj.pk}/'
@@ -59,7 +59,7 @@ class TestEmailAPI(FixturesTestCase):
         self.force_login()
         obj = UserEmail.objects.create(
             user=self.user,
-            email=f'demo-1-2@example.com',
+            email='demo-1-2@example.com',
             verified=True,
         )
         url = f'/m/user/emails/{obj.pk}/'

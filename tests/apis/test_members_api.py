@@ -1,5 +1,5 @@
 from tests.client import FixturesTestCase
-from saas_base.models import Member, Group
+from saas_base.models import Member
 
 
 class TestMembersAPI(FixturesTestCase):
