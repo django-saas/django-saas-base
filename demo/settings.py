@@ -14,6 +14,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'saas_base.middleware.HeaderTenantIdMiddleware',
     'saas_base.middleware.TenantMiddleware',
 ]
@@ -27,6 +28,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
             ]
         },
     }
@@ -52,6 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.staticfiles',
+    'django.contrib.messages',
+    'django.contrib.admin',
     'rest_framework',
     'drf_spectacular',
     'saas_base',
