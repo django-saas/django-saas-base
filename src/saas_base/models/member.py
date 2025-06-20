@@ -64,7 +64,11 @@ class Member(models.Model):
         db_table = 'saas_member'
 
     def __str__(self):
-        return self.invite_email
+        if self.user:
+            return str(self.user)
+        if self.invite_email:
+            return self.invite_email
+        return ''
 
     @property
     def is_active(self) -> bool:

@@ -27,7 +27,7 @@ def view_invite_member(request, suffix: str):
     context = dict(
         site=saas_settings.SITE,
         inviter=User(username='alice', first_name='Alice'),
-        member=Member(name='Bob', invite_email='bob@example.com', tenant=tenant),
+        member=Member(invite_email='bob@example.com', tenant=tenant),
         tenant=tenant,
         invite_link='#',
     )

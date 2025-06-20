@@ -1,4 +1,4 @@
-Hi {{ member.name }},
+Hi {{ member }},
 
 {% if inviter.get_short_name %}{{ inviter.get_short_name }}{% else %}{{ inviter.username }}{% endif %} has invited you to join the tenant {{ tenant }} on {{ site.name }}.
 
