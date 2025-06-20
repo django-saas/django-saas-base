@@ -41,9 +41,10 @@ class UserEmailItemEndpoint(RetrieveModelMixin, DestroyModelMixin, Authenticated
     resource_scopes = ['user:email']
     pagination_class = None
     serializer_class = UserEmailSerializer
+    queryset = UserEmail.objects.all()
 
     def get_queryset(self):
-        return UserEmail.objects.filter(user=self.request.user).all()
+        return self.queryset.filter(user=self.request.user).all()
 
     def get(self, request: Request, *args, **kwargs):
         """Retrieve the current user's emails with the given uuid.'"""
