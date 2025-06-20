@@ -18,17 +18,17 @@ class TestTenantsAPI(SaasTestCase):
                 status=Member.InviteStatus.WAITING,
             )
 
-        url = '/m/user/tenants/?status=all'
+        url = '/m/user/members/?status=all'
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()['count'], 2)
 
-        url = '/m/user/tenants/?status=waiting'
+        url = '/m/user/members/?status=waiting'
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()['count'], 2)
 
-        url = '/m/user/tenants/?status=active'
+        url = '/m/user/members/?status=active'
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()['count'], 0)
@@ -55,7 +55,7 @@ class TestTenantsAPI(SaasTestCase):
         group = Group.objects.create(tenant=tenants[1], name='Guest')
         members[1].groups.add(group)
 
-        url = '/m/user/tenants/'
+        url = '/m/user/members/'
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

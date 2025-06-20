@@ -7,7 +7,7 @@ urlpatterns = [
     path('tenants/', TenantListEndpoint.as_view()),
     path('user/', include('saas_base.api_urls.user')),
     path('user/emails/', include('saas_base.api_urls.user_emails')),
-    path('user/tenants/', include('saas_base.api_urls.user_tenants')),
+    path('user/members/', include('saas_base.api_urls.user_members')),
     path('tenant/', include('saas_base.api_urls.tenant')),
     path('groups/', include('saas_base.api_urls.groups')),
     path('members/', include('saas_base.api_urls.members')),

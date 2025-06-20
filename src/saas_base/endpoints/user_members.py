@@ -11,12 +11,12 @@ from ..models import Member
 from ..serializers.member import UserTenantsSerializer
 
 __all__ = [
-    'UserTenantListEndpoint',
-    'UserTenantItemEndpoint',
+    'UserMemberListEndpoint',
+    'UserMemberItemEndpoint',
 ]
 
 
-class UserTenantListEndpoint(ListModelMixin, AuthenticatedEndpoint):
+class UserMemberListEndpoint(ListModelMixin, AuthenticatedEndpoint):
     serializer_class = UserTenantsSerializer
     filter_backends = [IncludeFilter]
     include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
@@ -36,7 +36,7 @@ class UserTenantListEndpoint(ListModelMixin, AuthenticatedEndpoint):
         return self.list(request, *args, **kwargs)
 
 
-class UserTenantItemEndpoint(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, AuthenticatedEndpoint):
+class UserMemberItemEndpoint(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, AuthenticatedEndpoint):
     serializer_class = UserTenantsSerializer
     queryset = Member.objects.all()
 

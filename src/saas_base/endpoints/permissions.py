@@ -11,7 +11,9 @@ __all__ = ['PermissionListEndpoint']
 class PermissionListEndpoint(ListModelMixin, Endpoint):
     serializer_class = PermissionSerializer
     queryset = Permission.objects.all()
+    permission_classes = []
     pagination_class = None
 
     def get(self, request: Request, *args, **kwargs):
+        """Show all supported permissions."""
         return self.list(request, *args, **kwargs)
