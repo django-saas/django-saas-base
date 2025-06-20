@@ -94,6 +94,20 @@ class TestMembersAPI(FixturesTestCase):
         self.assertIn('groups', data)
         self.assertIn('permissions', data)
 
+    def test_update_member_item(self):
+        self.add_user_perms('tenant.read')
+        self.force_login()
+        member = Member.objects.filter(tenant=self.tenant, user_id=self.user_id).first()
+        data = {'permissions': ['tenant.read']}
+        resp = self.client.patch(f'/m/members/{member.id}/', data=data)
+        self.assertEqual(resp.status_code, 403)
+        self.add_user_perms('tenant.admin')
+        resp = self.client.patch(f'/m/members/{member.id}/', data=data)
+        self.assertEqual(resp.status_code, 200)
+        permissions = resp.json()['permissions']
+        result = [p['name'] for p in permissions]
+        self.assertEqual(result, ['tenant.read'])
+
     def test_remove_member_item(self):
         self.add_user_perms('tenant.admin')
         self.force_login()
