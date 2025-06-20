@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.mixins import ListModelMixin, UpdateModelMixin
+from rest_framework.mixins import ListModelMixin, UpdateModelMixin, DestroyModelMixin
 from ..settings import saas_settings
 from ..drf.views import TenantEndpoint
 from ..drf.filters import TenantIdFilter, IncludeFilter
@@ -63,7 +63,7 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
         return Response(data)
 
 
-class MemberItemEndpoint(UpdateModelMixin, TenantEndpoint):
+class MemberItemEndpoint(UpdateModelMixin, DestroyModelMixin, TenantEndpoint):
     serializer_class = MemberDetailSerializer
     queryset = Member.objects.all()
     resource_name = 'tenant'
@@ -88,10 +88,4 @@ class MemberItemEndpoint(UpdateModelMixin, TenantEndpoint):
 
     def delete(self, request: Request, *args, **kwargs):
         """Remove a member from the tenant."""
-        member = self.get_object()
-        if member.is_owner:
-            queryset = Member.objects.filter(tenant_id=self.get_tenant_id(), is_owner=True)
-            if not queryset.count():
-                raise PermissionDenied(_('The tenant should contain at lease 1 owner.'))
-        member.delete()
-        return Response(status=204)
+        return self.destroy(request, *args, **kwargs)

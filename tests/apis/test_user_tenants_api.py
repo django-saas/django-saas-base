@@ -14,7 +14,6 @@ class TestTenantsAPI(SaasTestCase):
         for tenant in tenants:
             Member.objects.create(
                 user=user,
-                name=user.get_full_name(),
                 tenant=tenant,
                 status=Member.InviteStatus.WAITING,
             )
@@ -44,7 +43,6 @@ class TestTenantsAPI(SaasTestCase):
             member = Member.objects.create(
                 user=user,
                 tenant=tenant,
-                name=user.get_full_name(),
                 status=Member.InviteStatus.ACTIVE,
             )
             members.append(member)

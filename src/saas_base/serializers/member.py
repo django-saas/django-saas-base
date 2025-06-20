@@ -28,7 +28,7 @@ class MemberInviteSerializer(ModelSerializer):
 
     class Meta:
         model = Member
-        fields = ['name', 'invite_email', 'is_owner', 'groups', 'permissions']
+        fields = ['invite_email', 'groups', 'permissions']
 
     def validate_invite_email(self, email: str):
         view = self.context['view']
@@ -60,7 +60,6 @@ class MemberDetailSerializer(ModelSerializer):
         read_only_fields = [
             'inviter',
             'invite_email',
-            'is_owner',
             'created_at',
         ]
 
@@ -76,7 +75,6 @@ class UserTenantsSerializer(ModelSerializer):
         read_only_fields = [
             'inviter',
             'invite_email',
-            'is_owner',
             'created_at',
         ]
         request_include_fields = ['groups', 'permissions']

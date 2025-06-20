@@ -35,6 +35,7 @@ class TenantManager(CachedManager):
 
 
 class AbstractTenant(models.Model):
+    name = models.CharField(max_length=140)
     slug = models.SlugField(
         unique=True,
         help_text='Identity of the tenant, e.g. <slug>.example.com',
@@ -54,7 +55,7 @@ class AbstractTenant(models.Model):
         abstract = True
 
     def __str__(self):
-        return self.slug
+        return self.name
 
     def natural_key(self):
         return (self.slug,)

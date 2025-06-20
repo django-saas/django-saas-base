@@ -95,9 +95,6 @@ class HasResourcePermission(BasePermission):
             member = Member.objects.get_by_natural_key(tenant.pk, request.user.pk)
             if not member.is_active:
                 return False
-            # owner has all permissions
-            if member.is_owner:
-                return True
         except Member.DoesNotExist:
             return False
 

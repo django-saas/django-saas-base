@@ -26,7 +26,6 @@ class Member(models.Model):
     id = models.UUIDField(primary_key=True, editable=False, default=uuid.uuid4)
     tenant = models.ForeignKey(settings.SAAS_TENANT_MODEL, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
-    name = models.CharField(max_length=150, blank=True)
 
     # this email is only used for invitation
     invite_email = models.EmailField(null=True, blank=True)
@@ -39,8 +38,6 @@ class Member(models.Model):
     )
 
     status = models.SmallIntegerField(default=InviteStatus.REQUEST, choices=InviteStatus.choices)
-    is_owner = models.BooleanField(default=False, db_index=True)
-
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     groups = models.ManyToManyField(
@@ -67,7 +64,7 @@ class Member(models.Model):
         db_table = 'saas_member'
 
     def __str__(self):
-        return self.name or self.invite_email
+        return self.invite_email
 
     @property
     def is_active(self) -> bool:
