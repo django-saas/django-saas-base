@@ -1,10 +1,14 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.mixins import ListModelMixin, UpdateModelMixin, DestroyModelMixin
+from rest_framework.mixins import (
+    ListModelMixin,
+    UpdateModelMixin,
+    DestroyModelMixin,
+)
 from ..settings import saas_settings
 from ..drf.views import TenantEndpoint
+from ..drf.decorators import resource_permissions
 from ..drf.filters import TenantIdFilter, IncludeFilter
 from ..mail import SendEmailMixin
 from ..serializers.member import (
@@ -29,10 +33,6 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
     filter_backends = [TenantIdFilter, IncludeFilter]
     queryset = Member.objects.all()
     resource_name = 'tenant'
-    resource_http_method_actions = {
-        'GET': 'read',
-        'POST': 'admin',
-    }
     include_select_related_fields = ['user']
     include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
 
@@ -43,6 +43,7 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
         """List all members in the tenant."""
         return self.list(request, *args, **kwargs)
 
+    @resource_permissions('tenant.admin')
     def post(self, request: Request, *args, **kwargs):
         """Invite a member to join the tenant."""
         tenant_id = self.get_tenant_id()
@@ -67,11 +68,6 @@ class MemberItemEndpoint(UpdateModelMixin, DestroyModelMixin, TenantEndpoint):
     serializer_class = MemberDetailSerializer
     queryset = Member.objects.all()
     resource_name = 'tenant'
-    resource_http_method_actions = {
-        'GET': 'read',
-        'PATCH': 'admin',
-        'DELETE': 'admin',
-    }
 
     def get(self, request: Request, *args, **kwargs):
         """Retrieve the information of a member."""
@@ -82,10 +78,12 @@ class MemberItemEndpoint(UpdateModelMixin, DestroyModelMixin, TenantEndpoint):
         serializer = self.get_serializer(member)
         return Response(serializer.data)
 
+    @resource_permissions('tenant.admin')
     def patch(self, request: Request, *args, **kwargs):
         """Update a member's permissions and groups."""
         return self.partial_update(request, *args, **kwargs)
 
+    @resource_permissions('tenant.admin')
     def delete(self, request: Request, *args, **kwargs):
         """Remove a member from the tenant."""
         return self.destroy(request, *args, **kwargs)

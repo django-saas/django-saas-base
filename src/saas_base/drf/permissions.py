@@ -52,9 +52,14 @@ class HasResourcePermission(BasePermission):
 
     @staticmethod
     def get_resource_permissions(view, method):
+        handler = getattr(view, method.lower())
+        permissions = getattr(handler, '_resource_permissions', None)
+        if permissions:
+            return permissions
+
         resource = getattr(view, 'resource_name', None)
         if not resource:
-            return
+            return None
 
         action = getattr(view, 'resource_action', None)
         if not action:
@@ -102,10 +107,7 @@ class HasResourcePermission(BasePermission):
         if not perms:
             return False
 
-        for name in resource_permissions:
-            if name in perms:
-                return True
-        return False
+        return bool(set(resource_permissions) & perms)
 
 
 class HasResourceScope(BasePermission):
