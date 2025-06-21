@@ -23,8 +23,6 @@ class TenantManager(CachedManager):
                 user=owner,
                 tenant=tenant,
                 defaults={
-                    'name': name,
-                    'is_owner': True,
                     'status': Member.InviteStatus.ACTIVE,
                 },
             )
