@@ -111,3 +111,33 @@ class TestMembersAPI(FixturesTestCase):
         data = {'invite_email': email, 'permissions': ['tenant.read']}
         resp = self.client.post('/m/members/', data=data)
         self.assertEqual(resp.status_code, 400)
+        data = resp.json()
+        self.assertEqual(data['invite_email'], ['This user has already been invited.'])
+
+    def test_already_invited(self):
+        self.force_login(self.OWNER_USER_ID)
+        member = Member.objects.filter(
+            tenant_id=self.tenant_id,
+            user_id=self.OWNER_USER_ID,
+        ).first()
+        member.invite_email = 'demo-1@example.com'
+        member.save()
+        data = {'invite_email': member.invite_email, 'permissions': ['tenant.read']}
+        resp = self.client.post('/m/members/', data=data)
+        self.assertEqual(resp.status_code, 400)
+        data = resp.json()
+        self.assertEqual(data['invite_email'], ['This email has already been invited.'])
+
+    def test_invite_self(self):
+        self.force_login(self.OWNER_USER_ID)
+        # clean self member
+        Member.objects.filter(
+            tenant_id=self.tenant_id,
+            user_id=self.OWNER_USER_ID,
+        ).delete()
+        email = 'demo-1@example.com'
+        data = {'invite_email': email, 'permissions': ['tenant.read']}
+        resp = self.client.post('/m/members/', data=data)
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data['status'], 'active')

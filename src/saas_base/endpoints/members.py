@@ -53,13 +53,14 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
         member = serializer.save(tenant_id=tenant_id, inviter=request.user)
 
         member_invited.send(self.__class__, member=member, request=request)
-        self.send_email(
-            [member.invite_email],
-            inviter=request.user,
-            member=member,
-            tenant=request.tenant,
-            invite_link=saas_settings.MEMBER_INVITE_LINK % str(member.id),
-        )
+        if member.status != Member.InviteStatus.ACTIVE:
+            self.send_email(
+                [member.invite_email],
+                inviter=request.user,
+                member=member,
+                tenant=request.tenant,
+                invite_link=saas_settings.MEMBER_INVITE_LINK % str(member.id),
+            )
         data = MemberDetailSerializer(member).data
         return Response(data)
 
