@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
-from .member import Member
 from ..db import CachedManager
 from ..settings import saas_settings
 
