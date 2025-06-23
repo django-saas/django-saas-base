@@ -73,7 +73,7 @@ class MemberDetailSerializer(ModelSerializer):
         ]
 
 
-class UserTenantsSerializer(ModelSerializer):
+class UserMembershipSerializer(ModelSerializer):
     tenant = TenantSerializer(read_only=True)
     groups = GroupSerializer(many=True, read_only=True)
     permissions = PermissionSerializer(many=True, read_only=True)

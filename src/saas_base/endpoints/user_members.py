@@ -5,10 +5,10 @@ from rest_framework.mixins import (
     UpdateModelMixin,
     DestroyModelMixin,
 )
-from ..drf.filters import IncludeFilter
+from ..drf.filters import IncludeFilter, ChoiceFilter
 from ..drf.views import AuthenticatedEndpoint
 from ..models import Member
-from ..serializers.member import UserTenantsSerializer
+from ..serializers.member import UserMembershipSerializer
 
 __all__ = [
     'UserMemberListEndpoint',
@@ -17,19 +17,14 @@ __all__ = [
 
 
 class UserMemberListEndpoint(ListModelMixin, AuthenticatedEndpoint):
-    serializer_class = UserTenantsSerializer
-    filter_backends = [IncludeFilter]
-    include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
+    serializer_class = UserMembershipSerializer
     queryset = Member.objects.select_related('tenant').all()
+    filter_backends = [IncludeFilter, ChoiceFilter]
+    choice_filter_fields = ['status']
+    include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
 
     def get_queryset(self):
-        status = self.request.query_params.get('status')
-        queryset = self.queryset.filter(user=self.request.user)
-        if status == 'waiting':
-            queryset = queryset.filter(status=Member.InviteStatus.WAITING)
-        elif status == 'active':
-            queryset = queryset.filter(status=Member.InviteStatus.ACTIVE)
-        return queryset.all()
+        return self.queryset.filter(user=self.request.user)
 
     def get(self, request: Request, *args, **kwargs):
         """List all the current user's tenants."""
@@ -37,7 +32,7 @@ class UserMemberListEndpoint(ListModelMixin, AuthenticatedEndpoint):
 
 
 class UserMemberItemEndpoint(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, AuthenticatedEndpoint):
-    serializer_class = UserTenantsSerializer
+    serializer_class = UserMembershipSerializer
     queryset = Member.objects.all()
 
     def get_queryset(self):

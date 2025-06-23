@@ -1,14 +1,13 @@
-from django.template import loader
-from django.utils.encoding import force_str
-from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from rest_framework.filters import BaseFilterBackend
+from rest_framework.exceptions import ValidationError
 from .errors import BadRequest
 from ..settings import saas_settings
 
 __all__ = [
     'TenantIdFilter',
     'IncludeFilter',
+    'ChoiceFilter',
 ]
 
 
@@ -64,14 +63,10 @@ class TenantIdFilter(BaseFilterBackend):
 
 
 class IncludeFilter(BaseFilterBackend):
-    template = 'saas/include_filter.html'
-    include_title = _('Include')
-    include_description = _('A include term.')
-
-    def get_select_related_fields(self, view, request):
+    def get_select_related_fields(self, view):
         return getattr(view, 'include_select_related_fields', [])
 
-    def get_prefetch_related_fields(self, view, request):
+    def get_prefetch_related_fields(self, view):
         return getattr(view, 'include_prefetch_related_fields', [])
 
     def get_include_terms(self, request):
@@ -81,8 +76,8 @@ class IncludeFilter(BaseFilterBackend):
         return params.split()
 
     def filter_queryset(self, request, queryset, view):
-        select_related_fields = self.get_select_related_fields(view, request)
-        prefetch_related_fields = self.get_prefetch_related_fields(view, request)
+        select_related_fields = self.get_select_related_fields(view)
+        prefetch_related_fields = self.get_prefetch_related_fields(view)
         if not select_related_fields and not prefetch_related_fields:
             return queryset
 
@@ -104,20 +99,70 @@ class IncludeFilter(BaseFilterBackend):
         request.include_terms = include_terms
         return queryset
 
-    def to_html(self, request, queryset, view):
-        context = {'term': request.query_params.get('include', '')}
-        template = loader.get_template(self.template)
-        return template.render(context)
-
     def get_schema_operation_parameters(self, view):
+        select_related_fields = self.get_select_related_fields(view)
+        prefetch_related_fields = self.get_prefetch_related_fields(view)
+        related_fields = ["all"] + select_related_fields + prefetch_related_fields
+        desc = ', '.join([f'`"{name}"`' for name in related_fields if '__' not in name])
         return [
             {
                 'name': 'include',
                 'required': False,
                 'in': 'query',
-                'description': force_str(self.include_description),
+                'description': f'Include related fields of {desc}',
                 'schema': {
                     'type': 'string',
                 },
             },
         ]
+
+
+class ChoiceFilter(BaseFilterBackend):
+    default_choice_filter_fields = ['status']
+
+    def get_choice_filter_fields(self, view):
+        return getattr(view, 'choice_filter_fields', self.default_choice_filter_fields)
+
+    def get_choice_filter_terms(self, view, request):
+        params = {}
+        for key in self.get_choice_filter_fields(view):
+            value = request.query_params.get(key, '')
+            if value:
+                params[key] = value
+        return params
+
+    def filter_queryset(self, request, queryset, view):
+        terms = self.get_choice_filter_terms(view, request)
+        if not terms:
+            return queryset
+
+        serializer_cls = view.get_serializer_class()
+        serializer = serializer_cls()
+        for key in terms:
+            field = serializer.fields[key]
+            try:
+                value = field.to_internal_value(terms[key])
+            except ValidationError:
+                continue
+            queryset = queryset.filter(**{key: value})
+        return queryset
+
+    def get_schema_operation_parameters(self, view):
+        choice_filter_fields = self.get_choice_filter_fields(view)
+        serializer_cls = view.get_serializer_class()
+        serializer = serializer_cls()
+        schema = []
+
+        for key in choice_filter_fields:
+            field = serializer.fields[key]
+            choices = [field.to_representation(v) for v in field.choices]
+            schema.append({
+                'name': key,
+                'required': False,
+                'in': 'query',
+                'schema': {
+                    'type': 'string',
+                    'enum': choices,
+                }
+            })
+        return schema
