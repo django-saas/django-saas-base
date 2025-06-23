@@ -5,16 +5,6 @@ from saas_base.models import Member
 class TestMembersAPI(FixturesTestCase):
     user_id = FixturesTestCase.GUEST_USER_ID
 
-    def create_demo_members(self, count: int = 10):
-        users = []
-        for i in range(count):
-            user = Member.objects.create(
-                name=f'member-{i}',
-                tenant=self.tenant,
-            )
-            users.append(user)
-        return users
-
     def test_list_users_via_owner(self):
         self.force_login(self.OWNER_USER_ID)
         resp = self.client.get('/m/members/')
@@ -114,3 +104,10 @@ class TestMembersAPI(FixturesTestCase):
         member = Member.objects.filter(tenant=self.tenant, user_id=self.user_id).first()
         resp = self.client.delete(f'/m/members/{member.id}/')
         self.assertEqual(resp.status_code, 204)
+
+    def test_invite_duplicate_member(self):
+        self.force_login(self.OWNER_USER_ID)
+        email = 'demo-1@example.com'
+        data = {'invite_email': email, 'permissions': ['tenant.read']}
+        resp = self.client.post('/m/members/', data=data)
+        self.assertEqual(resp.status_code, 400)

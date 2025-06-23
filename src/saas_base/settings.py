@@ -13,7 +13,7 @@ DEFAULTS = {
     'CLIENT_IP_HEADERS': None,
     'DB_CACHE_ALIAS': 'default',
     'PERMISSION_NAME_FORMATTER': '{resource}.{action}',
-    'DEFAULT_REGION': None,
+    'DEFAULT_REGION': '',
     'TENANT_ID_HEADER': 'X-Tenant-Id',
     'MAIL_PROVIDERS': {
         'default': {

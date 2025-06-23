@@ -15,18 +15,7 @@ class TenantManager(CachedManager):
 
     def create(self, slug: str, owner: Optional[AbstractUser] = None, **kwargs):
         kwargs.setdefault('region', saas_settings.DEFAULT_REGION)
-        tenant = super().create(slug=slug, owner=owner, **kwargs)
-        # initial with owner membership
-        if owner:
-            name = owner.get_full_name() or owner.get_username()
-            Member.objects.update_or_create(
-                user=owner,
-                tenant=tenant,
-                defaults={
-                    'status': Member.InviteStatus.ACTIVE,
-                },
-            )
-        return tenant
+        return super().create(slug=slug, owner=owner, **kwargs)
 
     def get_by_slug(self, slug: str):
         return self.get_from_cache_by_natural_key(slug)

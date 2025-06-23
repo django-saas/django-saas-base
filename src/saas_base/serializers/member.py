@@ -1,4 +1,5 @@
 from django.utils.translation import gettext as _
+from django.db import IntegrityError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from ..drf.serializers import ModelSerializer, RelatedSerializerField
@@ -47,7 +48,12 @@ class MemberInviteSerializer(ModelSerializer):
             pass
         request = self.context['request']
         validated_data['inviter'] = request.user
-        return super().create(validated_data)
+        try:
+            return super().create(validated_data)
+        except IntegrityError:
+            raise ValidationError({
+                'invite_email': [_('This user has already been invited.')],
+            })
 
 
 class MemberDetailSerializer(ModelSerializer):

@@ -18,7 +18,7 @@ class Settings:
     CLIENT_IP_HEADERS: t.Optional[t.List[str]]
 
     PERMISSION_NAME_FORMATTER: str
-    DEFAULT_REGION: t.Optional[str]
+    DEFAULT_REGION: str
 
     MAIL_PROVIDERS: t.Dict[str, MailProvider]
     MAIL_IMMEDIATE_SEND: bool
