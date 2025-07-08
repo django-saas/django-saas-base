@@ -25,7 +25,7 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ['id', 'invite_email', 'status', 'created_at']
+    list_display = ['id', 'tenant', 'user', 'invite_email', 'status', 'created_at']
 
 
 @admin.register(UserEmail)
