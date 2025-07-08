@@ -52,7 +52,10 @@ class HasResourcePermission(BasePermission):
 
     @staticmethod
     def get_resource_permissions(view, method):
-        handler = getattr(view, method.lower())
+        handler = getattr(view, method.lower(), None)
+        if not handler:
+            return None
+
         permissions = getattr(handler, '_resource_permissions', None)
         if permissions:
             return permissions
