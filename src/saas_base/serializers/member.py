@@ -54,9 +54,11 @@ class MemberInviteSerializer(ModelSerializer):
         try:
             return super().create(validated_data)
         except IntegrityError:
-            raise ValidationError({
-                'invite_email': [_('This user has already been invited.')],
-            })
+            raise ValidationError(
+                {
+                    'invite_email': [_('This user has already been invited.')],
+                }
+            )
 
 
 class MemberDetailSerializer(ModelSerializer):

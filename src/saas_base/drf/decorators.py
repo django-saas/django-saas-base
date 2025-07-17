@@ -11,12 +11,14 @@ def resource_permissions(*names):
             def post(self, request, *args, **kwargs):
                 ...
     """
+
     def decorated(func):
         func._resource_permissions = names
 
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
             return func(*args, **kwargs)
+
         return wrapped
 
     return decorated

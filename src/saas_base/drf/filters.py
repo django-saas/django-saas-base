@@ -102,7 +102,7 @@ class IncludeFilter(BaseFilterBackend):
     def get_schema_operation_parameters(self, view):
         select_related_fields = self.get_select_related_fields(view)
         prefetch_related_fields = self.get_prefetch_related_fields(view)
-        related_fields = ["all"] + select_related_fields + prefetch_related_fields
+        related_fields = ['all'] + select_related_fields + prefetch_related_fields
         desc = ', '.join([f'`"{name}"`' for name in related_fields if '__' not in name])
         return [
             {
@@ -156,13 +156,15 @@ class ChoiceFilter(BaseFilterBackend):
         for key in choice_filter_fields:
             field = serializer.fields[key]
             choices = [field.to_representation(v) for v in field.choices]
-            schema.append({
-                'name': key,
-                'required': False,
-                'in': 'query',
-                'schema': {
-                    'type': 'string',
-                    'enum': choices,
+            schema.append(
+                {
+                    'name': key,
+                    'required': False,
+                    'in': 'query',
+                    'schema': {
+                        'type': 'string',
+                        'enum': choices,
+                    },
                 }
-            })
+            )
         return schema

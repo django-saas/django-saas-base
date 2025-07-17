@@ -87,6 +87,7 @@ class FixedUserPasswordEndpoint(OpenApiViewExtension):
             @extend_schema(summary='Update Password')
             def post(self, *args, **kwargs):
                 pass
+
         return UserPasswordEndpoint
 
 
@@ -98,6 +99,7 @@ class FixedUserEmailItemEndpoint(OpenApiViewExtension):
             @extend_schema(summary='View Email Details')
             def get(self, *args, **kwargs):
                 pass
+
         return UserEmailItemEndpoint
 
 
