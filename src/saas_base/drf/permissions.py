@@ -1,12 +1,18 @@
+from django.utils import timezone
+from django.utils.translation import gettext as _
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.request import Request
+from rest_framework.exceptions import PermissionDenied
 from ..models import get_tenant_model, Member
 from ..settings import saas_settings
 
 __all__ = [
     'IsTenantOwner',
     'IsTenantOwnerOrReadOnly',
+    'IsTenantActive',
+    'IsTenantActiveOrReadOnly',
     'HasResourcePermission',
+    'HasResourcePermissionOrReadOnly',
     'HasResourceScope',
 ]
 
@@ -38,6 +44,37 @@ class IsTenantOwner(BasePermission):
 
 class IsTenantOwnerOrReadOnly(IsTenantOwner):
     """The authenticated user is the tenant owner, or is a read-only request."""
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        return super().has_permission(request, view)
+
+
+class IsTenantActive(BasePermission):
+    """The requested tenant is not expired."""
+
+    def has_permission(self, request, view):
+        tenant_id = getattr(request, 'tenant_id', None)
+        # not a tenant related request
+        if not tenant_id:
+            return True
+
+        try:
+            tenant = TenantModel.objects.get_from_cache_by_pk(tenant_id)
+            # tenant will not expire
+            if not tenant.expires_at:
+                return True
+            # tenant not expired
+            if tenant.expires_at < timezone.now():
+                raise PermissionDenied(_('This tenant is expired.'))
+            return True
+        except TenantModel.DoesNotExist:
+            return False
+
+
+class IsTenantActiveOrReadOnly(IsTenantActive):
+    """The requested tenant is not expired, or is a read-only request."""
 
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:
@@ -108,6 +145,15 @@ class HasResourcePermission(BasePermission):
     def has_permission(self, request: Request, view):
         tenant_id = getattr(request, 'tenant_id', None)
         return self.check_tenant_permission(request, view, tenant_id)
+
+
+class HasResourcePermissionOrReadOnly(HasResourcePermission):
+    """The authenticated user has the tenant permission, or is a read-only request."""
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        return super().has_permission(request, view)
 
 
 class HasResourceScope(BasePermission):

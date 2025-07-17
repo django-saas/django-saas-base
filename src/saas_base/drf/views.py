@@ -6,7 +6,7 @@ from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.settings import api_settings
 from rest_framework.permissions import IsAuthenticated
 from .errors import BadRequest
-from .permissions import HasResourceScope, HasResourcePermission
+from .permissions import IsTenantActiveOrReadOnly, HasResourceScope, HasResourcePermission
 from .filters import TenantIdFilter
 
 
@@ -44,6 +44,7 @@ class AuthenticatedEndpoint(Endpoint):
 class TenantEndpoint(Endpoint):
     permission_classes = [
         IsAuthenticated,
+        IsTenantActiveOrReadOnly,
         HasResourceScope,
         HasResourcePermission,
     ] + api_settings.DEFAULT_PERMISSION_CLASSES

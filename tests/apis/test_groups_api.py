@@ -1,5 +1,6 @@
+from django.utils import timezone
 from tests.client import FixturesTestCase
-from saas_base.models import Group
+from saas_base.models import Group, Tenant
 
 
 class TestGroupsAPI(FixturesTestCase):
@@ -27,6 +28,28 @@ class TestGroupsAPI(FixturesTestCase):
         self.assertEqual(data['name'], 'Guest')
         permission = data['permissions'][0]
         self.assertEqual(permission['name'], 'tenant.read')
+
+    def test_expired_tenant_create_group(self):
+        tenant = Tenant.objects.create(
+            owner_id=self.user_id,
+            name='Expired',
+            slug='expired',
+            expires_at=timezone.now(),
+        )
+        client = self.client_class()
+        client.force_login(self.user)
+
+        client.credentials(
+            HTTP_X_TENANT_ID=str(tenant.id),
+        )
+        data = {
+            'name': 'Guest',
+            'permissions': ['tenant.read'],
+        }
+        resp = client.post('/m/groups/', data=data)
+        self.assertEqual(resp.status_code, 403)
+        data = resp.json()
+        self.assertEqual(data['detail'], 'This tenant is expired.')
 
     def test_retrieve_group(self):
         self.force_login()
