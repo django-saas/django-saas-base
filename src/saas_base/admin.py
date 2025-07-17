@@ -15,7 +15,7 @@ class PermissionAdmin(admin.ModelAdmin):
 
 @admin.register(Tenant)
 class TenantAdmin(admin.ModelAdmin):
-    list_display = ['id', 'slug', 'owner', 'expires_at', 'created_at']
+    list_display = ['id', 'name', 'slug', 'owner', 'expires_at', 'created_at']
 
 
 @admin.register(Group)
