@@ -38,7 +38,7 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
     resource_scopes = ['tenant', 'tenant:member']
 
     choice_filter_fields = ['status', 'is_staff']
-    include_select_related_fields = ['user']
+    include_select_related_fields = ['user', 'role']
     include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
 
     def get_email_subject(self):

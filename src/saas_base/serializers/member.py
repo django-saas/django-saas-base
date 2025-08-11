@@ -21,7 +21,7 @@ class MemberSerializer(ModelSerializer):
     class Meta:
         model = Member
         exclude = ['tenant']
-        request_include_fields = ['user', 'groups', 'permissions']
+        request_include_fields = ['user', 'role', 'groups', 'permissions']
 
 
 class MemberInviteSerializer(ModelSerializer):
