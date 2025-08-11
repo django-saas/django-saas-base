@@ -43,13 +43,13 @@ class TestMembersAPI(FixturesTestCase):
     def test_invite_member_signup(self):
         self.add_user_perms('tenant.admin')
         self.force_login()
-        data = {'email': 'signup@example.com'}
+        data = {'name': 'Django'}
         resp = self.client.post('/m/members/', data=data)
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.json(), {'invite_email': ['This field is required.']})
+        self.assertEqual(resp.json(), {'email': ['This field is required.']})
 
         # invite non-exist user
-        data = {'invite_email': 'signup@example.com'}
+        data = {'email': 'signup@example.com'}
         resp = self.client.post('/m/members/', data=data)
         self.assertEqual(resp.status_code, 200)
         member = resp.json()
@@ -57,7 +57,7 @@ class TestMembersAPI(FixturesTestCase):
 
         # invite existing user
         user = self.get_user(self.STAFF_USER_ID)
-        data = {'invite_email': user.email}
+        data = {'email': user.email}
         resp = self.client.post('/m/members/', data=data)
         self.assertEqual(resp.status_code, 200)
         member = resp.json()
@@ -68,7 +68,7 @@ class TestMembersAPI(FixturesTestCase):
         self.force_login()
 
         user = self.get_user(self.STAFF_USER_ID)
-        data = {'invite_email': user.email, 'permissions': ['tenant.read']}
+        data = {'email': user.email, 'permissions': ['tenant.read']}
         resp = self.client.post('/m/members/', data=data)
         self.assertEqual(resp.status_code, 200)
         permissions = resp.json()['permissions']
@@ -108,11 +108,11 @@ class TestMembersAPI(FixturesTestCase):
     def test_invite_duplicate_member(self):
         self.force_login(self.OWNER_USER_ID)
         email = 'demo-1@example.com'
-        data = {'invite_email': email, 'permissions': ['tenant.read']}
+        data = {'email': email, 'permissions': ['tenant.read']}
         resp = self.client.post('/m/members/', data=data)
         self.assertEqual(resp.status_code, 400)
         data = resp.json()
-        self.assertEqual(data['invite_email'], ['This user has already been invited.'])
+        self.assertEqual(data['email'], ['This user has already been invited.'])
 
     def test_already_invited(self):
         self.force_login(self.OWNER_USER_ID)
@@ -120,13 +120,13 @@ class TestMembersAPI(FixturesTestCase):
             tenant_id=self.tenant_id,
             user_id=self.OWNER_USER_ID,
         ).first()
-        member.invite_email = 'demo-1@example.com'
+        member.email = 'demo-1@example.com'
         member.save()
-        data = {'invite_email': member.invite_email, 'permissions': ['tenant.read']}
+        data = {'email': member.email, 'permissions': ['tenant.read']}
         resp = self.client.post('/m/members/', data=data)
         self.assertEqual(resp.status_code, 400)
         data = resp.json()
-        self.assertEqual(data['invite_email'], ['This email has already been invited.'])
+        self.assertEqual(data['email'], ['This email has already been invited.'])
 
     def test_invite_self(self):
         self.force_login(self.OWNER_USER_ID)
@@ -136,7 +136,7 @@ class TestMembersAPI(FixturesTestCase):
             user_id=self.OWNER_USER_ID,
         ).delete()
         email = 'demo-1@example.com'
-        data = {'invite_email': email, 'permissions': ['tenant.read']}
+        data = {'email': email, 'permissions': ['tenant.read']}
         resp = self.client.post('/m/members/', data=data)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

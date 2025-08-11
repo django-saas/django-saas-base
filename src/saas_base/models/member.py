@@ -5,12 +5,13 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.utils.functional import cached_property
-from .group import Group
 from .permission import Permission
+from .role import Role
+from .group import Group
 from ..db import CachedManager
 
 
-class MemberManager(CachedManager):
+class MemberManager(CachedManager['Member']):
     natural_key = ['tenant_id', 'user_id']
 
     def get_by_natural_key(self, tenant_id, user_id) -> 'Member':
@@ -27,8 +28,10 @@ class Member(models.Model):
     tenant = models.ForeignKey(settings.SAAS_TENANT_MODEL, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True)
 
-    # this email is only used for invitation
-    invite_email = models.EmailField(null=True, blank=True)
+    name = models.CharField(_('name'), max_length=300, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
+
+    # this member is invited by who
     inviter = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -40,6 +43,7 @@ class Member(models.Model):
     status = models.SmallIntegerField(default=InviteStatus.REQUEST, choices=InviteStatus.choices)
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
 
+    role = models.ForeignKey(Role, on_delete=models.SET_NULL, blank=True, null=True)
     groups = models.ManyToManyField(
         Group,
         blank=True,
@@ -66,8 +70,8 @@ class Member(models.Model):
     def __str__(self):
         if self.user:
             return str(self.user)
-        if self.invite_email:
-            return self.invite_email
+        if self.email:
+            return self.email
         return ''
 
     @property

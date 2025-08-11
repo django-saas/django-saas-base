@@ -69,7 +69,7 @@ class SignupConfirmEndpoint(Endpoint):
         user = serializer.save()
 
         # update related membership
-        Member.objects.filter(invite_email=user.email).update(user=user, status=Member.InviteStatus.WAITING)
+        Member.objects.filter(email=user.email).update(user=user, status=Member.InviteStatus.WAITING)
         after_signup_user.send(
             self.__class__,
             user=user,

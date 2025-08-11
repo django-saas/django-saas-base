@@ -1,4 +1,5 @@
 from .permission import Permission
+from .role import Role
 from .tenant import AbstractTenant, Tenant, get_tenant_model
 from .group import Group
 from .member import Member

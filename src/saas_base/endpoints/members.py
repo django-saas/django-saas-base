@@ -1,3 +1,4 @@
+from email.utils import formataddr
 from django.utils.translation import gettext_lazy as _
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -54,8 +55,12 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
 
         member_invited.send(self.__class__, member=member, request=request)
         if member.status != Member.InviteStatus.ACTIVE:
+            if member.name:
+                recipient = formataddr((member.name, member.email))
+            else:
+                recipient = member.email
             self.send_email(
-                [member.invite_email],
+                [recipient],
                 inviter=request.user,
                 member=member,
                 tenant=request.tenant,

@@ -23,24 +23,25 @@ class MemberSerializer(ModelSerializer):
 
 
 class MemberInviteSerializer(ModelSerializer):
-    invite_email = serializers.EmailField(required=True)
+    name = serializers.CharField(required=False, allow_blank=True)
+    email = serializers.EmailField(required=True)
     groups = RelatedSerializerField(GroupSerializer, many=True, required=False)
     permissions = RelatedSerializerField(PermissionSerializer, many=True, required=False)
 
     class Meta:
         model = Member
-        fields = ['invite_email', 'groups', 'permissions']
+        fields = ['name', 'email', 'groups', 'permissions']
 
-    def validate_invite_email(self, email: str):
+    def validate_email(self, email: str):
         view = self.context['view']
         tenant_id = view.get_tenant_id()
-        if Member.objects.filter(tenant_id=tenant_id, invite_email=email).count():
+        if Member.objects.filter(tenant_id=tenant_id, email=email).count():
             raise ValidationError(_('This email has already been invited.'))
         return email
 
     def create(self, validated_data):
         request = self.context['request']
-        email = validated_data['invite_email']
+        email = validated_data['email']
         try:
             user_email = UserEmail.objects.get_by_email(email)
             validated_data['user_id'] = user_email.user_id
@@ -56,7 +57,7 @@ class MemberInviteSerializer(ModelSerializer):
         except IntegrityError:
             raise ValidationError(
                 {
-                    'invite_email': [_('This user has already been invited.')],
+                    'email': [_('This user has already been invited.')],
                 }
             )
 
@@ -70,7 +71,7 @@ class MemberDetailSerializer(ModelSerializer):
         exclude = ['tenant', 'user']
         read_only_fields = [
             'inviter',
-            'invite_email',
+            'email',
             'created_at',
         ]
 
@@ -82,10 +83,10 @@ class UserMembershipSerializer(ModelSerializer):
 
     class Meta:
         model = Member
-        exclude = ['user', 'inviter', 'invite_email']
+        exclude = ['user', 'inviter', 'email']
         read_only_fields = [
             'inviter',
-            'invite_email',
+            'email',
             'created_at',
         ]
         request_include_fields = ['groups', 'permissions']

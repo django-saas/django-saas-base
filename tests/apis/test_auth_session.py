@@ -58,7 +58,7 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
     def test_signup_with_membership_invite(self):
         # prepare membership
         email = 'hi@foo.com'
-        Member.objects.create(tenant_id=self.tenant_id, invite_email=email)
+        Member.objects.create(tenant_id=self.tenant_id, email=email)
 
         data1 = {'username': 'demo', 'email': email, 'password': 'hello world'}
         self.client.post('/m/session/signup/request/', data=data1)
