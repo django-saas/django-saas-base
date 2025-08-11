@@ -122,6 +122,15 @@
     status: 2
     created_at: 2023-09-29T00:00:00Z
 
+- model: saas_base.Role
+  fields:
+    name: admin
+    permissions:
+      - tenant.read
+      - tenant.write
+      - tenant.admin
+    created_at: 2023-09-29T00:00:00Z
+
 - model: saas_base.Group
   fields:
     tenant: 1

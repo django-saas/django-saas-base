@@ -70,7 +70,7 @@ class RelatedSerializerField(Field):
         super().__init__(**kwargs)
 
     def to_representation(self, value: QuerySet):
-        return self.serializer_cls(value.all(), many=self.many).data
+        return self.serializer_cls(value, many=self.many).data
 
     def to_internal_value(self, data):
         model = self.serializer_cls.Meta.model

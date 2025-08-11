@@ -7,6 +7,7 @@ from .user_email import UserEmail
 
 __all__ = [
     'Permission',
+    'Role',
     'AbstractTenant',
     'Tenant',
     'get_tenant_model',

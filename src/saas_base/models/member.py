@@ -83,14 +83,23 @@ class Member(models.Model):
         return self.__get_group_permissions()
 
     @cached_property
+    def role_permissions(self) -> List[str]:
+        return self.__get_role_permissions()
+
+    @cached_property
     def user_permissions(self) -> List[str]:
         return self.__get_user_permissions()
 
     def get_all_permissions(self) -> Set[str]:
-        return set(self.user_permissions + self.group_permissions)
+        return set(self.user_permissions + self.role_permissions + self.group_permissions)
 
     def __get_group_permissions(self):
         return list(self.groups.values_list('permissions__name', flat=True))
+
+    def __get_role_permissions(self):
+        if self.role_id:
+            return list(self.role.permissions.all().values_list('name', flat=True))
+        return []
 
     def __get_user_permissions(self):
         return list(self.permissions.all().values_list('name', flat=True))

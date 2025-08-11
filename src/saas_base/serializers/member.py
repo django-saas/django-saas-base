@@ -6,13 +6,15 @@ from ..drf.serializers import ModelSerializer, RelatedSerializerField
 from ..models import Member, UserEmail
 from .tenant import TenantSerializer
 from .permission import PermissionSerializer
+from .role import RoleSerializer
 from .group import GroupSerializer
-from .user import UserSerializer
+from .user import UserSerializer, SimpleUserSerializer
 
 
 class MemberSerializer(ModelSerializer):
     user = UserSerializer(required=False, read_only=True)
-    inviter = UserSerializer(required=False, read_only=True)
+    inviter = SimpleUserSerializer(required=False, read_only=True)
+    role = RoleSerializer(required=False, read_only=True)
     groups = GroupSerializer(required=False, many=True, read_only=True)
     permissions = PermissionSerializer(required=False, many=True, read_only=True)
 
@@ -25,12 +27,13 @@ class MemberSerializer(ModelSerializer):
 class MemberInviteSerializer(ModelSerializer):
     name = serializers.CharField(required=False, allow_blank=True)
     email = serializers.EmailField(required=True)
-    groups = RelatedSerializerField(GroupSerializer, many=True, required=False)
     permissions = RelatedSerializerField(PermissionSerializer, many=True, required=False)
+    role = RelatedSerializerField(RoleSerializer, required=False)
+    groups = RelatedSerializerField(GroupSerializer, many=True, required=False)
 
     class Meta:
         model = Member
-        fields = ['name', 'email', 'groups', 'permissions']
+        fields = ['name', 'email', 'permissions', 'role', 'groups']
 
     def validate_email(self, email: str):
         view = self.context['view']
@@ -63,6 +66,8 @@ class MemberInviteSerializer(ModelSerializer):
 
 
 class MemberDetailSerializer(ModelSerializer):
+    inviter = RelatedSerializerField(SimpleUserSerializer, required=False, read_only=True)
+    role = RelatedSerializerField(RoleSerializer, required=False)
     groups = RelatedSerializerField(GroupSerializer, many=True)
     permissions = RelatedSerializerField(PermissionSerializer, many=True)
 
@@ -70,7 +75,6 @@ class MemberDetailSerializer(ModelSerializer):
         model = Member
         exclude = ['tenant', 'user']
         read_only_fields = [
-            'inviter',
             'email',
             'created_at',
         ]
@@ -78,6 +82,7 @@ class MemberDetailSerializer(ModelSerializer):
 
 class UserMembershipSerializer(ModelSerializer):
     tenant = TenantSerializer(read_only=True)
+    role = RoleSerializer(read_only=True)
     groups = GroupSerializer(many=True, read_only=True)
     permissions = PermissionSerializer(many=True, read_only=True)
 
@@ -89,7 +94,7 @@ class UserMembershipSerializer(ModelSerializer):
             'email',
             'created_at',
         ]
-        request_include_fields = ['groups', 'permissions']
+        request_include_fields = ['groups', 'role', 'permissions']
 
     def validate_status(self, status):
         # user agree to join the tenant

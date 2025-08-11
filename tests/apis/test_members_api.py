@@ -74,6 +74,17 @@ class TestMembersAPI(FixturesTestCase):
         permissions = resp.json()['permissions']
         self.assertEqual(permissions[0]['name'], 'tenant.read')
 
+    def test_invite_with_role(self):
+        self.add_user_perms('tenant.admin')
+        self.force_login()
+
+        user = self.get_user(self.STAFF_USER_ID)
+        data = {'email': user.email, 'role': 'admin'}
+        resp = self.client.post('/m/members/', data=data)
+        self.assertEqual(resp.status_code, 200)
+        permissions = [p['name'] for p in resp.json()['role']['permissions']]
+        self.assertIn('tenant.read', permissions)
+
     def test_view_member_item(self):
         self.add_user_perms('tenant.read')
         self.force_login()

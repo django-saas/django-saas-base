@@ -19,6 +19,16 @@ class TestAccountScopes(SaasTestCase):
         scopes = set(member.user_permissions)
         self.assertEqual(scopes, {'account.read', 'account.write', 'account.admin'})
 
+    def test_none_role_permissions(self):
+        member = self.get_user_member()
+        self.assertEqual(member.role_permissions, [])
+
+    def test_exist_role_permissions(self):
+        member = self.get_user_member()
+        member.role_id = 'admin'
+        member.save()
+        self.assertEqual(set(member.role_permissions), {'tenant.admin', 'tenant.read', 'tenant.write'})
+
     def test_none_group_permissions(self):
         member = self.get_user_member()
         self.assertEqual(member.group_permissions, [])

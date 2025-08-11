@@ -4,11 +4,22 @@ from django.contrib.auth import password_validation
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+UserModel = get_user_model()
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = get_user_model()
+        model = UserModel
         exclude = ['password', 'groups', 'user_permissions']
+
+
+class SimpleUserSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='get_full_name', read_only=True)
+    username = serializers.CharField(source='get_username', read_only=True)
+
+    class Meta:
+        model = UserModel
+        fields = ['id', 'username', 'name', 'is_active', 'is_staff']
 
 
 class UserPasswordSerializer(serializers.Serializer):
