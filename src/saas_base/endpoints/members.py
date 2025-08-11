@@ -33,7 +33,10 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
     serializer_class = MemberSerializer
     filter_backends = [TenantIdFilter, IncludeFilter]
     queryset = Member.objects.all()
+
     resource_name = 'tenant'
+    resource_scopes = ['tenant', 'tenant:member']
+
     include_select_related_fields = ['user']
     include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
 
@@ -74,6 +77,7 @@ class MemberItemEndpoint(UpdateModelMixin, DestroyModelMixin, TenantEndpoint):
     serializer_class = MemberDetailSerializer
     queryset = Member.objects.all()
     resource_name = 'tenant'
+    resource_scopes = ['tenant', 'tenant:member']
 
     def get(self, request: Request, *args, **kwargs):
         """Retrieve the information of a member."""

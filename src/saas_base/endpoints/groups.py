@@ -18,6 +18,7 @@ class GroupListEndpoint(ListModelMixin, CreateModelMixin, TenantEndpoint):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
     pagination_class = None
+    resource_scopes = ['tenant', 'tenant:group']
 
     def get(self, request: Request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -33,6 +34,7 @@ class GroupListEndpoint(ListModelMixin, CreateModelMixin, TenantEndpoint):
 class GroupItemEndpoint(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, TenantEndpoint):
     serializer_class = GroupSerializer
     queryset = Group.objects.all()
+    resource_scopes = ['tenant', 'tenant:group']
 
     def get(self, request: Request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)

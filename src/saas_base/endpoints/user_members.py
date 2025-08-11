@@ -22,6 +22,7 @@ class UserMemberListEndpoint(ListModelMixin, AuthenticatedEndpoint):
     filter_backends = [IncludeFilter, ChoiceFilter]
     choice_filter_fields = ['status']
     include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
+    resource_scopes = ['user', 'user:member']
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
@@ -34,6 +35,7 @@ class UserMemberListEndpoint(ListModelMixin, AuthenticatedEndpoint):
 class UserMemberItemEndpoint(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, AuthenticatedEndpoint):
     serializer_class = UserMembershipSerializer
     queryset = Member.objects.all()
+    resource_scopes = ['user', 'user:member']
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)

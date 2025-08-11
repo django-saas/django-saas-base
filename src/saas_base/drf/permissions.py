@@ -174,10 +174,16 @@ class HasResourceScope(BasePermission):
         if not resource_scopes:
             return True
 
+        # not using token for authentication
         if request.auth is None:
             return True
 
+        # not using token with scope for authentication
+        if not hasattr(request.auth, 'scope'):
+            return True
+
         scope = getattr(request.auth, 'scope', '')
+        # this token accepts all scopes
         if scope == '__all__':
             return True
 
