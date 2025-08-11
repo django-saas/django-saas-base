@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import (
     Permission,
+    Role,
     Group,
     Member,
     UserEmail,
@@ -11,6 +12,11 @@ from .models import (
 @admin.register(Permission)
 class PermissionAdmin(admin.ModelAdmin):
     list_display = ['name', 'internal', 'created_at']
+
+
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ['name', 'description', 'created_at']
 
 
 @admin.register(Tenant)

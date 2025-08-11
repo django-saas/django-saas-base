@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Role',
             fields=[
-                ('name', models.CharField(editable=False, max_length=100, primary_key=True, serialize=False)),
+                ('name', models.CharField(max_length=100, primary_key=True)),
                 ('description', models.CharField(blank=True, max_length=480)),
                 ('created_at', models.DateTimeField(db_index=True, default=django.utils.timezone.now)),
                 ('permissions', models.ManyToManyField(blank=True, to='saas_base.permission')),
