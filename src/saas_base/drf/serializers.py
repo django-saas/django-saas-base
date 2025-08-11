@@ -124,7 +124,10 @@ def _make_flatten_fields(form: OrderedDict, flatten: t.List[str]):
             fields = serializer.get_fields()
             for name in fields:
                 field = fields[name]
-                field.source = f'{source}.{name}'
+                if field.source:
+                    field.source = f'{source}.{field.source}'
+                else:
+                    field.source = f'{source}.{name}'
                 if name in form:
                     form[f'{source}_{name}'] = field
                 else:
