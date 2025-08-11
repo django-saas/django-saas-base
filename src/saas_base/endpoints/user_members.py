@@ -20,9 +20,11 @@ class UserMemberListEndpoint(ListModelMixin, AuthenticatedEndpoint):
     serializer_class = UserMembershipSerializer
     queryset = Member.objects.select_related('tenant').all()
     filter_backends = [IncludeFilter, ChoiceFilter]
-    choice_filter_fields = ['status']
-    include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
     resource_scopes = ['user', 'user:member']
+
+    choice_filter_fields = ['status']
+    include_select_related_fields = ['role']
+    include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
