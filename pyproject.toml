@@ -1,6 +1,6 @@
 [project]
 name = "django-saas-base"
-version = "0.9.0"
+version = "0.10.0"
 description = "The foundation for building a SaaS product with Django"
 authors = [
     { name = "Hsiaoming Yang", email = "me@lepture.com" }
