@@ -10,7 +10,7 @@ from rest_framework.mixins import (
 from ..settings import saas_settings
 from ..drf.views import TenantEndpoint
 from ..drf.decorators import resource_permissions
-from ..drf.filters import TenantIdFilter, IncludeFilter
+from ..drf.filters import TenantIdFilter, IncludeFilter, ChoiceFilter
 from ..mail import SendEmailMixin
 from ..serializers.member import (
     MemberSerializer,
@@ -31,12 +31,13 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
     email_subject = _("You've Been Invited to Join %s")
 
     serializer_class = MemberSerializer
-    filter_backends = [TenantIdFilter, IncludeFilter]
+    filter_backends = [TenantIdFilter, IncludeFilter, ChoiceFilter]
     queryset = Member.objects.all()
 
     resource_name = 'tenant'
     resource_scopes = ['tenant', 'tenant:member']
 
+    choice_filter_fields = ['status', 'is_staff']
     include_select_related_fields = ['user']
     include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
 

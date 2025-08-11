@@ -22,6 +22,11 @@ class Migration(migrations.Migration):
             name='name',
             field=models.CharField(blank=True, max_length=300, null=True, verbose_name='name'),
         ),
+        migrations.AddField(
+            model_name='member',
+            name='is_staff',
+            field=models.BooleanField(default=True),
+        ),
         migrations.CreateModel(
             name='Role',
             fields=[

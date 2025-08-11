@@ -31,7 +31,7 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(Member)
 class MemberAdmin(admin.ModelAdmin):
-    list_display = ['id', 'tenant', 'user', 'name', 'email', 'status', 'created_at']
+    list_display = ['id', 'tenant', 'user', 'name', 'email', 'is_staff', 'status', 'created_at']
 
 
 @admin.register(UserEmail)
