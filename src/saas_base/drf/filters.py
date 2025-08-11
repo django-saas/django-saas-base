@@ -1,4 +1,5 @@
 from django.conf import settings
+from rest_framework.fields import BooleanField
 from rest_framework.filters import BaseFilterBackend
 from rest_framework.exceptions import ValidationError
 from .errors import BadRequest
@@ -155,16 +156,28 @@ class ChoiceFilter(BaseFilterBackend):
 
         for key in choice_filter_fields:
             field = serializer.fields[key]
-            choices = [field.to_representation(v) for v in field.choices]
-            schema.append(
-                {
-                    'name': key,
-                    'required': False,
-                    'in': 'query',
-                    'schema': {
-                        'type': 'string',
-                        'enum': choices,
-                    },
-                }
-            )
+            if isinstance(field, BooleanField):
+                schema.append(
+                    {
+                        'name': key,
+                        'required': False,
+                        'in': 'query',
+                        'schema': {
+                            'type': 'boolean',
+                        },
+                    }
+                )
+            else:
+                choices = [field.to_representation(v) for v in field.choices]
+                schema.append(
+                    {
+                        'name': key,
+                        'required': False,
+                        'in': 'query',
+                        'schema': {
+                            'type': 'string',
+                            'enum': choices,
+                        },
+                    }
+                )
         return schema
