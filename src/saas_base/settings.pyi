@@ -26,6 +26,7 @@ class Settings:
     SIGNUP_REQUEST_CREATE_USER: bool
     RESET_PASSWORD_SECURITY_RULES: t.List[SecurityRule]
     MEMBER_INVITE_LINK: str
+    MEMBER_PERMISSION_MANAGERS: t.List[t.Literal['permissions', 'groups', 'role']]
 
     # internal properties
     settings_key: str

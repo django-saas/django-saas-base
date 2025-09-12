@@ -26,6 +26,7 @@ DEFAULTS = {
     'SIGNUP_REQUEST_CREATE_USER': False,
     'RESET_PASSWORD_SECURITY_RULES': [],
     'MEMBER_INVITE_LINK': '/invite/%s/',
+    'MEMBER_PERMISSION_MANAGERS': ['permissions', 'groups', 'role'],
 }
 
 

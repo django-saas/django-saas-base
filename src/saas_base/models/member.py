@@ -8,6 +8,7 @@ from django.utils.functional import cached_property
 from .permission import Permission
 from .role import Role
 from .group import Group
+from ..settings import saas_settings
 from ..db import CachedManager
 
 
@@ -92,7 +93,14 @@ class Member(models.Model):
         return self.__get_user_permissions()
 
     def get_all_permissions(self) -> Set[str]:
-        return set(self.user_permissions + self.role_permissions + self.group_permissions)
+        perms = set()
+        if 'permissions' in saas_settings.MEMBER_PERMISSION_MANAGERS:
+            perms = perms.union(self.user_permissions)
+        if 'role' in saas_settings.MEMBER_PERMISSION_MANAGERS:
+            perms = perms.union(self.role_permissions)
+        if 'groups' in saas_settings.MEMBER_PERMISSION_MANAGERS:
+            perms = perms.union(self.group_permissions)
+        return perms
 
     def __get_group_permissions(self):
         return list(self.groups.values_list('permissions__name', flat=True))
