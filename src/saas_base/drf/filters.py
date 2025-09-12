@@ -64,22 +64,37 @@ class TenantIdFilter(BaseFilterBackend):
 
 
 class IncludeFilter(BaseFilterBackend):
-    def get_select_related_fields(self, view):
+    @staticmethod
+    def get_select_related_fields(view):
         return getattr(view, 'include_select_related_fields', [])
 
-    def get_prefetch_related_fields(self, view):
+    @staticmethod
+    def get_prefetch_related_fields(view):
         return getattr(view, 'include_prefetch_related_fields', [])
 
-    def get_include_terms(self, request):
+    @staticmethod
+    def get_annotate_fields(view):
+        return getattr(view, 'include_annotate_fields', [])
+
+    @staticmethod
+    def get_include_terms(request):
         params = request.query_params.get('include', '')
         params = params.replace('\x00', '')  # strip null characters
         params = params.replace(',', ' ')
         return params.split()
 
+    @staticmethod
+    def annotate_queryset(queryset, terms, view):
+        func = getattr(view, 'annotate_queryset', None)
+        if func:
+            return func(queryset, terms)
+        return queryset
+
     def filter_queryset(self, request, queryset, view):
         select_related_fields = self.get_select_related_fields(view)
         prefetch_related_fields = self.get_prefetch_related_fields(view)
-        if not select_related_fields and not prefetch_related_fields:
+        annotate_fields = self.get_annotate_fields(view)
+        if not select_related_fields and not prefetch_related_fields and not annotate_fields:
             return queryset
 
         include_terms = self.get_include_terms(request)
@@ -87,8 +102,9 @@ class IncludeFilter(BaseFilterBackend):
             return queryset
 
         if include_terms == ['all']:
-            include_terms = select_related_fields + prefetch_related_fields
+            include_terms = select_related_fields + prefetch_related_fields + annotate_fields
 
+        annotate_terms = []
         for field in include_terms:
             if field in select_related_fields:
                 queryset = queryset.select_related(field)
@@ -96,6 +112,11 @@ class IncludeFilter(BaseFilterBackend):
                 queryset = queryset.prefetch_related(field)
                 relations = [key for key in prefetch_related_fields if key.startswith(f'{field}__')]
                 queryset = queryset.prefetch_related(*relations)
+            elif field in annotate_fields:
+                annotate_terms.append(field)
+
+        if annotate_terms:
+            queryset = self.annotate_queryset(queryset, annotate_terms, view)
 
         request.include_terms = include_terms
         return queryset
@@ -103,7 +124,8 @@ class IncludeFilter(BaseFilterBackend):
     def get_schema_operation_parameters(self, view):
         select_related_fields = self.get_select_related_fields(view)
         prefetch_related_fields = self.get_prefetch_related_fields(view)
-        related_fields = ['all'] + select_related_fields + prefetch_related_fields
+        annotate_fields = self.get_annotate_fields(view)
+        related_fields = ['all'] + select_related_fields + prefetch_related_fields + annotate_fields
         desc = ', '.join([f'`"{name}"`' for name in related_fields if '__' not in name])
         return [
             {
