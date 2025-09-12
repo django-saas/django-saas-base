@@ -13,4 +13,5 @@ class CoreConfig(AppConfig):
 
     def ready(self):
         from .permissions import create_permissions
+
         post_migrate.connect(create_permissions)
