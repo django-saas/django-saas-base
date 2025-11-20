@@ -69,6 +69,25 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
         member = Member.objects.get(user_id=obj.user_id, tenant_id=self.tenant_id)
         self.assertEqual(member.status, Member.InviteStatus.WAITING)
 
+    def test_signup_via_member_invite(self):
+        email = 'hi@foo.com'
+        obj = Member.objects.create(tenant_id=self.tenant_id, email=email)
+        data = {'username': 'demo', 'password': 'hello world'}
+        resp = self.client.post(f'/m/session/signup/via/{obj.pk}/', data=data)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_signup_with_waiting_member(self):
+        user = self.get_user()
+        obj = Member.objects.create(
+            tenant_id=self.tenant_id,
+            user=user,
+            email=user.email,
+            status=Member.InviteStatus.WAITING,
+        )
+        data = {'username': 'demo', 'password': 'hello world'}
+        resp = self.client.post(f'/m/session/signup/via/{obj.pk}/', data=data)
+        self.assertEqual(resp.status_code, 404)
+
 
 @override_settings(SAAS={'SIGNUP_REQUEST_CREATE_USER': True})
 class TestSignUpWithCreateUser(FixturesTestCase):

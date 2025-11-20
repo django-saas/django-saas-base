@@ -87,9 +87,9 @@ class SignupConfirmCodeSerializer(RetrieveUserEmailMixin, EmailCodeConfirmSerial
 class SignupConfirmPasswordSerializer(EmailCodeConfirmSerializer):
     CACHE_PREFIX = SIGNUP_CODE
     username = serializers.CharField(required=True, validators=[UnicodeUsernameValidator()])
+    password = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     code = serializers.CharField(required=True, max_length=6)
-    password = serializers.CharField(required=True)
 
     def validate_username(self, username: str):
         cls: t.Type[User] = get_user_model()
@@ -100,7 +100,11 @@ class SignupConfirmPasswordSerializer(EmailCodeConfirmSerializer):
             return username
 
     def validate_password(self, raw_password: str):
-        password_validation.validate_password(raw_password)
+        user = User(
+            username=self.initial_data['username'],
+            email=self.initial_data['email'],
+        )
+        password_validation.validate_password(raw_password, user)
         return raw_password
 
     def create(self, validated_data) -> User:
@@ -118,6 +122,49 @@ class SignupConfirmPasswordSerializer(EmailCodeConfirmSerializer):
             UserEmail.objects.create(
                 user=user,
                 email=email,
+                primary=True,
+                verified=True,
+            )
+        return user
+
+
+class SignupWithInvitationSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True, validators=[UnicodeUsernameValidator()])
+    password = serializers.CharField(required=True)
+
+    def validate_username(self, username: str):
+        cls: t.Type[User] = get_user_model()
+        try:
+            cls.objects.get(username=username)
+            raise ValidationError(AUTH_ERRORS['exist_username'])
+        except cls.DoesNotExist:
+            return username
+
+    def validate_password(self, raw_password: str):
+        member = self.context['member']
+        user = User(
+            username=self.initial_data['username'],
+            email=member.email,
+        )
+        password_validation.validate_password(raw_password, user)
+        return raw_password
+
+    def create(self, validated_data) -> User:
+        username = validated_data['username']
+        password = validated_data['password']
+        member = self.context['member']
+
+        cls: t.Type[User] = get_user_model()
+        with transaction.atomic():
+            user = cls.objects.create_user(
+                username=username,
+                email=member.email,
+                password=password,
+                is_active=True,
+            )
+            UserEmail.objects.create(
+                user=user,
+                email=member.email,
                 primary=True,
                 verified=True,
             )

@@ -63,12 +63,16 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
                 recipient = formataddr((member.name, member.email))
             else:
                 recipient = member.email
+
+            invite_link = saas_settings.MEMBER_INVITE_LINK % str(member.id)
+            if not invite_link.startswith('http'):
+                invite_link = request.build_absolute_uri(invite_link)
             self.send_email(
                 [recipient],
                 inviter=request.user,
                 member=member,
                 tenant=request.tenant,
-                invite_link=saas_settings.MEMBER_INVITE_LINK % str(member.id),
+                invite_link=invite_link,
             )
         data = MemberDetailSerializer(member).data
         return Response(data)

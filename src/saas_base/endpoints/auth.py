@@ -4,6 +4,7 @@ from django.contrib.auth import login, logout
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
+from rest_framework.exceptions import NotFound
 from ..models import Member
 from ..drf.views import Endpoint
 from ..settings import saas_settings
@@ -14,6 +15,7 @@ from ..serializers.auth import (
     SignupCreateUserSerializer,
     SignupConfirmCodeSerializer,
     SignupConfirmPasswordSerializer,
+    SignupWithInvitationSerializer,
 )
 from ..serializers.password import PasswordLoginSerializer
 from ..signals import after_signup_user, after_login_user
@@ -23,6 +25,7 @@ from ..mail import SendEmailMixin
 __all__ = [
     'SignupRequestEndpoint',
     'SignupConfirmEndpoint',
+    'SignupWithInvitationEndpoint',
     'PasswordLogInEndpoint',
     'LogoutEndpoint',
 ]
@@ -52,17 +55,12 @@ class SignupRequestEndpoint(SendEmailMixin, Endpoint):
         return Response(status=204)
 
 
-class SignupConfirmEndpoint(Endpoint):
+class _BaseSignupConfirmEndpoint(Endpoint):
     authentication_classes = []
     permission_classes = []
     throttle_classes = [AnonRateThrottle]
 
-    def get_serializer_class(self):
-        if saas_settings.SIGNUP_REQUEST_CREATE_USER:
-            return SignupConfirmCodeSerializer
-        return SignupConfirmPasswordSerializer
-
-    def post(self, request: Request):
+    def post(self, request: Request, *args, **kwargs):
         """Register a new user and login."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -77,6 +75,27 @@ class SignupConfirmEndpoint(Endpoint):
             strategy='password',
         )
         return Response({'next': settings.LOGIN_REDIRECT_URL})
+
+
+class SignupConfirmEndpoint(_BaseSignupConfirmEndpoint):
+    def get_serializer_class(self):
+        if saas_settings.SIGNUP_REQUEST_CREATE_USER:
+            return SignupConfirmCodeSerializer
+        return SignupConfirmPasswordSerializer
+
+
+class SignupWithInvitationEndpoint(_BaseSignupConfirmEndpoint):
+    serializer_class = SignupWithInvitationSerializer
+    queryset = Member.objects.all()
+
+    def get_serializer_context(self):
+        obj: Member = self.get_object()
+        # only allow signup with "request" status
+        if obj.status == Member.InviteStatus.REQUEST:
+            context = super().get_serializer_context()
+            context['member'] = obj
+            return context
+        raise NotFound()
 
 
 class PasswordLogInEndpoint(Endpoint):
