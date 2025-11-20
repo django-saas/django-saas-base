@@ -42,7 +42,6 @@ class Member(models.Model):
     )
 
     status = models.SmallIntegerField(default=InviteStatus.REQUEST, choices=InviteStatus.choices)
-    is_staff = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, blank=True, null=True)

@@ -51,18 +51,6 @@ class TestMembersAPI(FixturesTestCase):
         data = resp.json()
         self.assertNotEqual(data['count'], 0)
 
-    def test_list_members_by_staff(self):
-        self.add_user_perms('tenant.read')
-        self.force_login()
-        resp = self.client.get('/m/members/?is_staff=false')
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertEqual(data['count'], 0)
-        resp = self.client.get('/m/members/?is_staff=true')
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertNotEqual(data['count'], 0)
-
     def test_invite_member_signup(self):
         self.add_user_perms('tenant.admin')
         self.force_login()

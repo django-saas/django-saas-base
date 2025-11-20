@@ -37,7 +37,7 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
     resource_name = 'tenant'
     resource_scopes = ['tenant', 'tenant:member']
 
-    choice_filter_fields = ['status', 'is_staff']
+    choice_filter_fields = ['status']
     include_select_related_fields = ['user', 'role']
     include_prefetch_related_fields = ['groups', 'permissions', 'groups__permissions']
 
