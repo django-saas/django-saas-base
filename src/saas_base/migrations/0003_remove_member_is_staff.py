@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('saas_base', '0002_add_role_and_update_member'),
     ]
