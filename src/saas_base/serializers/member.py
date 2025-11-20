@@ -101,3 +101,12 @@ class UserMembershipSerializer(ModelSerializer):
         if status != Member.InviteStatus.ACTIVE:
             raise ValidationError(_('Invalid status value.'))
         return status
+
+
+class InvitationInfoSerializer(ModelSerializer):
+    tenant = TenantSerializer(read_only=True)
+    inviter = SimpleUserSerializer(read_only=True)
+
+    class Meta:
+        model = Member
+        fields = ['tenant', 'inviter', 'email', 'status', 'created_at']

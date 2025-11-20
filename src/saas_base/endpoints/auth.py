@@ -17,6 +17,7 @@ from ..serializers.auth import (
     SignupConfirmPasswordSerializer,
     SignupWithInvitationSerializer,
 )
+from ..serializers.member import InvitationInfoSerializer
 from ..serializers.password import PasswordLoginSerializer
 from ..signals import after_signup_user, after_login_user
 from ..mail import SendEmailMixin
@@ -28,6 +29,7 @@ __all__ = [
     'SignupWithInvitationEndpoint',
     'PasswordLogInEndpoint',
     'LogoutEndpoint',
+    'InvitationEndpoint',
 ]
 
 
@@ -128,3 +130,18 @@ class LogoutEndpoint(Endpoint):
         """Clear the user session and log the user out."""
         logout(request._request)
         return Response({'next': settings.LOGIN_URL})
+
+
+class InvitationEndpoint(Endpoint):
+    authentication_classes = []
+    permission_classes = []
+    serializer_class = InvitationInfoSerializer
+    queryset = Member.objects.all()
+
+    def get(self, request: Request, *args, **kwargs):
+        """Retrieve a pending membership invitation."""
+        obj: Member = self.get_object()
+        if obj.status == Member.InviteStatus.ACTIVE:
+            raise NotFound()
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)

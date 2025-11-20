@@ -9,6 +9,7 @@ from ..endpoints.auth import (
     SignupRequestEndpoint,
     SignupConfirmEndpoint,
     SignupWithInvitationEndpoint,
+    InvitationEndpoint,
 )
 
 
@@ -20,4 +21,5 @@ urlpatterns = [
     path('signup/via/<pk>/', SignupWithInvitationEndpoint.as_view()),
     path('password/forgot/', PasswordForgotEndpoint.as_view()),
     path('password/reset/', PasswordResetEndpoint.as_view()),
+    path('invitation/<pk>/', InvitationEndpoint.as_view()),
 ]

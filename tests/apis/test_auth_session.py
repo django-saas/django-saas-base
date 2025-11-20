@@ -147,3 +147,41 @@ class TestLoginAPI(FixturesTestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data['username'], user.username)
+
+
+class TestInvitationAPI(FixturesTestCase):
+    user_id = FixturesTestCase.ADMIN_USER_ID
+
+    def test_request_status_invitation(self):
+        email = 'hi@foo.com'
+        obj = Member.objects.create(tenant_id=self.tenant_id, email=email)
+        resp = self.client.get(f'/m/session/invitation/{obj.pk}/')
+        self.assertEqual(resp.status_code, 200)
+        result = resp.json()
+        self.assertEqual(result['status'], 'request')
+
+    def test_waiting_status_invitation(self):
+        user = self.get_user(self.EMPTY_USER_ID)
+        obj = Member.objects.create(
+            tenant_id=self.tenant_id,
+            inviter_id=self.user_id,
+            user=user,
+            email=user.email,
+            status=Member.InviteStatus.WAITING,
+        )
+        resp = self.client.get(f'/m/session/invitation/{obj.pk}/')
+        self.assertEqual(resp.status_code, 200)
+        result = resp.json()
+        self.assertEqual(result['status'], 'waiting')
+
+    def test_active_status_invitation(self):
+        user = self.get_user(self.EMPTY_USER_ID)
+        obj = Member.objects.create(
+            tenant_id=self.tenant_id,
+            inviter_id=self.user_id,
+            user=user,
+            email=user.email,
+            status=Member.InviteStatus.ACTIVE,
+        )
+        resp = self.client.get(f'/m/session/invitation/{obj.pk}/')
+        self.assertEqual(resp.status_code, 404)
