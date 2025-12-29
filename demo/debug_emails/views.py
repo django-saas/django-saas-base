@@ -1,7 +1,7 @@
 from django.http import HttpResponse, Http404
 from django.contrib.auth.models import User
 from saas_base.models import Tenant, Member
-from saas_base.mail import render_mail_messages
+from saas_base.tasks.send_mails import render_mail_messages
 from saas_base.settings import saas_settings
 
 
