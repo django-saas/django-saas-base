@@ -1,8 +1,8 @@
 from django.http import HttpResponse, Http404
 from django.contrib.auth.models import User
-from ..models import Tenant, Member
-from ..mail import render_mail_messages
-from ..settings import saas_settings
+from saas_base.models import Tenant, Member
+from saas_base.mail import render_mail_messages
+from saas_base.settings import saas_settings
 
 
 def view_signup_code(request, suffix: str):
