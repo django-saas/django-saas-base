@@ -18,6 +18,7 @@ class Settings:
 
     PERMISSION_NAME_FORMATTER: str
     DEFAULT_REGION: str
+    DEFAULT_FROM_EMAIL: t.Optional[str]
 
     SIGNUP_SECURITY_RULES: t.List[SecurityRule]
     SIGNUP_REQUEST_CREATE_USER: bool

@@ -16,6 +16,8 @@ def send_template_email(
     headers: t.Optional[t.Dict[str, str]] = None,
     reply_to: t.Optional[str] = None,
 ):
+    if from_email is None:
+        from_email = saas_settings.DEFAULT_FROM_EMAIL
     text_message, html_message = render_mail_messages(template_id, context)
     result: TaskResult = send_email.enqueue(
         subject=str(subject),

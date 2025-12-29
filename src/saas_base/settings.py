@@ -15,6 +15,7 @@ DEFAULTS = {
     'PERMISSION_NAME_FORMATTER': '{resource}.{action}',
     'DEFAULT_REGION': '',
     'TENANT_ID_HEADER': 'X-Tenant-Id',
+    'DEFAULT_FROM_EMAIL': None,
     'SIGNUP_SECURITY_RULES': [],
     'SIGNUP_REQUEST_CREATE_USER': False,
     'RESET_PASSWORD_SECURITY_RULES': [],
