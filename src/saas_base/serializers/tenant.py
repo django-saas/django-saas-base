@@ -10,10 +10,30 @@ class TenantSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_tenant_model()
         exclude = ['owner']
+        read_only_fields = ['id', 'expires_at', 'created_at', 'updated_at']
 
     def create(self, validated_data):
         before_create_tenant.send(self.__class__, data=validated_data, **self.context)
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        before_update_tenant.send(self.__class__, tenant=instance, data=validated_data, **self.context)
+        return super().update(instance, validated_data)
+
+
+class TenantUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_tenant_model()
+        exclude = ['owner']
+        read_only_fields = [
+            'id',
+            'slug',
+            'environment',
+            'region',
+            'expires_at',
+            'created_at',
+            'updated_at',
+        ]
 
     def update(self, instance, validated_data):
         before_update_tenant.send(self.__class__, tenant=instance, data=validated_data, **self.context)

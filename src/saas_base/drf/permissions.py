@@ -3,8 +3,8 @@ from django.utils.translation import gettext as _
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.exceptions import PermissionDenied
-from ..models import get_tenant_model, Member
-from ..settings import saas_settings
+from saas_base.models import get_tenant_model, get_cached_tenant, Member
+from saas_base.settings import saas_settings
 
 __all__ = [
     'IsTenantOwner',
@@ -28,18 +28,38 @@ http_method_actions = {
 }
 
 
-class IsTenantOwner(BasePermission):
-    """The authenticated user is the tenant owner."""
+class BaseTenantPermission(BasePermission):
+    tenant_id_field = 'tenant_id'
+
+    @staticmethod
+    def check_tenant_permission(request, view, tenant_id):
+        return True
 
     def has_permission(self, request: Request, view):
         tenant_id = getattr(request, 'tenant_id', None)
+        return self.check_tenant_permission(request, view, tenant_id)
+
+    def has_object_permission(self, request, view, obj):
+        tenant_id_field = getattr(view, 'tenant_id_field', self.tenant_id_field)
+        if tenant_id_field is None:
+            return True
+        tenant_id = getattr(obj, tenant_id_field, None)
+        return self.check_tenant_permission(request, view, tenant_id)
+
+
+class IsTenantOwner(BaseTenantPermission):
+    """The authenticated user is the tenant owner."""
+
+    @staticmethod
+    def check_tenant_permission(request, view, tenant_id):
         if not tenant_id:
             return False
-        try:
-            tenant = TenantModel.objects.get_from_cache_by_pk(tenant_id)
-            return request.user.pk == tenant.owner_id
-        except TenantModel.DoesNotExist:
+
+        tenant = get_cached_tenant(tenant_id, request._request)
+        if not tenant:
             return False
+
+        return request.user.pk == tenant.owner_id
 
 
 class IsTenantOwnerOrReadOnly(IsTenantOwner):
@@ -50,27 +70,27 @@ class IsTenantOwnerOrReadOnly(IsTenantOwner):
             return True
         return super().has_permission(request, view)
 
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return super().has_object_permission(request, view, obj)
 
-class IsTenantActive(BasePermission):
+
+class IsTenantActive(BaseTenantPermission):
     """The requested tenant is not expired."""
 
-    def has_permission(self, request, view):
-        tenant_id = getattr(request, 'tenant_id', None)
-        # not a tenant related request
-        if not tenant_id:
-            return True
-
-        try:
-            tenant = TenantModel.objects.get_from_cache_by_pk(tenant_id)
-            # tenant will not expire
-            if not tenant.expires_at:
-                return True
-            # tenant not expired
-            if tenant.expires_at < timezone.now():
-                raise PermissionDenied(_('This tenant is expired.'))
-            return True
-        except TenantModel.DoesNotExist:
+    @staticmethod
+    def check_tenant_permission(request, view, tenant_id):
+        tenant = get_cached_tenant(tenant_id, request._request)
+        if not tenant:
             return False
+
+        if not tenant.expires_at:
+            return True
+        # tenant not expired
+        if tenant.expires_at < timezone.now():
+            raise PermissionDenied(_('This tenant is expired.'))
+        return True
 
 
 class IsTenantActiveOrReadOnly(IsTenantActive):
@@ -81,8 +101,13 @@ class IsTenantActiveOrReadOnly(IsTenantActive):
             return True
         return super().has_permission(request, view)
 
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return super().has_object_permission(request, view, obj)
 
-class HasResourcePermission(BasePermission):
+
+class HasResourcePermission(BaseTenantPermission):
     """The authenticated user is a member of the tenant, and the user
     has the given resource permission.
     """
@@ -112,17 +137,17 @@ class HasResourcePermission(BasePermission):
         )
         return [permission]
 
-    def check_tenant_permission(self, request: Request, view, tenant_id):
-        resource_permissions = self.get_resource_permissions(view, request.method)
+    @classmethod
+    def check_tenant_permission(cls, request: Request, view, tenant_id):
+        resource_permissions = cls.get_resource_permissions(view, request.method)
         if not resource_permissions:
             return True
 
         if not tenant_id:
             return False
 
-        try:
-            tenant = TenantModel.objects.get_from_cache_by_pk(tenant_id)
-        except TenantModel.DoesNotExist:
+        tenant = get_cached_tenant(tenant_id, request._request)
+        if not tenant:
             return False
 
         # Tenant owner has all permissions
@@ -142,10 +167,6 @@ class HasResourcePermission(BasePermission):
 
         return bool(set(resource_permissions) & perms)
 
-    def has_permission(self, request: Request, view):
-        tenant_id = getattr(request, 'tenant_id', None)
-        return self.check_tenant_permission(request, view, tenant_id)
-
 
 class HasResourcePermissionOrReadOnly(HasResourcePermission):
     """The authenticated user has the tenant permission, or is a read-only request."""
@@ -154,6 +175,11 @@ class HasResourcePermissionOrReadOnly(HasResourcePermission):
         if request.method in SAFE_METHODS:
             return True
         return super().has_permission(request, view)
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        return super().has_object_permission(request, view, obj)
 
 
 class HasResourceScope(BasePermission):

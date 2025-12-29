@@ -1,7 +1,7 @@
 from django.utils.functional import SimpleLazyObject
 from django.conf import settings
 from .settings import saas_settings
-from .models import get_tenant_model
+from .models import get_tenant_model, get_cached_tenant
 
 __all__ = [
     'TenantMiddleware',
@@ -19,17 +19,10 @@ class TenantMiddleware:
 
     @staticmethod
     def get_tenant(request):
-        if not hasattr(request, '_cached_tenant'):
-            TenantModel = get_tenant_model()
-            tenant_id = getattr(request, 'tenant_id', None)
-            if not tenant_id:
-                return None
-            try:
-                tenant = TenantModel.objects.get_from_cache_by_pk(tenant_id)
-                request._cached_tenant = tenant
-            except TenantModel.DoesNotExist:
-                return None
-        return getattr(request, '_cached_tenant', None)
+        tenant_id = getattr(request, 'tenant_id', None)
+        if not tenant_id:
+            return None
+        return get_cached_tenant(tenant_id, request)
 
     def __call__(self, request):
         request.tenant = SimpleLazyObject(lambda: self.get_tenant(request))

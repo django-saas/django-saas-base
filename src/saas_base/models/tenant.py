@@ -22,6 +22,7 @@ class TenantManager(CachedManager):
 
 class AbstractTenant(models.Model):
     name = models.CharField(max_length=140)
+    logo = models.URLField(blank=True, null=True)
     slug = models.SlugField(
         unique=True,
         help_text='Identity of the tenant, e.g. <slug>.example.com',
@@ -48,7 +49,7 @@ class AbstractTenant(models.Model):
 
 
 class Tenant(AbstractTenant):
-    objects = TenantManager['Tenant']()
+    objects = TenantManager()
 
     class Meta(AbstractTenant.Meta):
         swappable = 'SAAS_TENANT_MODEL'
@@ -58,3 +59,20 @@ class Tenant(AbstractTenant):
 
 def get_tenant_model() -> Type[Tenant]:
     return apps.get_model(settings.SAAS_TENANT_MODEL)
+
+
+def get_cached_tenant(tenant_id, request) -> Optional[Tenant]:
+    if not hasattr(request, '_cached_tenants'):
+        request._cached_tenants = {}
+
+    tenant = request._cached_tenants.get(tenant_id, None)
+    if tenant is not None:
+        return tenant
+
+    TenantModel = get_tenant_model()
+    try:
+        tenant = TenantModel.objects.get_from_cache_by_pk(tenant_id)
+        request._cached_tenants[tenant_id] = tenant
+        return tenant
+    except TenantModel.DoesNotExist:
+        return None
