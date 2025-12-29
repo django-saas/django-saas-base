@@ -6,13 +6,13 @@ authors = [
     { name = "Hsiaoming Yang", email = "me@lepture.com" }
 ]
 dependencies = [
-    "Django",
+    "Django>=6.0",
     "djangorestframework",
     "requests",
     "css-inline",
 ]
 readme = "README.md"
-requires-python = ">= 3.10"
+requires-python = ">= 3.12"
 license = {text = "BSD-3-Clause"}
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -21,10 +21,7 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
     "Framework :: Django",
-    "Framework :: Django :: 4.2",
-    "Framework :: Django :: 5.0",
-    "Framework :: Django :: 5.1",
-    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",

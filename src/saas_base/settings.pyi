@@ -1,6 +1,5 @@
 import typing as t
 from .security.rules import Rule as SecurityRule
-from .mail import BaseMailProvider as MailProvider
 
 class TypedSite(t.TypedDict):
     name: str
@@ -20,8 +19,6 @@ class Settings:
     PERMISSION_NAME_FORMATTER: str
     DEFAULT_REGION: str
 
-    MAIL_PROVIDERS: t.Dict[str, MailProvider]
-    MAIL_IMMEDIATE_SEND: bool
     SIGNUP_SECURITY_RULES: t.List[SecurityRule]
     SIGNUP_REQUEST_CREATE_USER: bool
     RESET_PASSWORD_SECURITY_RULES: t.List[SecurityRule]

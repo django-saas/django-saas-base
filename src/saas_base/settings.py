@@ -15,13 +15,6 @@ DEFAULTS = {
     'PERMISSION_NAME_FORMATTER': '{resource}.{action}',
     'DEFAULT_REGION': '',
     'TENANT_ID_HEADER': 'X-Tenant-Id',
-    'MAIL_PROVIDERS': {
-        'default': {
-            'backend': 'saas_base.mail.DjangoMailProvider',
-            'options': {},
-        },
-    },
-    'MAIL_IMMEDIATE_SEND': True,
     'SIGNUP_SECURITY_RULES': [],
     'SIGNUP_REQUEST_CREATE_USER': False,
     'RESET_PASSWORD_SECURITY_RULES': [],

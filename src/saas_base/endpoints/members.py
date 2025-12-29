@@ -7,18 +7,18 @@ from rest_framework.mixins import (
     UpdateModelMixin,
     DestroyModelMixin,
 )
-from ..settings import saas_settings
-from ..drf.views import TenantEndpoint
-from ..drf.decorators import resource_permissions
-from ..drf.filters import TenantIdFilter, IncludeFilter, ChoiceFilter
-from ..mail import SendEmailMixin
-from ..serializers.member import (
+from saas_base.drf.views import TenantEndpoint
+from saas_base.drf.decorators import resource_permissions
+from saas_base.drf.filters import TenantIdFilter, IncludeFilter, ChoiceFilter
+from saas_base.tasks.send_mails import send_template_email
+from saas_base.serializers.member import (
     MemberSerializer,
     MemberInviteSerializer,
     MemberDetailSerializer,
 )
-from ..models import Member
-from ..signals import member_invited
+from saas_base.models import Member
+from saas_base.settings import saas_settings
+from saas_base.signals import member_invited
 
 __all__ = [
     'MemberListEndpoint',
@@ -26,7 +26,7 @@ __all__ = [
 ]
 
 
-class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
+class MemberListEndpoint(ListModelMixin, TenantEndpoint):
     email_template_id = 'invite_member'
     email_subject = _("You've Been Invited to Join %s")
 
@@ -67,12 +67,17 @@ class MemberListEndpoint(SendEmailMixin, ListModelMixin, TenantEndpoint):
             invite_link = saas_settings.MEMBER_INVITE_LINK % str(member.id)
             if not invite_link.startswith('http'):
                 invite_link = request.build_absolute_uri(invite_link)
-            self.send_email(
-                [recipient],
-                inviter=request.user,
-                member=member,
-                tenant=request.tenant,
-                invite_link=invite_link,
+
+            send_template_email(
+                template_id=self.email_template_id,
+                subject=self.get_email_subject(),
+                recipients=[recipient],
+                context={
+                    'inviter': request.user,
+                    'member': member,
+                    'tenant': request.tenant,
+                    'invite_link': invite_link,
+                },
             )
         data = MemberDetailSerializer(member).data
         return Response(data)

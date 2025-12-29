@@ -5,11 +5,11 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
 from rest_framework.exceptions import NotFound
-from ..models import Member
-from ..drf.views import Endpoint
-from ..settings import saas_settings
-from ..security import check_security_rules
-from ..serializers.auth import (
+from saas_base.models import Member
+from saas_base.drf.views import Endpoint
+from saas_base.settings import saas_settings
+from saas_base.security import check_security_rules
+from saas_base.serializers.auth import (
     EmailCode,
     SignupRequestCodeSerializer,
     SignupCreateUserSerializer,
@@ -17,10 +17,10 @@ from ..serializers.auth import (
     SignupConfirmPasswordSerializer,
     SignupWithInvitationSerializer,
 )
-from ..serializers.member import InvitationInfoSerializer
-from ..serializers.password import PasswordLoginSerializer
-from ..signals import after_signup_user, after_login_user
-from ..mail import SendEmailMixin
+from saas_base.serializers.member import InvitationInfoSerializer
+from saas_base.serializers.password import PasswordLoginSerializer
+from saas_base.signals import after_signup_user, after_login_user
+from saas_base.tasks.send_mails import send_template_email
 
 
 __all__ = [
@@ -33,7 +33,7 @@ __all__ = [
 ]
 
 
-class SignupRequestEndpoint(SendEmailMixin, Endpoint):
+class SignupRequestEndpoint(Endpoint):
     email_template_id = 'signup_code'
     email_subject = _('Signup Request')
     authentication_classes = []
@@ -53,7 +53,12 @@ class SignupRequestEndpoint(SendEmailMixin, Endpoint):
         # check bad request rules
         check_security_rules(saas_settings.SIGNUP_SECURITY_RULES, request)
 
-        self.send_email([obj.recipient()], code=obj.code)
+        send_template_email(
+            template_id=self.email_template_id,
+            subject=self.email_subject,
+            recipients=[obj.recipient()],
+            context={'code': obj.code},
+        )
         return Response(status=204)
 
 

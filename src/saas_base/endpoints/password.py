@@ -4,15 +4,15 @@ from django.conf import settings
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle
-from ..drf.views import Endpoint
-from ..settings import saas_settings
-from ..models import UserEmail
-from ..mail import SendEmailMixin
-from ..security import check_security_rules
-from ..serializers.password import (
+from saas_base.drf.views import Endpoint
+from saas_base.settings import saas_settings
+from saas_base.models import UserEmail
+from saas_base.security import check_security_rules
+from saas_base.serializers.password import (
     PasswordForgetSerializer,
     PasswordResetSerializer,
 )
+from saas_base.tasks.send_mails import send_template_email
 
 __all__ = [
     'PasswordForgotEndpoint',
@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 
-class PasswordForgotEndpoint(SendEmailMixin, Endpoint):
+class PasswordForgotEndpoint(Endpoint):
     email_template_id = 'reset_password'
     email_subject = _('Password Reset Request')
 
@@ -41,7 +41,12 @@ class PasswordForgotEndpoint(SendEmailMixin, Endpoint):
         code = serializer.save_auth_code(obj.user_id)
         name = obj.user.get_full_name() or obj.user.get_username()
         recipients = [formataddr((name, obj.email))]
-        self.send_email(recipients, code=code, user=obj.user)
+        send_template_email(
+            template_id=self.email_template_id,
+            subject=self.email_subject,
+            recipients=recipients,
+            context={'code': code, 'user': obj.user},
+        )
         return Response(status=204)
 
 

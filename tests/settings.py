@@ -7,6 +7,11 @@ DATABASES = {
         'NAME': ':memory:',
     }
 }
+TASKS = {
+    'default': {
+        'BACKEND': 'django.tasks.backends.immediate.ImmediateBackend',
+    },
+}
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

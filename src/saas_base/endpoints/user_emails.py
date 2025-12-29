@@ -7,14 +7,14 @@ from rest_framework.mixins import (
     RetrieveModelMixin,
 )
 from rest_framework.throttling import UserRateThrottle
-from ..drf.views import AuthenticatedEndpoint
-from ..models import UserEmail
-from ..mail import SendEmailMixin
-from ..serializers.user_email import (
+from saas_base.drf.views import AuthenticatedEndpoint
+from saas_base.models import UserEmail
+from saas_base.serializers.user_email import (
     UserEmailSerializer,
     AddEmailRequestSerializer,
     AddEmailConfirmSerializer,
 )
+from saas_base.tasks.send_mails import send_template_email
 
 __all__ = [
     'UserEmailListEndpoint',
@@ -63,7 +63,7 @@ class UserEmailItemEndpoint(RetrieveModelMixin, DestroyModelMixin, Authenticated
         return self.destroy(request, *args, **kwargs)
 
 
-class AddUserEmailRequestEndpoint(SendEmailMixin, AuthenticatedEndpoint):
+class AddUserEmailRequestEndpoint(AuthenticatedEndpoint):
     resource_scopes = ['user:email']
     email_template_id = 'add_email'
     email_subject = _('Add new email')
@@ -76,7 +76,12 @@ class AddUserEmailRequestEndpoint(SendEmailMixin, AuthenticatedEndpoint):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         obj = serializer.save()
-        self.send_email([obj.recipient()], code=obj.code, user=obj.user)
+        send_template_email(
+            template_id=self.email_template_id,
+            subject=self.email_subject,
+            recipients=[obj.recipient()],
+            context={'code': obj.code, 'user': obj.user},
+        )
         return Response(status=204)
 
 
