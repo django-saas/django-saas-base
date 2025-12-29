@@ -25,21 +25,34 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
         self.assertIn('existing', resp.json()['email'][0])
 
     def test_signup_blocked_email(self):
-        rules = [{'backend': 'saas_base.security.rules.BlockedEmailDomains', 'options': {'domains': ['bar.com']}}]
+        rules = [{'backend': 'saas_base.rules.BlockedEmailDomains'}]
+        with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
+            data = {'username': 'bar', 'email': 'hi@boofx.com', 'password': 'hello world'}
+            resp = self.client.post('/m/session/signup/request/', data=data)
+            self.assertEqual(resp.status_code, 400)
+
+        rules = [{'backend': 'saas_base.rules.BlockedEmailDomains', 'options': {'domains': ['bar.com']}}]
         with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
             data = {'username': 'bar', 'email': 'hi@bar.com', 'password': 'hello world'}
             resp = self.client.post('/m/session/signup/request/', data=data)
             self.assertEqual(resp.status_code, 400)
 
     def test_signup_too_many_dots(self):
-        rules = [{'backend': 'saas_base.security.rules.TooManyDots'}]
+        rules = [{'backend': 'saas_base.rules.AvoidTooManyDots'}]
         with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
             data = {'username': 'bar', 'email': 'a.b.c.d.e.f@bar.com', 'password': 'hello world'}
             resp = self.client.post('/m/session/signup/request/', data=data)
             self.assertEqual(resp.status_code, 400)
 
+    def test_signup_using_plus(self):
+        rules = [{'backend': 'saas_base.rules.AvoidUsingPlus'}]
+        with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
+            data = {'username': 'bar', 'email': 'username+demo@gmail.com', 'password': 'hello world'}
+            resp = self.client.post('/m/session/signup/request/', data=data)
+            self.assertEqual(resp.status_code, 400)
+
     def test_signup_turnstile(self):
-        rules = [{'backend': 'saas_base.security.rules.Turnstile'}]
+        rules = [{'backend': 'saas_base.rules.Turnstile'}]
         with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
             data = {'username': 'bar', 'email': 'hi@bar.com', 'password': 'hello world'}
             resp = self.client.post('/m/session/signup/request/', data=data)

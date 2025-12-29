@@ -7,7 +7,7 @@ from rest_framework.throttling import AnonRateThrottle
 from saas_base.drf.views import Endpoint
 from saas_base.settings import saas_settings
 from saas_base.models import UserEmail
-from saas_base.security import check_security_rules
+from saas_base.rules import check_rules
 from saas_base.serializers.password import (
     PasswordForgetSerializer,
     PasswordResetSerializer,
@@ -36,7 +36,7 @@ class PasswordForgotEndpoint(Endpoint):
         obj: UserEmail = serializer.save()
 
         # check bad request rules
-        check_security_rules(saas_settings.RESET_PASSWORD_SECURITY_RULES, request)
+        check_rules(saas_settings.RESET_PASSWORD_SECURITY_RULES, request)
 
         code = serializer.save_auth_code(obj.user_id)
         name = obj.user.get_full_name() or obj.user.get_username()

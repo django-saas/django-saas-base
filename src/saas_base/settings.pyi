@@ -1,5 +1,5 @@
 import typing as t
-from .security.rules import Rule as SecurityRule
+from .rules import Rule
 
 class TypedSite(t.TypedDict):
     name: str
@@ -20,9 +20,9 @@ class Settings:
     DEFAULT_REGION: str
     DEFAULT_FROM_EMAIL: t.Optional[str]
 
-    SIGNUP_SECURITY_RULES: t.List[SecurityRule]
+    SIGNUP_SECURITY_RULES: t.List[Rule]
     SIGNUP_REQUEST_CREATE_USER: bool
-    RESET_PASSWORD_SECURITY_RULES: t.List[SecurityRule]
+    RESET_PASSWORD_SECURITY_RULES: t.List[Rule]
     MEMBER_INVITE_LINK: str
     MEMBER_PERMISSION_MANAGERS: t.List[t.Literal['permissions', 'groups', 'role']]
 

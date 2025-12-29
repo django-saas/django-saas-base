@@ -1,8 +1,8 @@
-import typing as t
-import logging
-from rest_framework.request import Request
+import warnings
+from saas_base.rules import check_rules as check_security_rules
 from .rules import Rule, BlockedEmailDomains, TooManyDots, Turnstile
-from ..drf.errors import BadRequest
+
+warnings.warn('saas_base.security is deprecated, use saas_base.rules instead', DeprecationWarning)
 
 __all__ = [
     'Rule',
@@ -11,13 +11,3 @@ __all__ = [
     'Turnstile',
     'check_security_rules',
 ]
-
-logger = logging.getLogger(__name__)
-
-
-def check_security_rules(security_rules: t.List[Rule], request: Request):
-    for rule in security_rules:
-        if rule.bad_request(request):
-            rule_name = rule.__class__.__name__
-            logger.warning(f'Bad request: [{rule_name}].')
-            raise BadRequest()

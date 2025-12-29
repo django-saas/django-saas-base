@@ -8,7 +8,7 @@ from rest_framework.exceptions import NotFound
 from saas_base.models import Member
 from saas_base.drf.views import Endpoint
 from saas_base.settings import saas_settings
-from saas_base.security import check_security_rules
+from saas_base.rules import check_rules
 from saas_base.serializers.auth import (
     EmailCode,
     SignupRequestCodeSerializer,
@@ -51,7 +51,7 @@ class SignupRequestEndpoint(Endpoint):
         serializer.is_valid(raise_exception=True)
         obj: EmailCode = serializer.save()
         # check bad request rules
-        check_security_rules(saas_settings.SIGNUP_SECURITY_RULES, request)
+        check_rules(saas_settings.SIGNUP_SECURITY_RULES, request)
 
         send_template_email(
             template_id=self.email_template_id,
