@@ -40,7 +40,16 @@ class BaseTenantPermission(BasePermission):
         return self.check_tenant_permission(request, view, tenant_id)
 
     def has_object_permission(self, request, view, obj):
-        tenant_id_field = getattr(view, 'tenant_id_field', self.tenant_id_field)
+        # permission checked above
+        tenant_id = getattr(request, 'tenant_id', None)
+        if tenant_id:
+            return True
+
+        if hasattr(view, 'object_tenant_id_field'):
+            tenant_id_field = view.object_tenant_id_field
+        else:
+            tenant_id_field = getattr(view, 'tenant_id_field', self.tenant_id_field)
+
         if tenant_id_field is None:
             return True
         tenant_id = getattr(obj, tenant_id_field, None)
