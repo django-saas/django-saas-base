@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'saas_base',
     'saas_base.drf',
+    'tests.demo_app',
 ]
 REST_FRAMEWORK = {
     'PAGE_SIZE': 10,

@@ -1,10 +1,10 @@
 from saas_base.test import SaasTestCase
-from saas_base.drf.serializers import ModelSerializer
+from saas_base.drf.serializers import FlattenModelSerializer
 from saas_base.models import Member
 from saas_base.serializers.user import SimpleUserSerializer
 
 
-class MemberSerializer(ModelSerializer):
+class MemberSerializer(FlattenModelSerializer):
     user = SimpleUserSerializer(read_only=True)
 
     class Meta:

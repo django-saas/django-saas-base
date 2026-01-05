@@ -1,17 +1,19 @@
 import re
 import typing as t
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 from django.db.models import QuerySet
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.validators import ValidationError
 from rest_framework.fields import Field, ChoiceField as _ChoiceField
-from rest_framework.serializers import ModelSerializer as _ModelSerializer
+from rest_framework.serializers import Serializer, ModelSerializer as _ModelSerializer
 
 
 __all__ = [
     'ChoiceField',
     'RelatedSerializerField',
     'ModelSerializer',
+    'FlattenModelSerializer',
 ]
 
 
@@ -109,30 +111,104 @@ class ModelSerializer(_ModelSerializer):
                 if not field.write_only:
                     yield field
 
+
+class FlattenModelSerializer(ModelSerializer):
+    @property
+    def _flatten_fields(self) -> t.List[str]:
+        return getattr(self.Meta, 'flatten_fields', [])
+
     def get_fields(self):
         fields = super().get_fields()
-        flatten_fields = getattr(self.Meta, 'flatten_fields', None)
-        if flatten_fields:
-            return _make_flatten_fields(fields, flatten_fields)
-        return fields
+        if not self._flatten_fields:
+            return fields
 
+        new_fields = OrderedDict()
+        for root_name, field in fields.items():
+            if root_name in self._flatten_fields and isinstance(field, Serializer):
+                field.field_name = root_name
+                nested_fields = field.get_fields()
+                for nested_name, nested_field in nested_fields.items():
+                    nested_field._flatten_parent = field
+                    if nested_field.source:
+                        nested_field.source = f'{root_name}.{nested_field.source}'
+                    else:
+                        nested_field.source = f'{root_name}.{nested_name}'
 
-def _make_flatten_fields(form: OrderedDict, flatten: t.List[str]):
-    for source in flatten:
-        serializer: t.Any = form.pop(source, None)
-        if serializer:
-            fields = serializer.get_fields()
-            for name in fields:
-                field = fields[name]
-                if field.source:
-                    field.source = f'{source}.{field.source}'
-                else:
-                    field.source = f'{source}.{name}'
-                if name in form:
-                    form[f'{source}_{name}'] = field
-                else:
-                    form[name] = field
-    return form
+                    # Handle naming collisions: if field exists in root, prefix it
+                    if nested_name in fields:
+                        new_fields[f'{root_name}_{nested_name}'] = nested_field
+                    else:
+                        new_fields[nested_name] = nested_field
+            else:
+                new_fields[root_name] = field
+        return new_fields
+
+    def to_internal_value(self, data):
+        if not self._flatten_fields:
+            return super().to_internal_value(data)
+
+        internal_data = data.copy()
+        nested_data = defaultdict(dict)
+        nested_serializers = {}
+        for field_name, field in self.fields.items():
+            if hasattr(field, '_flatten_parent'):
+                parent_field = getattr(field, '_flatten_parent')
+                root_name = parent_field.field_name
+                nested_serializers[root_name] = parent_field
+                nested_key = f'{root_name}_{field_name}'
+                if nested_key in internal_data:
+                    nested_data[root_name][field_name] = internal_data.pop(nested_key)
+                elif field_name in internal_data:
+                    nested_data[root_name][field_name] = internal_data.pop(field_name)
+
+        result = super().to_internal_value(internal_data)
+
+        # Validate nested fields
+        for root_name, nested_data in nested_data.items():
+            serializer = nested_serializers[root_name]
+            validated_data = serializer.to_internal_value(nested_data)
+            result[root_name] = validated_data
+        return result
+
+    @staticmethod
+    def _get_related_field_name(instance, model):
+        for field in model._meta.get_fields():
+            # Check if this field is a relation pointing to our parent model
+            if field.is_relation and field.related_model == instance.__class__:
+                return field.name
+
+        # Fallback or Raise error if no relation is found
+        raise AttributeError(f'No relation from {model.__name__} back to {instance.__class__.__name__}.')
+
+    def _update_nested_fields(self, instance, data: t.Dict[str, t.Any]):
+        nested_serializers = {}
+        for field in self.fields.values():
+            if hasattr(field, '_flatten_parent'):
+                parent_field = getattr(field, '_flatten_parent')
+                nested_serializers[parent_field.field_name] = parent_field
+
+        for name, value in data.items():
+            serializer_field = nested_serializers[name]
+            try:
+                related_instance = getattr(instance, name)
+                serializer_field.update(related_instance, value)
+            except (ObjectDoesNotExist, AttributeError):
+                nested_model = serializer_field.Meta.model
+                instance_name = self._get_related_field_name(instance, nested_model)
+                value[instance_name] = instance
+                serializer_field.create(value)
+
+    def create(self, validated_data):
+        nested_data = {f: validated_data.pop(f) for f in self._flatten_fields if f in validated_data}
+        obj = super().create(validated_data)
+        self._update_nested_fields(obj, nested_data)
+        return obj
+
+    def update(self, instance, validated_data):
+        nested_data = {f: validated_data.pop(f) for f in self._flatten_fields if f in validated_data}
+        obj = super().update(instance, validated_data)
+        self._update_nested_fields(obj, nested_data)
+        return obj
 
 
 def _is_lower_string(s: str):
