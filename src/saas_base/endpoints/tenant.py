@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.mixins import (
     RetrieveModelMixin,
     CreateModelMixin,
@@ -8,7 +9,7 @@ from rest_framework.request import Request
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.settings import api_settings
 from ..drf.views import AuthenticatedEndpoint, TenantEndpoint
-from ..models import get_tenant_model
+from ..models import get_tenant_model, Member
 from ..serializers.tenant import TenantSerializer, TenantUpdateSerializer
 
 __all__ = [
@@ -38,11 +39,22 @@ class SelectedTenantEndpoint(RetrieveModelMixin, TenantEndpoint):
 
 class TenantListEndpoint(CreateModelMixin, ListModelMixin, AuthenticatedEndpoint):
     serializer_class = TenantSerializer
+    queryset = get_tenant_model().objects.all()
     pagination_class = None
     permission_classes = [IsAuthenticated] + api_settings.DEFAULT_PERMISSION_CLASSES
 
     def get_queryset(self):
-        return get_tenant_model().objects.filter(owner=self.request.user).all()
+        default_query = Q(owner=self.request.user)
+        query_filter = self.request.query_params.get('filter', 'created')
+        if query_filter == 'all':
+            query = default_query | Q(member__user=self.request.user)
+        elif query_filter == 'active':
+            query = default_query | Q(member__user=self.request.user, member__status=Member.InviteStatus.ACTIVE)
+        elif query_filter == 'pending':
+            query = Q(member__user=self.request.user, member__status=Member.InviteStatus.WAITING)
+        else:
+            query = default_query
+        return self.queryset.filter(query).all()
 
     def get(self, request: Request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

@@ -4,12 +4,23 @@ from tests.client import FixturesTestCase
 class TestTenantsAPI(FixturesTestCase):
     user_id = FixturesTestCase.OWNER_USER_ID
 
-    def test_list_all_tenants(self):
+    def test_list_tenants(self):
         self.force_login()
         resp = self.client.get('/m/tenants/')
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertIsInstance(data, list)
+
+    def test_list_tenants_with_filter(self):
+        self.force_login(self.GUEST_USER_ID)
+        resp = self.client.get('/m/tenants/')
+        data = resp.json()
+        self.assertEqual(len(data), 0)
+
+        resp = self.client.get('/m/tenants/?filter=all')
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(len(data), 1)
 
     def test_create_tenant(self):
         self.force_login()
