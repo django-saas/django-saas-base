@@ -1,4 +1,3 @@
-import re
 import typing as t
 from collections import OrderedDict, defaultdict
 
@@ -32,7 +31,7 @@ class ChoiceField(_ChoiceField):
         int_str_choices: t.Dict[int, str] = {}
         str_int_choices: t.Dict[str, int] = {}
         for choice in choices:
-            if len(choice) == 2 and isinstance(choice[0], int) and _is_lower_string(choice[1]):
+            if len(choice) == 2 and isinstance(choice[0], int):
                 int_str_choices[choice[0]] = choice[1]
                 str_int_choices[choice[1]] = choice[0]
             else:
@@ -209,7 +208,3 @@ class FlattenModelSerializer(ModelSerializer):
         obj = super().update(instance, validated_data)
         self._update_nested_fields(obj, nested_data)
         return obj
-
-
-def _is_lower_string(s: str):
-    return isinstance(s, str) and bool(re.match(r'^[0-9a-z-_]+$', s))
