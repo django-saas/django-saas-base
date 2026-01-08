@@ -49,10 +49,10 @@ class SignupRequestEndpoint(Endpoint):
         """Send a sign-up code to user's email address."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        obj: EmailCode = serializer.save()
         # check bad request rules
         check_rules(saas_settings.SIGNUP_SECURITY_RULES, request)
 
+        obj: EmailCode = serializer.save()
         send_template_email(
             template_id=self.email_template_id,
             subject=self.email_subject,
@@ -75,6 +75,8 @@ class _BaseSignupConfirmEndpoint(Endpoint):
 
         # update related membership
         Member.objects.filter(email=user.email).update(user=user, status=Member.InviteStatus.WAITING)
+        # auto login after signup
+        login(request._request, user)
         after_signup_user.send(
             self.__class__,
             user=user,
@@ -115,6 +117,8 @@ class PasswordLogInEndpoint(Endpoint):
         """Login a user with the given username and password."""
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        check_rules(saas_settings.LOGIN_SECURITY_RULES, request)
+
         user = serializer.save()
         login(request._request, user)
 

@@ -20,9 +20,11 @@ class Settings:
     DEFAULT_REGION: str
     DEFAULT_FROM_EMAIL: t.Optional[str]
 
+    LOGIN_SECURITY_RULES: t.List[Rule]
     SIGNUP_SECURITY_RULES: t.List[Rule]
-    SIGNUP_REQUEST_CREATE_USER: bool
     RESET_PASSWORD_SECURITY_RULES: t.List[Rule]
+    SIGNUP_REQUEST_CREATE_USER: bool
+
     MEMBER_INVITE_LINK: str
     MEMBER_PERMISSION_MANAGERS: t.List[t.Literal['permissions', 'groups', 'role']]
 

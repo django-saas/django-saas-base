@@ -16,9 +16,10 @@ DEFAULTS = {
     'DEFAULT_REGION': '',
     'TENANT_ID_HEADER': 'X-Tenant-Id',
     'DEFAULT_FROM_EMAIL': None,
+    'LOGIN_SECURITY_RULES': [],
     'SIGNUP_SECURITY_RULES': [],
-    'SIGNUP_REQUEST_CREATE_USER': False,
     'RESET_PASSWORD_SECURITY_RULES': [],
+    'SIGNUP_REQUEST_CREATE_USER': False,
     'MEMBER_INVITE_LINK': '/invite/%s/',
     'MEMBER_PERMISSION_MANAGERS': ['permissions', 'groups', 'role'],
 }
@@ -27,6 +28,7 @@ DEFAULTS = {
 class Settings:
     IMPORT_PROVIDERS = [
         'MAIL_PROVIDERS',
+        'LOGIN_SECURITY_RULES',
         'SIGNUP_SECURITY_RULES',
         'RESET_PASSWORD_SECURITY_RULES',
     ]
