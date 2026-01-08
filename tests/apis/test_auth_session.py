@@ -9,18 +9,18 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
 
     def test_signup_success(self):
         data1 = {'username': 'demo', 'email': 'hi@foo.com', 'password': 'hello world'}
-        resp = self.client.post('/m/session/signup/request/', data=data1)
+        resp = self.client.post('/m/auth/signup/request/', data=data1)
         self.assertEqual(resp.status_code, 204)
         self.assertEqual(len(mail.outbox), 1)
         data2 = {**data1, 'code': self.get_mail_auth_code()}
-        resp = self.client.post('/m/session/signup/confirm/', data=data2)
+        resp = self.client.post('/m/auth/signup/confirm/', data=data2)
         self.assertEqual(resp.status_code, 200)
 
     def test_signup_existed_email(self):
         user = self.get_user()
         UserEmail.objects.create(user=user, email='hi@foo.com', primary=True, verified=True)
         data = {'username': 'foo', 'email': 'hi@foo.com', 'password': 'hello world'}
-        resp = self.client.post('/m/session/signup/request/', data=data)
+        resp = self.client.post('/m/auth/signup/request/', data=data)
         self.assertEqual(resp.status_code, 400)
         self.assertIn('existing', resp.json()['email'][0])
 
@@ -28,44 +28,44 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
         rules = [{'backend': 'saas_base.rules.BlockedEmailDomains'}]
         with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
             data = {'username': 'bar', 'email': 'hi@boofx.com', 'password': 'hello world'}
-            resp = self.client.post('/m/session/signup/request/', data=data)
+            resp = self.client.post('/m/auth/signup/request/', data=data)
             self.assertEqual(resp.status_code, 400)
 
         rules = [{'backend': 'saas_base.rules.BlockedEmailDomains', 'options': {'domains': ['bar.com']}}]
         with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
             data = {'username': 'bar', 'email': 'hi@bar.com', 'password': 'hello world'}
-            resp = self.client.post('/m/session/signup/request/', data=data)
+            resp = self.client.post('/m/auth/signup/request/', data=data)
             self.assertEqual(resp.status_code, 400)
 
     def test_signup_too_many_dots(self):
         rules = [{'backend': 'saas_base.rules.AvoidTooManyDots'}]
         with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
             data = {'username': 'bar', 'email': 'a.b.c.d.e.f@bar.com', 'password': 'hello world'}
-            resp = self.client.post('/m/session/signup/request/', data=data)
+            resp = self.client.post('/m/auth/signup/request/', data=data)
             self.assertEqual(resp.status_code, 400)
 
     def test_signup_using_plus(self):
         rules = [{'backend': 'saas_base.rules.AvoidUsingPlus'}]
         with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
             data = {'username': 'bar', 'email': 'username+demo@gmail.com', 'password': 'hello world'}
-            resp = self.client.post('/m/session/signup/request/', data=data)
+            resp = self.client.post('/m/auth/signup/request/', data=data)
             self.assertEqual(resp.status_code, 400)
 
     def test_signup_turnstile(self):
         rules = [{'backend': 'saas_base.rules.Turnstile'}]
         with override_settings(SAAS={'SIGNUP_SECURITY_RULES': rules}):
             data = {'username': 'bar', 'email': 'hi@bar.com', 'password': 'hello world'}
-            resp = self.client.post('/m/session/signup/request/', data=data)
+            resp = self.client.post('/m/auth/signup/request/', data=data)
             self.assertEqual(resp.status_code, 400)
 
             data = {**data, 'cf-turnstile-response': '**token**'}
             with self.mock_requests('turnstile_success.json'):
-                resp = self.client.post('/m/session/signup/request/', data=data)
+                resp = self.client.post('/m/auth/signup/request/', data=data)
                 self.assertEqual(resp.status_code, 204)
 
             data = {**data, 'cf-turnstile-response': '**token**'}
             with self.mock_requests('turnstile_failed.json'):
-                resp = self.client.post('/m/session/signup/request/', data=data)
+                resp = self.client.post('/m/auth/signup/request/', data=data)
                 self.assertEqual(resp.status_code, 400)
 
     def test_signup_with_membership_invite(self):
@@ -74,9 +74,9 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
         Member.objects.create(tenant_id=self.tenant_id, email=email)
 
         data1 = {'username': 'demo', 'email': email, 'password': 'hello world'}
-        self.client.post('/m/session/signup/request/', data=data1)
+        self.client.post('/m/auth/signup/request/', data=data1)
         data2 = {**data1, 'code': self.get_mail_auth_code()}
-        resp = self.client.post('/m/session/signup/confirm/', data=data2)
+        resp = self.client.post('/m/auth/signup/confirm/', data=data2)
         self.assertEqual(resp.status_code, 200)
         obj = UserEmail.objects.get(email=email)
         member = Member.objects.get(user_id=obj.user_id, tenant_id=self.tenant_id)
@@ -86,7 +86,7 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
         email = 'hi@foo.com'
         obj = Member.objects.create(tenant_id=self.tenant_id, email=email)
         data = {'username': 'demo', 'password': 'hello world'}
-        resp = self.client.post(f'/m/session/signup/via/{obj.pk}/', data=data)
+        resp = self.client.post(f'/m/auth/signup/via/{obj.pk}/', data=data)
         self.assertEqual(resp.status_code, 200)
 
     def test_signup_with_waiting_member(self):
@@ -98,7 +98,7 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
             status=Member.InviteStatus.WAITING,
         )
         data = {'username': 'demo', 'password': 'hello world'}
-        resp = self.client.post(f'/m/session/signup/via/{obj.pk}/', data=data)
+        resp = self.client.post(f'/m/auth/signup/via/{obj.pk}/', data=data)
         self.assertEqual(resp.status_code, 404)
 
 
@@ -106,13 +106,13 @@ class TestSignUpWithoutCreateUser(FixturesTestCase):
 class TestSignUpWithCreateUser(FixturesTestCase):
     def test_signup_success(self):
         data1 = {'username': 'demo', 'email': 'hi@foo.com', 'password': 'hello world'}
-        resp = self.client.post('/m/session/signup/request/', data=data1)
+        resp = self.client.post('/m/auth/signup/request/', data=data1)
         self.assertEqual(resp.status_code, 204)
         obj = UserEmail.objects.get(email='hi@foo.com')
         self.assertEqual(obj.verified, False)
 
         data2 = {'code': self.get_mail_auth_code(), 'email': 'hi@foo.com'}
-        resp = self.client.post('/m/session/signup/confirm/', data=data2)
+        resp = self.client.post('/m/auth/signup/confirm/', data=data2)
         self.assertEqual(resp.status_code, 200)
         obj = UserEmail.objects.get(email='hi@foo.com')
         self.assertEqual(obj.verified, True)
@@ -125,13 +125,13 @@ class TestLoginAPI(FixturesTestCase):
         user = self.get_user()
 
         data = {'username': user.username, 'password': 'hello world'}
-        resp = self.client.post('/m/session/login/', data=data)
+        resp = self.client.post('/m/auth/login/', data=data)
         self.assertEqual(resp.status_code, 400)
 
         user.set_password('hello world')
         user.save()
 
-        resp = self.client.post('/m/session/login/', data=data)
+        resp = self.client.post('/m/auth/login/', data=data)
         self.assertEqual(resp.status_code, 200)
         self.assertIn('next', resp.json())
 
@@ -139,21 +139,21 @@ class TestLoginAPI(FixturesTestCase):
         user = self.get_user()
 
         data = {'username': 'hi@foo.com', 'password': 'hello world'}
-        resp = self.client.post('/m/session/login/', data=data)
+        resp = self.client.post('/m/auth/login/', data=data)
         self.assertEqual(resp.status_code, 400)
 
         user.set_password('hello world')
         user.save()
 
         obj = UserEmail.objects.create(user=user, email='hi@foo.com')
-        resp = self.client.post('/m/session/login/', data=data)
+        resp = self.client.post('/m/auth/login/', data=data)
         self.assertEqual(resp.status_code, 400)
 
         obj.primary = True
         obj.verified = True
         obj.save()
 
-        resp = self.client.post('/m/session/login/', data=data)
+        resp = self.client.post('/m/auth/login/', data=data)
         self.assertEqual(resp.status_code, 200)
 
         resp = self.client.get('/m/user/')
@@ -168,7 +168,7 @@ class TestInvitationAPI(FixturesTestCase):
     def test_request_status_invitation(self):
         email = 'hi@foo.com'
         obj = Member.objects.create(tenant_id=self.tenant_id, email=email)
-        resp = self.client.get(f'/m/session/invitation/{obj.pk}/')
+        resp = self.client.get(f'/m/auth/invitation/{obj.pk}/')
         self.assertEqual(resp.status_code, 200)
         result = resp.json()
         self.assertEqual(result['status'], 'request')
@@ -182,7 +182,7 @@ class TestInvitationAPI(FixturesTestCase):
             email=user.email,
             status=Member.InviteStatus.WAITING,
         )
-        resp = self.client.get(f'/m/session/invitation/{obj.pk}/')
+        resp = self.client.get(f'/m/auth/invitation/{obj.pk}/')
         self.assertEqual(resp.status_code, 200)
         result = resp.json()
         self.assertEqual(result['status'], 'waiting')
@@ -196,5 +196,5 @@ class TestInvitationAPI(FixturesTestCase):
             email=user.email,
             status=Member.InviteStatus.ACTIVE,
         )
-        resp = self.client.get(f'/m/session/invitation/{obj.pk}/')
+        resp = self.client.get(f'/m/auth/invitation/{obj.pk}/')
         self.assertEqual(resp.status_code, 404)
