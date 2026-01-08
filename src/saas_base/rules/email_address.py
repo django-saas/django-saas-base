@@ -15,6 +15,8 @@ class BlockedEmailDomains(Rule):
     For example, `username@boofx.com` is not allowed.
     """
 
+    error_message = 'Email address domain is blocked.'
+
     def bad_request(self, request: Request):
         blocked_list = self.options.get('domains')
         if not blocked_list:
@@ -29,6 +31,7 @@ class AvoidTooManyDots(Rule):
     For example, `a.b.c.d.e@gmail.com` is not allowed.
     """
 
+    error_message = 'Invalid email address.'
     MAX_DOT_COUNT = 4
 
     def bad_request(self, request: Request):
@@ -42,6 +45,8 @@ class AvoidUsingPlus(Rule):
     """This rule prevents using of `+` in email address.
     For example, `username+random@gmail.com` is not allowed.
     """
+
+    error_message = 'Email address cannot contain `+`.'
 
     def bad_request(self, request: Request):
         email = self.get_response_field_value(request)

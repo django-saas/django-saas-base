@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 class Rule(metaclass=ABCMeta):
     DEFAULT_RESPONSE_FIELD: str = 'email'
+    error_message: str = 'Bad request'
 
     def __init__(self, **options):
         self.options = options
@@ -29,4 +30,4 @@ def check_rules(rules: list[Rule], request: Request):
         if rule.bad_request(request):
             rule_name = rule.__class__.__name__
             logger.warning(f'Bad request: [{rule_name}].')
-            raise BadRequest()
+            raise BadRequest(detail=rule.error_message, code=rule_name)
