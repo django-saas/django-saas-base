@@ -1,4 +1,6 @@
 import typing as t
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import password_validation, get_user_model
@@ -96,7 +98,7 @@ class SignupConfirmPasswordSerializer(EmailCodeConfirmSerializer):
         try:
             cls.objects.get(username=username)
             raise ValidationError(AUTH_ERRORS['exist_username'])
-        except cls.DoesNotExist:
+        except ObjectDoesNotExist:
             return username
 
     def validate_password(self, raw_password: str):
@@ -137,7 +139,7 @@ class SignupWithInvitationSerializer(serializers.Serializer):
         try:
             cls.objects.get(username=username)
             raise ValidationError(AUTH_ERRORS['exist_username'])
-        except cls.DoesNotExist:
+        except ObjectDoesNotExist:
             return username
 
     def validate_password(self, raw_password: str):

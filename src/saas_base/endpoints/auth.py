@@ -76,7 +76,7 @@ class _BaseSignupConfirmEndpoint(Endpoint):
         # update related membership
         Member.objects.filter(email=user.email).update(user=user, status=Member.InviteStatus.WAITING)
         # auto login after signup
-        login(request._request, user)
+        login(request._request, user, backend='saas_base.auth.backends.ModelBackend')
         after_signup_user.send(
             self.__class__,
             user=user,
@@ -120,7 +120,7 @@ class PasswordLogInEndpoint(Endpoint):
         check_rules(saas_settings.LOGIN_SECURITY_RULES, request)
 
         user = serializer.save()
-        login(request._request, user)
+        login(request._request, user, backend='saas_base.auth.backends.ModelBackend')
 
         after_login_user.send(
             self.__class__,
