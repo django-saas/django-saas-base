@@ -70,7 +70,10 @@ quote-style = "single"
 addopts = "--no-migrations"
 pythonpath = ["src"]
 testpaths = ["tests"]
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    "ignore:.*'_UnionGenericAlias' is deprecated",
+]
 env = [
     "DJANGO_SETTINGS_MODULE = tests.settings",
 ]
